@@ -4,7 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable
   has_one_attached :avatar
-  enum role: { author: 0, admin: 1 }
+  enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
   
 end
