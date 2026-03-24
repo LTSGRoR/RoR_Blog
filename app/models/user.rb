@@ -1,13 +1,13 @@
 class User < ApplicationRecord
-  has_secure_password
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable, :confirmable
   has_one_attached :avatar
 
   enum role: { author: 0, admin: 1 }
 
   validates :name, presence: true
-  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-
-  validate :company_email_domain
 
   private
 
