@@ -20,6 +20,9 @@ gem "jbuilder"
 # Use Active Model has_secure_password for simple authentication
 gem "bcrypt", "~> 3.1.17"
 
+# Authentication: Devise (Phase 1 migration from has_secure_password)
+gem "devise"
+
 # Tailwind CSS integration for Rails
 gem "tailwindcss-rails"
 
@@ -30,6 +33,13 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
+
+# Background jobs: Sidekiq + Redis (Phase 1)
+gem "sidekiq"
+gem "redis", "~> 4.0"
+
+# Authorization
+gem "pundit"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
