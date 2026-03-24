@@ -1,0 +1,25 @@
+<div class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-slate-800">All Posts</h1>
+    <%= link_to 'New Post', new_post_path, class: 'inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700' %>
+  </div>
+
+  <div class="space-y-6">
+    <% @posts.each do |post| %>
+      <article class="bg-white shadow-sm rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-slate-800"><%= link_to post.title, post_path(post), class: 'hover:underline' %></h2>
+        <div class="text-sm text-slate-500 mt-2">by <%= post.user&.name || 'Unknown' %> · <%= post.created_at.strftime('%b %d, %Y') %></div>
+        <p class="mt-4 text-slate-700"><%= post.body.present? ? truncate(post.body.to_plain_text, length: 250) : '' %></p>
+        <div class="mt-4">
+          <%= link_to 'Read more', post_path(post), class: 'text-indigo-600 hover:text-indigo-800' %>
+          <% if user_signed_in? && post.user == current_user %>
+            <span class="ml-4">
+              <%= link_to 'Edit', edit_post_path(post), class: 'text-sm text-slate-600 hover:text-slate-800 mr-3' %>
+              <%= link_to 'Delete', post_path(post), method: :delete, data: { confirm: 'Are you sure?' }, class: 'text-sm text-red-600 hover:text-red-800' %>
+            </span>
+          <% end %>
+        </div>
+      </article>
+    <% end %>
+  </div>
+</div>
