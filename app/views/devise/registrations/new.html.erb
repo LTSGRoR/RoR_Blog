@@ -1,0 +1,67 @@
+<%# Devise: Registration (sign up) page styled with Tailwind %>
+<% resource ||= User.new %>
+<% resource_name ||= :user %>
+<% devise_mapping ||= Devise.mappings[:user] %>
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <!-- Left promotional panel -->
+    <div class="hidden md:flex flex-col justify-center px-8 py-12 bg-gradient-to-br from-indigo-600 to-purple-600 text-white space-y-6">
+      <div class="text-3xl font-bold">Join Blog App</div>
+      <p class="text-sm opacity-90">Create an account to write posts, save drafts, and customize your profile.</p>
+      <div class="mt-4 bg-white/10 rounded-lg p-4 text-sm">
+        <ul class="space-y-2">
+          <li>• Private drafts</li>
+          <li>• Built-in analytics</li>
+          <li>• Simple, beautiful reading</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="px-8 py-10">
+      <div class="max-w-md mx-auto">
+        <div class="flex items-center justify-center mb-6">
+          <div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">B</div>
+        </div>
+        <h2 class="text-center text-2xl font-semibold text-slate-800">Create your account</h2>
+        <p class="mt-2 text-center text-sm text-slate-500">Start publishing in minutes.</p>
+
+        <div class="mt-6">
+          <%= render 'shared/flash' %>
+          <%= devise_error_messages! %>
+
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+            <div class="space-y-4">
+              <div>
+                <%= f.label :name, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.text_field :name, autocomplete: "name", placeholder: "Your full name", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div>
+                <%= f.label :email, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.email_field :email, autocomplete: "email", placeholder: "you@example.com", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div>
+                <%= f.label :password, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.password_field :password, autocomplete: "new-password", placeholder: "Choose a password", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div>
+                <%= f.label :password_confirmation, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm password", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div>
+                <%= f.submit "Create account", class: "w-full py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 transition" %>
+              </div>
+            </div>
+          <% end %>
+
+          <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <%= link_to "Sign in", new_session_path(resource_name), class: "text-indigo-600 hover:text-indigo-800" %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

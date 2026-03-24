@@ -1,0 +1,10 @@
+<% if resource && resource.errors.any? %>
+  <div class="mb-4 bg-red-50 border border-red-200 p-4 rounded">
+    <p class="text-sm text-red-700 font-medium"><%= pluralize(resource.errors.count, "error") %> prohibited this <%= resource.class.model_name.human.downcase %> from being saved:</p>
+    <ul class="mt-2 text-sm text-red-700 list-disc ml-5">
+      <% resource.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

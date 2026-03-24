@@ -1,0 +1,65 @@
+<%# Devise: Login page styled with Tailwind %>
+<% resource ||= User.new %>
+<% resource_name ||= :user %>
+<% devise_mapping ||= Devise.mappings[:user] %>
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <!-- Left promotional panel -->
+    <div class="hidden md:flex flex-col justify-center px-8 py-12 bg-gradient-to-br from-indigo-600 to-purple-600 text-white space-y-6">
+      <div class="text-3xl font-bold">Blog App</div>
+      <p class="text-sm opacity-90">Modern publishing, beautiful reading experience. Sign in to manage posts and preferences.</p>
+      <div class="mt-4 bg-white/10 rounded-lg p-4 text-sm">
+        <ul class="space-y-2">
+          <li>• Fast editor with Autosave</li>
+          <li>• Built-in SEO and RSS</li>
+          <li>• Responsive, accessible UI</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="px-8 py-10">
+      <div class="max-w-md mx-auto">
+        <div class="flex items-center justify-center mb-6">
+          <div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">B</div>
+        </div>
+        <h2 class="text-center text-2xl font-semibold text-slate-800">Sign in to your account</h2>
+        <p class="mt-2 text-center text-sm text-slate-500">Welcome back — enter your details below.</p>
+
+        <div class="mt-6">
+          <%= render 'shared/flash' %>
+          <%= devise_error_messages! %>
+
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+            <div class="space-y-4">
+              <div>
+                <%= f.label :email, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div>
+                <%= f.label :password, class: "block text-xs font-medium text-slate-600" %>
+                <%= f.password_field :password, autocomplete: "current-password", placeholder: "Enter your password", class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <label class="flex items-center text-sm text-slate-600">
+                  <%= f.check_box :remember_me, class: "h-4 w-4 text-indigo-600 rounded" %>
+                  <span class="ml-2">Remember me</span>
+                </label>
+                <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+              </div>
+
+              <div>
+                <%= f.submit "Sign in", class: "w-full py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 transition" %>
+              </div>
+            </div>
+          <% end %>
+
+          <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <%= link_to "Create one", new_registration_path(resource_name), class: "text-indigo-600 hover:text-indigo-800" %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
