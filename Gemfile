@@ -70,7 +70,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-    # Development-only mailer preview
+  # Development-only mailer preview
   gem "letter_opener"
 end
 
