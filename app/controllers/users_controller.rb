@@ -15,8 +15,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user = User.find(params[:id])
-    # Renders app/views/users/show.html.erb by default
+    @user = User.find_by(params[:id])
   end
 
   private

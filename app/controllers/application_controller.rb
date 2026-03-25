@@ -16,8 +16,6 @@ class ApplicationController < ActionController::Base
     redirect_to(request.referer || root_path)
   end
 
-  protected
-
   def configure_permitted_parameters
     added_attrs = [:name, :avatar]
     devise_parameter_sanitizer.permit(:sign_up, keys: added_attrs)
