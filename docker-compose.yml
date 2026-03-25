@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: ror_blog_app
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      RAILS_ENV: development
+      DB_HOST: ror_blog_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-ror_blog_development}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - ror_blog_db
+      - redis
+    volumes:
+      - .:/rails
+
+  sidekiq:
+    build: .
+    image: ror_blog_sidekiq
+    restart: unless-stopped
+    command: bundle exec sidekiq
+    environment:
+      RAILS_ENV: development
+      DB_HOST: ror_blog_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-ror_blog_development}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - ror_blog_db
+      - redis
+    volumes:
+      - .:/rails
+
+  ror_blog_db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ror_blog_development}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

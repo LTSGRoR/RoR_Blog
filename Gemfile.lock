@@ -408,6 +408,8 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
+    vips (8.15.1)
+      ffi (~> 1.12)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.3.0)
@@ -465,6 +467,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
+  vips
   web-console
 
 BUNDLED WITH
