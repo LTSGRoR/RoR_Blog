@@ -58,7 +58,7 @@ class GithubStatusChecks
   end
 
   def first_status_url
-    first_status = combined_status[:statuses].find { |status| status[:state] == state }
+    first_status = combined_status[:statuses].find_by { |status| status[:state] == state }
     first_status && first_status[:target_url]
   end
 

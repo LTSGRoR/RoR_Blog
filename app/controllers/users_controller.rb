@@ -7,15 +7,15 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       session[:user_id] = @user.id
-      render json: { message: "Account created", user: { id: @user.id, email: @user.email, name: @user.name } }, status: :created
+      redirect_to @user, notice: 'Account created.'
     else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      flash.now[:alert] = @user.errors.full_messages.to_sentence
+      render :new, status: :unprocessable_entity
     end
   end
 
   def show
-    @user = User.find(params[:id])
-    render json: { id: @user.id, name: @user.name, email: @user.email }
+    @user = User.find_by(params[:id])
   end
 
   private

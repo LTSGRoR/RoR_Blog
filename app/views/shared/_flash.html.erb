@@ -1,0 +1,11 @@
+<% flash.each do |key, msg| %>
+  <% next if msg.blank? %>
+  <% klass = case key.to_sym
+    when :notice then 'bg-green-50 border-green-200 text-green-800'
+    when :alert then 'bg-yellow-50 border-yellow-200 text-yellow-800'
+    else 'bg-blue-50 border-blue-200 text-blue-800'
+  end %>
+  <div class="<%= klass %> border p-3 rounded mb-4">
+    <%= msg %>
+  </div>
+<% end %>
