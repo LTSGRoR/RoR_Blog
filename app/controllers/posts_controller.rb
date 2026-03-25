@@ -7,7 +7,6 @@ class PostsController < ApplicationController
   end
 
   def show
-    # renders app/views/posts/show.html.erb by default
   end
 
   def new
@@ -45,7 +44,7 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = Post.find_by(params[:id])
+    @post = Post.find_by(id: params[:id])
   end
 
   def post_params
