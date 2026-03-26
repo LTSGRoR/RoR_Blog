@@ -1,9 +1,17 @@
+
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: %i[index show]
-  before_action :set_post, only: %i[show edit update destroy]
+  before_action :set_post, only: %i[show update destroy verify unverify]
+  before_action :authorize_edit!, only: %i[update]
+  before_action :authorize_admin!, only: %i[verify unverify]
+
 
   def index
-    @posts = Post.all
+    if current_user&.admin?
+      @posts = Post.all
+    else
+      @posts = Post.verified
+    end
+    render json: @posts
   end
 
   def show
@@ -16,9 +24,11 @@ class PostsController < ApplicationController
   def edit
   end
 
+
   def create
     @post = Post.new(post_params)
-    @post.user = current_user
+    @post.user = current_user if respond_to?(:current_user)
+    @post.verified = false
     if @post.save
       redirect_to @post, notice: "Post was successfully created."
     else
@@ -29,25 +39,44 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
-      redirect_to @post, notice: "Post was successfully updated."
+      render json: @post
     else
-      flash.now[:alert] = @post.errors.full_messages.to_sentence
-      render :edit, status: :unprocessable_entity
+      render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  def destroy
-    @post.destroy
-    redirect_to posts_url, notice: "Post was successfully destroyed."
+  def verify
+    @post.verify!(current_user)
+    render json: @post
+  end
+
+  def unverify
+    @post.unverify!
+    render json: @post
   end
 
   private
 
   def set_post
     @post = Post.find_by(id: params[:id])
+    unless @post
+      render json: { error: 'Post not found.' }, status: :not_found
+    end
   end
 
   def post_params
     params.require(:post).permit(:title, :body, :status)
+  end
+
+  def authorize_edit!
+    unless @post.editable_by?(current_user)
+      render json: { error: 'You are not allowed to edit this post.' }, status: :forbidden
+    end
+  end
+
+  def authorize_admin!
+    unless current_user&.admin?
+      render json: { error: 'Admin only.' }, status: :forbidden
+    end
   end
 end
