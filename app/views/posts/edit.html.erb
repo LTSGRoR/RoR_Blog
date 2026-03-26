@@ -1,0 +1,30 @@
+<div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white shadow-sm rounded-lg p-8">
+    <h1 class="text-2xl font-semibold text-slate-800 mb-4">Edit Post</h1>
+
+    <% if flash[:alert] %>
+      <div class="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= form_with model: @post, local: true do |f| %>
+      <div class="space-y-4">
+        <div>
+          <%= f.label :title, class: 'block text-sm font-medium text-slate-600' %>
+          <%= f.text_field :title, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
+        </div>
+
+        <div>
+          <%= f.label :body, class: 'block text-sm font-medium text-slate-600' %>
+          <%= f.rich_text_area :body, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <%= f.submit 'Update Post', class: 'inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700' %>
+          <%= link_to 'Cancel', post_path(@post), class: 'text-sm text-slate-600 hover:text-slate-800' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
