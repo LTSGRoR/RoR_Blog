@@ -11,7 +11,6 @@ class PostsController < ApplicationController
     else
       @posts = Post.verified
     end
-    render json: @posts
   end
 
   def show
@@ -39,20 +38,21 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
-      render json: @post
+      redirect_to @post, notice: 'Post was successfully updated.'
     else
-      render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
+      flash.now[:alert] = @post.errors.full_messages.to_sentence
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def verify
     @post.verify!(current_user)
-    render json: @post
+    redirect_to @post, notice: 'Post has been verified.'
   end
 
   def unverify
     @post.unverify!
-    render json: @post
+    redirect_to @post, notice: 'Post has been unverified.'
   end
 
   private
@@ -60,7 +60,7 @@ class PostsController < ApplicationController
   def set_post
     @post = Post.find_by(id: params[:id])
     unless @post
-      render json: { error: 'Post not found.' }, status: :not_found
+      redirect_to posts_path, alert: 'Post not found.'
     end
   end
 
@@ -70,13 +70,13 @@ class PostsController < ApplicationController
 
   def authorize_edit!
     unless @post.editable_by?(current_user)
-      render json: { error: 'You are not allowed to edit this post.' }, status: :forbidden
+      redirect_to @post, alert: 'You are not allowed to edit this post.'
     end
   end
 
   def authorize_admin!
     unless current_user&.admin?
-      render json: { error: 'Admin only.' }, status: :forbidden
+      redirect_to posts_path, alert: 'Admin only.'
     end
   end
 end
