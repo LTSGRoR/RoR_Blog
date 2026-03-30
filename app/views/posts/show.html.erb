@@ -1,8 +1,15 @@
-<div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+<div class="w-full mx-auto py-10 px-4 sm:px-6 lg:px-8">
   <article class="bg-white shadow-sm rounded-lg p-8">
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-slate-800"><%= @post.title %></h1>
-      <div class="text-sm text-slate-500 mt-2">by <%= @post.user&.name || 'Unknown' %> · <%= @post.created_at.strftime('%b %d, %Y') %></div>
+      <div class="text-sm text-slate-500 mt-2">
+        by <%= @post.user&.name || 'Unknown' %> · <%= @post.created_at.strftime('%b %d, %Y') %>
+        <% if @post.verified? %>
+          <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
+        <% else %>
+          <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unverified</span>
+        <% end %>
+      </div>
     </header>
 
     <div class="prose max-w-none text-slate-800">
@@ -15,6 +22,15 @@
         <span class="ml-4">
           <%= link_to 'Edit', edit_post_path(@post), class: 'text-indigo-600 hover:text-indigo-800 mr-3' %>
           <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' }, class: 'text-red-600 hover:text-red-800' %>
+        </span>
+      <% end %>
+      <% if current_user&.admin? %>
+        <span class="ml-4">
+          <% if @post.verified? %>
+            <%= link_to 'Unverify', unverify_post_path(@post), method: :post, data: { confirm: 'Unverify this post?' }, class: 'text-amber-600 hover:text-amber-800 mr-3' %>
+          <% else %>
+            <%= link_to 'Verify', verify_post_path(@post), method: :post, data: { confirm: 'Verify this post?' }, class: 'text-green-600 hover:text-green-800 mr-3' %>
+          <% end %>
         </span>
       <% end %>
     </footer>
