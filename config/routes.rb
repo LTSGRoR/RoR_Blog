@@ -12,7 +12,12 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "posts#index"
-  resources :posts
+  resources :posts do
+    member do
+      post :verify
+      post :unverify
+    end
+  end
 
   # Sidekiq Web UI (remember to secure this behind authentication in production)
   begin
