@@ -17,19 +17,19 @@
     </div>
 
     <footer class="mt-8">
-      <%= link_to 'Back to posts', posts_path, class: 'text-indigo-600 hover:text-indigo-800' %>
+      <%= btn_link_to 'Back to posts', posts_path, variant: :ghost %>
       <% if user_signed_in? && @post.user == current_user %>
         <span class="ml-4">
-          <%= link_to 'Edit', edit_post_path(@post), class: 'text-indigo-600 hover:text-indigo-800 mr-3' %>
-          <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' }, class: 'text-red-600 hover:text-red-800' %>
+          <%= btn_link_to 'Edit', edit_post_path(@post), variant: :secondary, class: 'mr-3' %>
+          <%= btn_link_to 'Delete', post_path(@post), method: :delete, variant: :danger, data: { confirm: 'Are you sure?' } %>
         </span>
       <% end %>
       <% if current_user&.admin? %>
         <span class="ml-4">
           <% if @post.verified? %>
-            <%= link_to 'Unverify', unverify_post_path(@post), method: :post, data: { confirm: 'Unverify this post?' }, class: 'text-amber-600 hover:text-amber-800 mr-3' %>
+            <%= btn_link_to 'Unverify', unverify_post_path(@post), method: :post, variant: :warning, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
           <% else %>
-            <%= link_to 'Verify', verify_post_path(@post), method: :post, data: { confirm: 'Verify this post?' }, class: 'text-green-600 hover:text-green-800 mr-3' %>
+            <%= btn_link_to 'Verify', verify_post_path(@post), method: :post, variant: :success, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
           <% end %>
         </span>
       <% end %>
