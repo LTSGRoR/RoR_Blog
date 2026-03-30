@@ -1,19 +1,17 @@
 
 class PostsController < ApplicationController
-  before_action :set_post, only: %i[show update destroy verify unverify]
-  before_action :authorize_edit!, only: %i[update]
+  before_action :set_post, only: %i[show edit destroy verify unverify]
   before_action :authorize_admin!, only: %i[verify unverify]
-
 
   def index
     if current_user&.admin?
-      @posts = Post.all
+      @posts = Post.all.order(created_at: :desc)
     else
       @posts = Post.verified
     end
   end
 
-  def show
+  def show 
   end
 
   def new
@@ -22,7 +20,6 @@ class PostsController < ApplicationController
 
   def edit
   end
-
 
   def create
     @post = Post.new(post_params)
@@ -36,13 +33,9 @@ class PostsController < ApplicationController
     end
   end
 
-  def update
-    if @post.update(post_params)
-      redirect_to @post, notice: 'Post was successfully updated.'
-    else
-      flash.now[:alert] = @post.errors.full_messages.to_sentence
-      render :edit, status: :unprocessable_entity
-    end
+  def destroy
+    @post.destroy
+    redirect_to posts_url, notice: 'Post was successfully destroyed.'
   end
 
   def verify
