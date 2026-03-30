@@ -4,10 +4,54 @@ class PostsController < ApplicationController
   before_action :authorize_admin!, only: %i[verify unverify]
 
   def index
-    if current_user&.admin?
-      @posts = Post.all.order(created_at: :desc)
+    if params[:q].present?
+      query = params[:q].to_s.strip
+      if defined?(Searchkick)
+        begin
+          search_scope = current_user&.admin? ? {} : { verified: true }
+          @posts = Post.search(
+            query,
+            fields: ["title^5", "tags^3", "body"],
+            where: search_scope,
+            page: @page,
+            per_page: @per_page,
+            operator: query.include?(' ') ? 'and' : 'or',
+            misspellings: { below: 5 }
+          )
+        rescue StandardError => e
+          Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
+        end
+      else
+        scope = current_user&.admin? ? Post.all : Post.verified
+        @posts = scope.where("title ILIKE :q", q: "%#{query}%").order(created_at: :desc).page(params[:page]).per(10)
+      end
     else
-      @posts = Post.verified
+      if current_user&.admin?
+        @posts = Post.all.order(created_at: :desc).page(params[:page]).per(10)
+      else
+        @posts = Post.verified.page(params[:page]).per(10)
+      end
+    end
+    respond_to do |format|
+      format.html
+      format.json do
+        posts_json = @posts.map do |post|
+          {
+            id: post.id,
+            title: post.title,
+            body: post.body.to_plain_text,
+            tags: post.tags.map(&:name),
+            verified: post.verified,
+            user: post.user&.name,
+            created_at: post.created_at
+          }
+        end
+
+        render json: {
+          count: (@posts.respond_to?(:total_count) ? @posts.total_count : @posts.size),
+          posts: posts_json
+        }
+      end
     end
   end
 
@@ -40,12 +84,12 @@ class PostsController < ApplicationController
 
   def verify
     @post.verify!(current_user)
-    redirect_to @post, notice: 'Post has been verified.'
+    redirect_back fallback_location: posts_path, notice: 'Post has been verified.'
   end
 
   def unverify
     @post.unverify!
-    redirect_to @post, notice: 'Post has been unverified.'
+    redirect_back fallback_location: posts_path, notice: 'Post has been unverified.'
   end
 
   private
@@ -58,7 +102,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :body, :status)
+    params.require(:post).permit(:title, :body, :status, :tag_list)
   end
 
   def authorize_edit!

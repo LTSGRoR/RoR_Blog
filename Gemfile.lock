@@ -88,6 +88,8 @@ GEM
     brakeman (8.0.4)
       racc
     builder (3.3.0)
+    byebug (13.0.0)
+      reline (>= 0.6.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -99,6 +101,7 @@ GEM
       xpath (~> 3.2)
     childprocess (5.1.0)
       logger (~> 1.5)
+    coderay (1.1.3)
     concurrent-ruby (1.3.6)
     connection_pool (3.0.2)
     crass (1.0.6)
@@ -118,10 +121,25 @@ GEM
       railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
+    elastic-transport (8.4.1)
+      faraday (< 3)
+      multi_json
+    elasticsearch (8.19.3)
+      elastic-transport (~> 8.3)
+      elasticsearch-api (= 8.19.3)
+      ostruct
+    elasticsearch-api (8.19.3)
+      multi_json
     erb (6.0.2)
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    faraday (2.14.1)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-net_http (3.4.2)
+      net-http (~> 0.5)
     ffi (1.17.3-aarch64-linux-gnu)
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
@@ -165,6 +183,18 @@ GEM
       sshkit (>= 1.23.0, < 2.0)
       thor (~> 1.3)
       zeitwerk (>= 2.6.18, < 3.0)
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
     language_server-protocol (3.17.0.5)
     launchy (3.1.1)
       addressable (~> 2.8)
@@ -185,6 +215,7 @@ GEM
       net-smtp
     marcel (1.1.0)
     matrix (0.4.3)
+    method_source (1.1.0)
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
@@ -192,6 +223,9 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.0)
+    multi_json (1.19.1)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
     net-imap (0.6.3)
       date
       net-protocol
@@ -244,6 +278,15 @@ GEM
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
+    pry (0.16.0)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
+      reline (>= 0.6.0)
+    pry-byebug (3.12.0)
+      byebug (~> 13.0)
+      pry (>= 0.13, < 0.17)
+    pry-rails (0.3.11)
+      pry (>= 0.13.0)
     psych (5.3.1)
       date
       stringio
@@ -341,6 +384,8 @@ GEM
       ffi (~> 1.12)
       logger
     rubyzip (3.2.2)
+    searchkick (6.1.0)
+      activemodel (>= 7.2)
     securerandom (0.4.1)
     selenium-webdriver (4.41.0)
       base64 (~> 0.2)
@@ -436,25 +481,30 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  bcrypt (~> 3.1.17)
+  bcrypt
   bootsnap
   brakeman
   capybara
   debug
   devise
   dotenv-rails
-  image_processing (~> 1.2)
+  elasticsearch (~> 8.0)
+  image_processing
   importmap-rails
   jbuilder
   kamal
+  kaminari
   letter_opener
-  pg (~> 1.4)
+  pg
   propshaft
-  puma (>= 5.0)
+  pry-byebug
+  pry-rails
+  puma
   pundit
-  rails (~> 8.0.2, >= 8.0.2.1)
-  redis (~> 4.0)
+  rails
+  redis
   rubocop-rails-omakase
+  searchkick
   selenium-webdriver
   sidekiq
   solid_cable
