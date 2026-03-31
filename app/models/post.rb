@@ -4,6 +4,9 @@ class Post < ApplicationRecord
   validates :title, presence: true
   has_rich_text :body
 
+  has_many :taggings, dependent: :destroy
+  has_many :tags, through: :taggings
+
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
 
