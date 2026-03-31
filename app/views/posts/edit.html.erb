@@ -11,6 +11,15 @@
     <%= form_with model: @post, local: true do |f| %>
       <div class="space-y-4">
         <div>
+          <%= f.label :tags, 'Tags (comma separated)', class: 'block text-sm font-medium text-slate-600' %>
+          <div data-controller="tags">
+            <%= text_field_tag :tags_input, @post.tag_list, data: { action: 'input->tags#update', 'tags-target': 'input' }, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200' %>
+            <%= f.hidden_field :tag_list, value: @post.tag_list, data: { 'tags-target': 'hidden' } %>
+            <div data-tags-target="preview" class="mt-2"></div>
+          </div>
+        </div>
+
+        <div>
           <%= f.label :title, class: 'block text-sm font-medium text-slate-600' %>
           <%= f.text_field :title, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
         </div>
