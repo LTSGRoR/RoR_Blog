@@ -5,19 +5,12 @@ class TagsController < ApplicationController
   def index
     q = params[:q].to_s.strip
     tags = if q.present?
-      begin
-        Tag.search(q, fields: [{ name: :word_start }], limit: 20, load: false)
-           .map { |t| { id: t.id, name: t.name } }
-      rescue => e
-        Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-        Tag.where("name ILIKE ?", "#{q}%").order(:name).limit(20)
-           .pluck(:id, :name).map { |id, name| { id: id, name: name } }
-      end
+      Tag.where("name ILIKE ?", "#{q}%").order(:name).limit(20)
     else
-      Tag.order(:name).limit(20).pluck(:id, :name).map { |id, name| { id: id, name: name } }
+      Tag.order(:name).limit(20)
     end
 
-    render json: tags
+    render json: tags.map { |t| { id: t.id, name: t.name } }
   end
 
   # POST /tags
