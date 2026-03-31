@@ -8,4 +8,3 @@ class CreateTaggings < ActiveRecord::Migration[7.0]
     add_index :taggings, %i[post_id tag_id], unique: true
   end
 end
-
