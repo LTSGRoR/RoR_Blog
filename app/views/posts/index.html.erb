@@ -1,23 +1,51 @@
 <div class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-bold text-slate-800">All Posts</h1>
-    <%= link_to 'New Post', new_post_path, class: 'inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700' %>
+    <%= btn_link_to 'New Post', new_post_path, variant: :primary %>
   </div>
 
   <div class="space-y-6">
     <% @posts.each do |post| %>
-      <article class="bg-white shadow-sm rounded-lg p-6">
-        <h2 class="text-xl font-semibold text-slate-800"><%= link_to post.title, post_path(post), class: 'hover:underline' %></h2>
-        <div class="text-sm text-slate-500 mt-2">by <%= post.user&.name || 'Unknown' %> · <%= post.created_at.strftime('%b %d, %Y') %></div>
-        <p class="mt-4 text-slate-700"><%= post.body.present? ? truncate(post.body.to_plain_text, length: 250) : '' %></p>
-        <div class="mt-4">
-          <%= link_to 'Read more', post_path(post), class: 'text-indigo-600 hover:text-indigo-800' %>
-          <% if user_signed_in? && post.user == current_user %>
-            <span class="ml-4">
-              <%= link_to 'Edit', edit_post_path(post), class: 'text-sm text-slate-600 hover:text-slate-800 mr-3' %>
-              <%= link_to 'Delete', post_path(post), method: :delete, data: { confirm: 'Are you sure?' }, class: 'text-sm text-red-600 hover:text-red-800' %>
-            </span>
+      <article class="bg-white shadow-sm rounded-lg p-6 flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <% if post.user&.avatar&.attached? %>
+            <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name %>
+          <% else %>
+            <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || 'Default avatar' %>
           <% end %>
+        </div>
+        <div class="flex-1 min-w-0 ml-4">
+          <h2 class="text-xl font-semibold text-slate-800">
+            <%= link_to post.title, post_path(post), class: 'hover:underline' %>
+            <% if post.verified? %>
+              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
+            <% else %>
+              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unverified</span>
+            <% end %>
+          </h2>
+          <div class="text-sm text-slate-500 mt-2">
+            by <%= post.user&.name || 'Unknown' %> · <%= post.created_at.strftime('%b %d, %Y') %>
+          </div>
+          <div class="mt-4 flex justify-around gap-4">
+            <%= btn_link_to 'Read more', post_path(post), variant: :ghost %>
+            <% if user_signed_in? && policy(post).update? %>
+              <span class="ml-4">
+                <%= btn_link_to 'Edit', edit_post_path(post), variant: :secondary %>
+              </span>
+              <span class="ml-4">
+                <%= btn_link_to 'Delete', post_path(post), method: :delete, variant: :danger, data: { confirm: 'Are you sure?' }, class: 'text-sm' %>
+              </span>
+            <% end %>
+            <% if current_user&.admin? %>
+              <span class="ml-4 flex items-center">
+                <% if post.verified? %>
+                  <%= btn_link_to 'Unverify', unverify_post_path(post), variant: :warning, method: :post, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
+                <% else %>
+                  <%= btn_link_to 'Verify', verify_post_path(post), variant: :success, method: :post, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
         </div>
       </article>
     <% end %>

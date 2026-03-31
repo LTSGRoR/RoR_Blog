@@ -21,8 +21,8 @@
         </div>
 
         <div class="flex items-center justify-between">
-          <%= f.submit 'Update Post', class: 'inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700' %>
-          <%= link_to 'Cancel', post_path(@post), class: 'text-sm text-slate-600 hover:text-slate-800' %>
+          <%= btn_submit(f, 'Update Post', variant: :primary) %>
+          <%= btn_link_to 'Cancel', post_path(@post), variant: :ghost %>
         </div>
       </div>
     <% end %>
