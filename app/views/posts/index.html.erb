@@ -4,8 +4,11 @@
     <%= btn_link_to 'New Post', new_post_path, variant: :primary %>
   </div>
 
-  <div class="space-y-6">
-    <% @posts.each do |post| %>
+  <%= render 'shared/search_form' %>
+
+  <div id="posts-results">
+    <div class="space-y-6">
+      <% @posts.each do |post| %>
       <article class="bg-white shadow-sm rounded-lg p-6 flex items-start gap-4">
         <div class="flex-shrink-0">
           <% if post.user&.avatar&.attached? %>
@@ -26,6 +29,13 @@
           <div class="text-sm text-slate-500 mt-2">
             by <%= post.user&.name || 'Unknown' %> · <%= post.created_at.strftime('%b %d, %Y') %>
           </div>
+          <% if post.tags.any? %>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <% post.tags.each do |tag| %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-800 border"><%= tag.name %></span>
+              <% end %>
+            </div>
+          <% end %>
           <div class="mt-4 flex justify-around gap-4">
             <%= btn_link_to 'Read more', post_path(post), variant: :ghost %>
             <% if user_signed_in? && policy(post).update? %>
@@ -48,6 +58,35 @@
           </div>
         </div>
       </article>
+      <% end %>
+    </div>
+    <div class="mt-6">
+      <%= paginate @posts %>
+    </div>
+    <%# Debug info in development to surface counts and IDs for troubleshooting %>
+    <% if Rails.env.development? && params[:q].present? %>
+      <div class="mt-4 text-sm text-slate-600">
+        <strong>Debug:</strong>
+        <% if @posts.respond_to?(:total_count) %>
+          Count: <%= @posts.total_count %>
+        <% else %>
+          Count: <%= @posts.size %>
+        <% end %>
+        <% if @posts.respond_to?(:map) %>
+          — IDs: <%= @posts.map(&:id).join(', ') rescue 'N/A' %>
+        <% end %>
+      </div>
     <% end %>
+
+    <% if @posts.respond_to?(:total_count) %>
+      <% result_count = @posts.total_count %>
+    <% else %>
+      <% result_count = @posts.size %>
+    <% end %>
+
+    <% if params[:q].present? && result_count.to_i == 0 %>
+      <div class="mt-4 text-center text-sm text-slate-600">No posts found for "<%= h params[:q] %>".</div>
+    <% end %>
+
   </div>
 </div>
