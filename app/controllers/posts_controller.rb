@@ -1,6 +1,6 @@
 
 class PostsController < ApplicationController
-  before_action :set_post, only: %i[show edit destroy verify unverify]
+  before_action :set_post, only: %i[show edit update destroy verify unverify]
   before_action :authorize_admin!, only: %i[verify unverify]
 
   def index
@@ -65,6 +65,15 @@ class PostsController < ApplicationController
   def edit
   end
 
+  def update
+    if @post.update(post_params)
+      redirect_to @post, notice: "Post was successfully updated."
+    else
+      flash.now[:alert] = @post.errors.full_messages.to_sentence
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def create
     @post = Post.new(post_params)
     @post.user = current_user if respond_to?(:current_user)
@@ -103,18 +112,6 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:title, :body, :status, :tag_list)
-  end
-
-  def authorize_edit!
-    unless @post.editable_by?(current_user)
-      redirect_to @post, alert: 'You are not allowed to edit this post.'
-    end
-  end
-
-  def authorize_admin!
-    unless current_user&.admin?
-      redirect_to posts_path, alert: 'Admin only.'
-    end
   end
 
   def authorize_edit!
