@@ -140,16 +140,4 @@ class PostsController < ApplicationController
     end
 >>>>>>> 944652c (add elsastic sync)
   end
-
-  def authorize_edit!
-    unless @post.editable_by?(current_user)
-      redirect_to @post, alert: 'You are not allowed to edit this post.'
-    end
-  end
-
-  def authorize_admin!
-    unless current_user&.admin?
-      redirect_to posts_path, alert: 'Admin only.'
-    end
-  end
 end
