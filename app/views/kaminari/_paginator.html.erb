@@ -1,67 +1,15 @@
-<%# Tailwind-styled paginator using the paginated collection (collection or @posts) %>
-<% collection = (local_assigns[:collection] if local_assigns&.key?(:collection)) || @posts || (defined?(page_scope) && page_scope) %>
-<% unless collection && collection.respond_to?(:current_page) %>
-  <%# nothing to paginate %>
-  <% return %>
-<% end %>
-<nav class="flex items-center justify-center py-6" role="navigation" aria-label="Pagination">
-  <ul class="inline-flex items-center -space-x-px text-sm">
-    <% total = collection.total_pages.to_i %>
-    <% current = collection.current_page.to_i %>
-    <% left = [current - 2, 1].max %>
-    <% right = [current + 2, total].min %>
-
-    <%# Prev (disabled when on first page) %>
-    <li>
-      <% if current > 1 %>
-        <%= link_to 'Prev', url_for(params.merge(page: current - 1)), class: 'inline-flex items-center px-3 h-10 border-l border-t border-b rounded-l-md bg-white text-slate-700 hover:bg-slate-50', aria: { label: 'Previous page' } %>
-      <% else %>
-        <span class="inline-flex items-center px-3 h-10 border-l border-t border-b rounded-l-md bg-slate-50 text-slate-300" aria-hidden="true">Prev</span>
-      <% end %>
-    </li>
-
-    <%# First page and left ellipsis if needed %>
-    <% if left > 1 %>
-      <li>
-        <%= link_to 1, url_for(params.merge(page: 1)), class: 'inline-flex items-center px-3 h-10 border bg-white text-slate-700 hover:bg-slate-50' %>
-      </li>
-      <% if left > 2 %>
-        <li>
-          <span class="inline-flex items-center px-3 h-10 border bg-white text-slate-400">&hellip;</span>
-        </li>
-      <% end %>
-    <% end %>
-
-    <%# Page number window %>
-    <% left.upto(right) do |page| %>
-      <li>
-        <% if page == current %>
-          <span class="inline-flex items-center px-3 h-10 border bg-indigo-600 text-white" aria-current="page"><%= page %></span>
-        <% else %>
-          <%= link_to page, url_for(params.merge(page: page)), class: 'inline-flex items-center px-3 h-10 border bg-white text-slate-700 hover:bg-slate-50' %>
-        <% end %>
-      </li>
-    <% end %>
-
-    <%# Right ellipsis and last page if needed %>
-    <% if right < total %>
-      <% if right < total - 1 %>
-        <li>
-          <span class="inline-flex items-center px-3 h-10 border bg-white text-slate-400">&hellip;</span>
-        </li>
-      <% end %>
-      <li>
-        <%= link_to total, url_for(params.merge(page: total)), class: 'inline-flex items-center px-3 h-10 border bg-white text-slate-700 hover:bg-slate-50' %>
-      </li>
-    <% end %>
-
-    <%# Next (disabled when on last page) %>
-    <li>
-      <% if current < total %>
-        <%= link_to 'Next', url_for(params.merge(page: current + 1)), class: 'inline-flex items-center px-3 h-10 border-r border-t border-b rounded-r-md bg-white text-slate-700 hover:bg-slate-50', aria: { label: 'Next page' } %>
-      <% else %>
-        <span class="inline-flex items-center px-3 h-10 border-r border-t border-b rounded-r-md bg-slate-50 text-slate-300" aria-hidden="true">Next</span>
-      <% end %>
-    </li>
-  </ul>
-</nav>
+<%= paginator.render do -%>
+  <nav class="flex items-center justify-center py-6" role="navigation" aria-label="Pagination">
+    <ul class="inline-flex items-center -space-x-px text-sm">
+      <%= prev_page_tag unless current_page.first? %>
+      <% each_page do |page| -%>
+        <% if page.display_tag? -%>
+          <%= page_tag page %>
+        <% elsif !page.was_truncated? -%>
+          <%= gap_tag %>
+        <% end -%>
+      <% end -%>
+      <%= next_page_tag unless current_page.last? %>
+    </ul>
+  </nav>
+<% end -%>

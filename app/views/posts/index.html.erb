@@ -56,20 +56,6 @@
     <div class="mt-6">
       <%= paginate @posts %>
     </div>
-    <%# Debug info in development to surface counts and IDs for troubleshooting %>
-    <% if Rails.env.development? && params[:q].present? %>
-      <div class="mt-4 text-sm text-slate-600">
-        <strong>Debug:</strong>
-        <% if @posts.respond_to?(:total_count) %>
-          Count: <%= @posts.total_count %>
-        <% else %>
-          Count: <%= @posts.size %>
-        <% end %>
-        <% if @posts.respond_to?(:map) %>
-          — IDs: <%= @posts.map(&:id).join(', ') rescue 'N/A' %>
-        <% end %>
-      </div>
-    <% end %>
 
     <% if @posts.respond_to?(:total_count) %>
       <% result_count = @posts.total_count %>

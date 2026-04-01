@@ -8,32 +8,6 @@
       </div>
     <% end %>
 
-    <%= form_with model: @post, local: true do |f| %>
-      <div class="space-y-4">
-        <div>
-          <%= f.label :tags, 'Tags (comma separated)', class: 'block text-sm font-medium text-slate-600' %>
-          <div data-controller="tags">
-            <%= text_field_tag :tags_input, @post.tag_list, data: { action: 'input->tags#update', 'tags-target': 'input' }, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200' %>
-            <%= f.hidden_field :tag_list, value: @post.tag_list, data: { 'tags-target': 'hidden' } %>
-            <div data-tags-target="preview" class="mt-2"></div>
-          </div>
-        </div>
-
-        <div>
-          <%= f.label :title, class: 'block text-sm font-medium text-slate-600' %>
-          <%= f.text_field :title, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
-        </div>
-
-        <div>
-          <%= f.label :body, class: 'block text-sm font-medium text-slate-600' %>
-          <%= f.rich_text_area :body, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <%= btn_submit(f, 'Update Post', variant: :primary) %>
-          <%= btn_link_to 'Cancel', post_path(@post), variant: :ghost %>
-        </div>
-      </div>
-    <% end %>
+    <%= render 'form', post: @post %>
   </div>
 </div>
