@@ -1,10 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "list"]
+  static targets = ["input", "list", "chips"]
 
   connect() {
     this.timer = null
+    // Track selected tag ids to prevent duplicates
+    this.selectedIds = new Set(
+      Array.from(this.chipsTarget.querySelectorAll("input[type=hidden]"))
+           .map(i => i.value)
+    )
   }
 
   search() {
@@ -15,20 +20,68 @@ export default class extends Controller {
       fetch(`/tags?q=${encodeURIComponent(q)}`, { headers: { "Accept": "application/json" } })
         .then(r => r.json())
         .then(data => {
-          this.listTarget.innerHTML = data.map(t => `<div data-action="click->tag-input#choose" data-id="${t.id}" data-name="${t.name}">${t.name}</div>`).join("")
+          const items = data
+            .filter(t => !this.selectedIds.has(String(t.id)))
+            .map(t => `<div data-action="click->tag-input#choose" data-id="${t.id}" data-name="${t.name}">${t.name}</div>`)
+          this.listTarget.innerHTML = items.join("") || ""
         })
     }, 200)
   }
 
   choose(e) {
-    const id = e.currentTarget.dataset.id
+    const id   = e.currentTarget.dataset.id
     const name = e.currentTarget.dataset.name
-    this.inputTarget.value = name
-    let input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = 'post[tag_ids][]'
-    input.value = id
-    this.element.appendChild(input)
-    this.listTarget.innerHTML = ''
+    this._addChip(id, name)
+    this.inputTarget.value = ""
+    this.listTarget.innerHTML = ""
+  }
+
+  // Press Enter → create new tag via POST /tags then add as chip
+  createFromInput() {
+    const name = this.inputTarget.value.trim()
+    if (!name) return
+    fetch("/tags", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ name })
+    })
+      .then(r => r.json())
+      .then(tag => {
+        if (tag.id) {
+          this._addChip(String(tag.id), tag.name)
+          this.inputTarget.value = ""
+          this.listTarget.innerHTML = ""
+        }
+      })
+  }
+
+  remove(e) {
+    const id = e.currentTarget.dataset.tagId
+    this.selectedIds.delete(id)
+    // Remove chip span and hidden input with this id
+    this.chipsTarget.querySelectorAll(`[data-tag-id="${id}"]`).forEach(el => el.closest("span, input") ? el.closest("span")?.remove() : el.remove())
+    this.chipsTarget.querySelectorAll(`input[data-tag-id="${id}"]`).forEach(el => el.remove())
+  }
+
+  _addChip(id, name) {
+    if (this.selectedIds.has(String(id))) return
+    this.selectedIds.add(String(id))
+
+    const span = document.createElement("span")
+    span.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-indigo-100 text-indigo-800 border border-indigo-200"
+    span.innerHTML = `${name} <button type="button" data-action="click->tag-input#remove" data-tag-id="${id}" class="text-indigo-500 hover:text-indigo-800 leading-none">&times;</button>`
+
+    const hidden = document.createElement("input")
+    hidden.type = "hidden"
+    hidden.name = "post[tag_ids][]"
+    hidden.value = id
+    hidden.dataset.tagId = id
+
+    this.chipsTarget.appendChild(span)
+    this.chipsTarget.appendChild(hidden)
   }
 }
