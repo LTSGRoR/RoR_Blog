@@ -20,11 +20,12 @@ Rails.application.routes.draw do
     end
   end
 
-  # Sidekiq Web UI (remember to secure this behind authentication in production)
-  begin
-    require "sidekiq/web"
-    mount Sidekiq::Web => "/sidekiq"
-  rescue LoadError
-    # sidekiq gem not installed yet
+  # Sidekiq Web UI — admin-only in all environments
+  authenticate :user, ->(u) { u.admin? } do
+    begin
+      require "sidekiq/web"
+      mount Sidekiq::Web => "/sidekiq"
+    rescue LoadError
+    end
   end
 end

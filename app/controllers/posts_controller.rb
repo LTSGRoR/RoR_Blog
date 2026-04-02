@@ -1,9 +1,14 @@
 
 class PostsController < ApplicationController
-  before_action :set_post, only: %i[show edit destroy verify unverify]
+  before_action :set_post, only: %i[show edit update destroy verify unverify]
+  before_action :authenticate_user!, only: %i[new create edit update destroy]
+  before_action :authorize_post!, only: %i[edit update destroy]
   before_action :authorize_admin!, only: %i[verify unverify]
 
   def index
+    @page     = params[:page] || 1
+    @per_page = 10
+
     if params[:q].present?
       query = params[:q].to_s.strip
       if defined?(Searchkick)
@@ -21,15 +26,21 @@ class PostsController < ApplicationController
         rescue StandardError => e
           Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
         end
-      else
+      end
+      unless @posts
         scope = current_user&.admin? ? Post.all : Post.verified
-        @posts = scope.where("title ILIKE :q", q: "%#{query}%").order(created_at: :desc).page(params[:page]).per(10)
+        @posts = scope.includes(:tags)
+                      .left_joins(:tags)
+                      .where("posts.title ILIKE :q OR tags.name ILIKE :q", q: "%#{query}%")
+                      .distinct
+                      .order(created_at: :desc)
+                      .page(@page).per(@per_page)
       end
     else
       if current_user&.admin?
-        @posts = Post.all.order(created_at: :desc).page(params[:page]).per(10)
+        @posts = Post.all.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
       else
-        @posts = Post.verified.page(params[:page]).per(10)
+        @posts = Post.verified.includes(:tags).page(@page).per(@per_page)
       end
     end
     respond_to do |format|
@@ -55,11 +66,12 @@ class PostsController < ApplicationController
     end
   end
 
-  def show 
+  def show
   end
 
   def new
     @post = Post.new
+    authorize @post
   end
 
   def edit
@@ -67,8 +79,9 @@ class PostsController < ApplicationController
 
   def create
     @post = Post.new(post_params)
-    @post.user = current_user if respond_to?(:current_user)
+    @post.user = current_user
     @post.verified = false
+    authorize @post
     if @post.save
       redirect_to @post, notice: "Post was successfully created."
     else
@@ -105,10 +118,8 @@ class PostsController < ApplicationController
     params.require(:post).permit(:title, :body, :status, :tag_list, tag_ids: [])
   end
 
-  def authorize_edit!
-    unless @post.editable_by?(current_user)
-      redirect_to @post, alert: 'You are not allowed to edit this post.'
-    end
+  def authorize_post!
+    authorize @post
   end
 
   def authorize_admin!
