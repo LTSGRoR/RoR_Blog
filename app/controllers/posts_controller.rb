@@ -124,9 +124,6 @@ class PostsController < ApplicationController
   end
 
   def post_params
-<<<<<<< HEAD
-    params.require(:post).permit(:title, :body, :status, :tag_list)
-=======
     params.require(:post).permit(:title, :body, :status, :tag_list, tag_ids: [])
   end
 
@@ -138,6 +135,5 @@ class PostsController < ApplicationController
     unless current_user&.admin?
       redirect_to posts_path, alert: 'Admin only.'
     end
->>>>>>> 944652c (add elsastic sync)
   end
 end
