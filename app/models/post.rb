@@ -12,6 +12,7 @@ class Post < ApplicationRecord
   scope :unverified, -> { where(verified: false) }
 
   def verify!(admin)
+    raise "Cannot verify draft posts" unless published?
     update!(verified: true, verified_at: Time.current, verified_by_id: admin.id)
   end
 
@@ -36,17 +37,5 @@ class Post < ApplicationRecord
 
   def tag_list
     tags.pluck(:name).join(', ')
-  end
-
-  def tag_list=(names)
-    @tag_list = names
-  end
-
-  after_save do
-    if defined?(@tag_list) && @tag_list
-      new_tags = @tag_list.to_s.split(',').map(&:strip).reject(&:blank?).uniq
-      self.tags = new_tags.map { |n| Tag.find_or_create_by!(name: n) }
-      @tag_list = nil
-    end
   end
 end
