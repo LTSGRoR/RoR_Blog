@@ -1,6 +1,6 @@
 <%= paginator.render do -%>
   <nav class="flex items-center justify-center py-6" role="navigation" aria-label="Pagination">
-    <ul class="inline-flex items-center -space-x-px text-sm">
+    <ul class="inline-flex items-center gap-1 text-sm">
       <%= prev_page_tag unless current_page.first? %>
       <% each_page do |page| -%>
         <% if page.display_tag? -%>
