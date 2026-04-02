@@ -37,10 +37,12 @@
       <% end %>
       <% if current_user&.admin? %>
         <span class="ml-4">
-          <% if @post.verified? %>
-            <%= btn_link_to 'Unverify', unverify_post_path(@post), method: :post, variant: :warning, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
-          <% else %>
-            <%= btn_link_to 'Verify', verify_post_path(@post), method: :post, variant: :success, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
+          <% if @post.published? %>
+            <% if @post.verified? %>
+              <%= btn_link_to 'Unverify', unverify_post_path(@post), method: :post, variant: :warning, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
+            <% else %>
+              <%= btn_link_to 'Verify', verify_post_path(@post), method: :post, variant: :success, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
+            <% end %>
           <% end %>
         </span>
       <% end %>

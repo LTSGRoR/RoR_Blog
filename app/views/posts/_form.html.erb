@@ -53,18 +53,26 @@
 
   <div data-controller="tag-input" class="mt-4">
     <%= f.label :tags, class: "block text-sm font-semibold text-slate-700" %>
-    <div class="mt-1">
-      <input data-tag-input-target="input" type="text" placeholder="Search or create tags..." autocomplete="off" class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm px-4 py-3 border" />
-      <div data-tag-input-target="list" class="mt-1 bg-white border border-slate-200 rounded-md shadow-sm"></div>
+    <div class="mt-1 relative">
+      <input data-tag-input-target="input"
+             data-action="input->tag-input#search keydown->tag-input#handleKeydown"
+             name="post[tag_list]"
+             type="text"
+              placeholder="Search tags"
+             autocomplete="off"
+             class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm px-4 py-3 border focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            <div data-tag-input-target="list" class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.14)] backdrop-blur empty:hidden max-h-72 overflow-y-auto"></div>
     </div>
-    <% if post.tags.any? %>
-      <div class="mt-2 flex flex-wrap gap-2">
-        <% post.tags.each do |tag| %>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-800 border"><%= tag.name %></span>
-          <input type="hidden" name="post[tag_ids][]" value="<%= tag.id %>" />
-        <% end %>
-      </div>
-    <% end %>
+    <div data-tag-input-target="chips" class="mt-2 flex flex-wrap gap-2">
+      <input type="hidden" name="post[tag_ids][]" value="" data-empty-tag-ids="true" />
+      <% post.tags.each do |tag| %>
+        <span data-tag-id="<%= tag.id %>" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200" style="margin-right: 0.5rem;">
+          <%= tag.name %>
+          <button type="button" data-action="click->tag-input#remove" data-tag-id="<%= tag.id %>" class="text-sm leading-none text-indigo-400 hover:text-indigo-700" style="padding-left: 0.25rem;" aria-label="Remove tag">&times;</button>
+        </span>
+        <input type="hidden" name="post[tag_ids][]" value="<%= tag.id %>" data-tag-id="<%= tag.id %>" />
+      <% end %>
+    </div>
   </div>
 
   <div class="flex items-center justify-end space-x-4 pt-4 border-t border-slate-100">

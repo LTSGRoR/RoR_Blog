@@ -9,11 +9,28 @@ class PostsController < ApplicationController
     @page     = params[:page] || 1
     @per_page = 10
 
+    # Build scope based on user role
+    base_scope = if current_user&.admin?
+      Post.where(status: Post.statuses[:published])
+          .or(Post.where(user_id: current_user.id))
+    elsif current_user
+      Post.where(status: Post.statuses[:published], verified: true)
+          .or(Post.where(user_id: current_user.id))
+    else
+      Post.where(status: Post.statuses[:published], verified: true)
+    end
+
     if params[:q].present?
       query = params[:q].to_s.strip
       if defined?(Searchkick)
         begin
-          search_scope = current_user&.admin? ? {} : { verified: true }
+          search_scope = if current_user&.admin?
+            { status: Post.statuses[:published] }
+          elsif current_user
+            {}
+          else
+            { status: Post.statuses[:published], verified: true }
+          end
           @posts = Post.search(
             query,
             fields: ["title^5", "tags^3", "body"],
@@ -28,20 +45,15 @@ class PostsController < ApplicationController
         end
       end
       unless @posts
-        scope = current_user&.admin? ? Post.all : Post.verified
-        @posts = scope.includes(:tags)
-                      .left_joins(:tags)
-                      .where("posts.title ILIKE :q OR tags.name ILIKE :q", q: "%#{query}%")
-                      .distinct
-                      .order(created_at: :desc)
-                      .page(@page).per(@per_page)
+        @posts = base_scope.includes(:tags)
+                          .left_joins(:tags)
+                          .where("posts.title ILIKE :q OR tags.name ILIKE :q", q: "%#{query}%")
+                          .distinct
+                          .order(created_at: :desc)
+                          .page(@page).per(@per_page)
       end
     else
-      if current_user&.admin?
-        @posts = Post.all.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
-      else
-        @posts = Post.verified.includes(:tags).page(@page).per(@per_page)
-      end
+      @posts = base_scope.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
     end
     respond_to do |format|
       format.html
@@ -96,6 +108,10 @@ class PostsController < ApplicationController
   end
 
   def verify
+    unless @post.published?
+      redirect_back fallback_location: posts_path, alert: 'Only published posts can be verified.'
+      return
+    end
     @post.verify!(current_user)
     redirect_back fallback_location: posts_path, notice: 'Post has been verified.'
   end
@@ -115,7 +131,19 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :body, :status, :tag_list, tag_ids: [])
+    permitted = params.require(:post).permit(:title, :body, :status, :tag_list, tag_ids: [])
+
+    selected_tag_ids = Array(permitted[:tag_ids]).reject(&:blank?)
+    typed_tag_names = permitted[:tag_list].to_s.split(",").map(&:strip).reject(&:blank?).uniq
+
+    if typed_tag_names.any?
+      created_tag_ids = typed_tag_names.map { |name| Tag.find_or_create_by!(name: name).id.to_s }
+      permitted[:tag_ids] = (selected_tag_ids + created_tag_ids).uniq
+    else
+      permitted[:tag_ids] = selected_tag_ids
+    end
+
+    permitted.except(:tag_list)
   end
 
   def authorize_post!

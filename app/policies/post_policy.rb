@@ -17,7 +17,7 @@ class PostPolicy < ApplicationPolicy
   end
 
   def verify?
-    user.present? && user.admin?
+    user.present? && user.admin? && record.published?
   end
 
   def unverify?
