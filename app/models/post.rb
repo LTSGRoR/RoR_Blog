@@ -30,8 +30,9 @@ class Post < ApplicationRecord
       title: title,
       body: body.to_plain_text,
       tags: tags.map(&:name),
-      status: status,
-      verified: verified
+      status: self[:status],
+      verified: verified,
+      user_id: user_id
     }
   end
 
