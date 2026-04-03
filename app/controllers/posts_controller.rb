@@ -9,7 +9,6 @@ class PostsController < ApplicationController
     @page     = params[:page] || 1
     @per_page = 10
 
-    # Build scope based on user role
     base_scope = if current_user&.admin?
       Post.where(status: Post.statuses[:published])
           .or(Post.where(user_id: current_user.id))
@@ -25,9 +24,19 @@ class PostsController < ApplicationController
       if defined?(Searchkick)
         begin
           search_scope = if current_user&.admin?
-            { status: Post.statuses[:published] }
+            {
+              _or: [
+                { status: Post.statuses[:published] },
+                { user_id: current_user.id }
+              ]
+            }
           elsif current_user
-            {}
+            {
+              _or: [
+                { status: Post.statuses[:published], verified: true },
+                { user_id: current_user.id }
+              ]
+            }
           else
             { status: Post.statuses[:published], verified: true }
           end
