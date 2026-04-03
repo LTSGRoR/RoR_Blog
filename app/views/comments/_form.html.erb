@@ -1,0 +1,18 @@
+<%= turbo_frame_tag "new_comment" do %>
+  <%= form_with model: [post, comment], class: "mt-6 space-y-3" do |f| %>
+    <% if comment.errors.any? %>
+      <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <%= comment.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :body, "Add a comment", class: "mb-1 block text-sm font-medium text-slate-700" %>
+      <%= f.text_area :body, rows: 4, class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500", required: true %>
+    </div>
+
+    <div>
+      <%= btn_submit f, "Post comment", variant: :primary %>
+    </div>
+  <% end %>
+<% end %>

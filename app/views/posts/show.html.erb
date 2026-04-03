@@ -1,4 +1,6 @@
 <div class="w-full mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <%= turbo_stream_from @post %>
+
   <article class="bg-white shadow-sm rounded-lg p-8">
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-slate-800"><%= @post.title %></h1>
@@ -22,6 +24,27 @@
     <div class="prose max-w-none text-slate-800" data-controller="syntax-highlight">
       <%= @post.body %>
     </div>
+
+    <% if @post.interactions_enabled? %>
+      <%= render "reactions/bar", reactable: @post %>
+
+      <section class="mt-10 border-t border-slate-200 pt-8">
+        <h2 class="text-xl font-semibold text-slate-800">Comments</h2>
+
+        <div id="comments" class="mt-4 space-y-3">
+          <%= render @comments %>
+        </div>
+
+        <% if user_signed_in? %>
+          <%= render "comments/form", post: @post, comment: @comment %>
+        <% else %>
+          <p class="mt-6 text-sm text-slate-600">
+            <%= link_to "Sign in", new_user_session_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+            to join the conversation.
+          </p>
+        <% end %>
+      </section>
+    <% end %>
 
     <footer class="mt-8">
       <%= btn_link_to 'Back to posts', posts_path, variant: :ghost %>

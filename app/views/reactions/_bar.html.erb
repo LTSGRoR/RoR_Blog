@@ -1,0 +1,29 @@
+<%= turbo_frame_tag dom_id(reactable, :reactions) do %>
+  <% compact = local_assigns.fetch(:compact, false) %>
+  <div class="<%= compact ? 'mt-3' : 'mt-8' %> flex flex-wrap items-center gap-2">
+    <% Reaction::EMOJI_TYPES.each do |emoji| %>
+      <% total = reactable.reactions.where(emoji_type: emoji).count %>
+      <% reacted = user_signed_in? && reactable.reactions.exists?(user_id: current_user.id, emoji_type: emoji) %>
+
+      <% if user_signed_in? %>
+        <%= button_to reactions_path,
+                      params: {
+                        reactable_type: reactable.class.name,
+                        reactable_id: reactable.id,
+                        reaction: { emoji_type: emoji }
+                      },
+                      method: :post,
+                      form: { class: "inline-block" },
+                      class: "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition #{reacted ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}", style: "margin-right: 0.5rem;" do %>
+          <span><%= emoji %></span>
+          <span><%= total %></span>
+        <% end %>
+      <% else %>
+        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+          <span><%= emoji %></span>
+          <span><%= total %></span>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_30_120100) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_113000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,21 +55,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_30_120100) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "tags", force: :cascade do |t|
-    t.string "name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_tags_on_name", unique: true
-  end
-
-  create_table "taggings", force: :cascade do |t|
+  create_table "comments", force: :cascade do |t|
     t.bigint "post_id", null: false
-    t.bigint "tag_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["post_id", "tag_id"], name: "index_taggings_on_post_id_and_tag_id", unique: true
-    t.index ["post_id"], name: "index_taggings_on_post_id"
-    t.index ["tag_id"], name: "index_taggings_on_tag_id"
+    t.index ["post_id"], name: "index_comments_on_post_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -84,6 +77,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_30_120100) do
     t.index ["status"], name: "index_posts_on_status"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["verified"], name: "index_posts_on_verified"
+  end
+
+  create_table "reactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "reactable_type", null: false
+    t.bigint "reactable_id", null: false
+    t.string "emoji_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
+    t.index ["user_id", "reactable_type", "reactable_id"], name: "index_reactions_unique_per_user_target", unique: true
+    t.index ["user_id"], name: "index_reactions_on_user_id"
   end
 
   create_table "taggings", force: :cascade do |t|
@@ -122,7 +127,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_30_120100) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "comments", "posts"
+  add_foreign_key "comments", "users"
   add_foreign_key "posts", "users"
+  add_foreign_key "reactions", "users"
   add_foreign_key "taggings", "posts"
   add_foreign_key "taggings", "tags"
 end

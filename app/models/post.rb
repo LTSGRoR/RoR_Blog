@@ -2,6 +2,8 @@ class Post < ApplicationRecord
   searchkick word_middle: [:title, :tags], callbacks: :async
 
   belongs_to :user
+  has_many :comments, dependent: :destroy
+  has_many :reactions, as: :reactable, dependent: :destroy
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
   enum :status, { draft: 0, published: 1 }
@@ -18,6 +20,10 @@ class Post < ApplicationRecord
 
   def unverify!
     update!(verified: false, verified_at: nil, verified_by_id: nil)
+  end
+
+  def interactions_enabled?
+    published? && verified?
   end
 
   def editable_by?(user)
