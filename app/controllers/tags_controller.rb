@@ -1,7 +1,6 @@
 class TagsController < ApplicationController
   before_action :authenticate_user!, only: [:create]
 
-  # GET /tags?q=term
   def index
     q = params[:q].to_s.strip
     tags = if q.present?
@@ -20,8 +19,6 @@ class TagsController < ApplicationController
     render json: tags
   end
 
-  # POST /tags
-  # params: { name: 'rails' }
   def create
     name = params[:name].to_s.strip
     return render json: { error: 'name required' }, status: :unprocessable_entity if name.blank?

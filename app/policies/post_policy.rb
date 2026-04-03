@@ -12,7 +12,7 @@ class PostPolicy < ApplicationPolicy
 
   def update?
     return false unless user.present?
-    return true if user.admin?
+    return false if user.admin?
     record.user == user && !record.verified?
   end
 
@@ -21,7 +21,7 @@ class PostPolicy < ApplicationPolicy
   end
 
   def unverify?
-    user.present? && user.admin?
+    user.present? && user.admin? && record.published?
   end
 
   def destroy?

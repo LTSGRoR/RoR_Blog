@@ -74,6 +74,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_113000) do
     t.boolean "verified", default: false, null: false
     t.datetime "verified_at"
     t.integer "verified_by_id"
+    t.text "unverify_reason"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.text "author_feedback_reply"
+    t.datetime "author_replied_at"
+    t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
     t.index ["status"], name: "index_posts_on_status"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["verified"], name: "index_posts_on_verified"

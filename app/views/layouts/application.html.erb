@@ -27,13 +27,13 @@
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div class="text-lg font-semibold">Blog App</div>
-        <nav class="space-x-4">
+        <nav class="flex flex-wrap items-center">
           <% if defined?(user_signed_in?) && user_signed_in? %>
             <span class="text-sm text-gray-700">Hello, <%= current_user.name || current_user.email %></span>
-            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-indigo-600 hover:text-indigo-500 ml-4" %>
+            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
           <% else %>
-            <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900" %>
-            <%= link_to "Sign up", new_user_registration_path, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
+            <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900 mr-4" %>
+            <%= link_to "Sign up", new_user_registration_path, class: "text-sm text-indigo-600 hover:text-indigo-500" %>
           <% end %>
         </nav>
       </div>

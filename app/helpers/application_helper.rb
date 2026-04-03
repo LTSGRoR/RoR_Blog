@@ -35,20 +35,20 @@ module ApplicationHelper
 	private
 
 	def btn_classes(variant)
-		base = 'inline-flex items-center h-10 px-4 rounded-md text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-offset-2 transition !cursor-pointer'
+		base = 'inline-flex items-center justify-center h-10 px-4 rounded-md text-sm font-medium border shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition !cursor-pointer whitespace-nowrap'
 		case variant
 		when :primary
 			base + ' bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500'
 		when :secondary
-			base + ' bg-white border-slate-300 text-slate-800 hover:bg-slate-50 focus:ring-slate-300'
+			base + ' bg-white border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-slate-300'
 		when :danger
-			base + ' bg-red-600 border-red-600 text-red-800 hover:bg-red-700 focus:ring-red-500'
+			base + ' bg-red-600 border-red-600 text-white hover:bg-red-700 focus:ring-red-500'
 		when :success
-			base + ' bg-green-600 border-green-600 text-green-800 hover:bg-green-700 focus:ring-green-500'
+			base + ' bg-emerald-700 border-emerald-700 !text-white hover:bg-emerald-800 focus:ring-emerald-600'
 		when :warning
-			base + ' bg-amber-500 border-amber-500 text-yellow-800 hover:bg-amber-600 focus:ring-amber-400'
+			base + ' bg-amber-500 border-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400'
 		when :ghost
-			base + ' bg-transparent border-transparent text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-300'
+			base + ' bg-white border-slate-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 focus:ring-indigo-300'
 		else
 			base + ' border-transparent'
 		end

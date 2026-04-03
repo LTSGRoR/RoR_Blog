@@ -1,9 +1,10 @@
 
 class PostsController < ApplicationController
-  before_action :set_post, only: %i[show edit update destroy verify unverify]
-  before_action :authenticate_user!, only: %i[new create edit update destroy]
+  before_action :set_post, only: %i[show edit update destroy verify unverify reply_feedback]
+  before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback]
   before_action :authorize_post!, only: %i[edit update destroy]
   before_action :authorize_admin!, only: %i[verify unverify]
+  before_action :authorize_feedback_reply!, only: %i[reply_feedback]
 
   def index
     @page     = params[:page] || 1
@@ -42,11 +43,11 @@ class PostsController < ApplicationController
           end
           @posts = Post.search(
             query,
-            fields: ["title^5", "tags^3", "body"],
+            fields: [ "title^5", "tags^3", "body" ],
             where: search_scope,
             page: @page,
             per_page: @per_page,
-            operator: query.include?(' ') ? 'and' : 'or',
+            operator: query.include?(" ") ? "and" : "or",
             misspellings: { below: 5 }
           )
         rescue StandardError => e
@@ -124,21 +125,51 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_url, notice: 'Post was successfully destroyed.'
+    redirect_to posts_url, notice: "Post was successfully destroyed."
   end
 
   def verify
     unless @post.published?
-      redirect_back fallback_location: posts_path, alert: 'Only published posts can be verified.'
+      redirect_back fallback_location: posts_path, alert: "Only published posts can be verified."
       return
     end
     @post.verify!(current_user)
-    redirect_back fallback_location: posts_path, notice: 'Post has been verified.'
+    redirect_back fallback_location: posts_path, notice: "Post has been verified."
   end
 
   def unverify
-    @post.unverify!
-    redirect_back fallback_location: posts_path, notice: 'Post has been unverified.'
+    unless @post.published?
+      redirect_back fallback_location: posts_path, alert: "Only published posts can receive admin feedback."
+      return
+    end
+
+    reason = params.dig(:post, :unverify_reason).to_s.strip
+
+    if reason.blank?
+      redirect_back fallback_location: posts_path, alert: "Reason is required to unverify a post."
+      return
+    end
+
+    was_verified = @post.verified?
+    @post.unverify!(admin: current_user, reason: reason)
+    notice_message = was_verified ? "Post has been unverified." : "Admin feedback has been saved."
+    redirect_back fallback_location: posts_path, notice: notice_message
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: posts_path, alert: e.message
+  end
+
+  def reply_feedback
+    reply = params.dig(:post, :author_feedback_reply).to_s.strip
+
+    if reply.blank?
+      redirect_back fallback_location: @post, alert: "Reply is required."
+      return
+    end
+
+    @post.reply_to_feedback!(author: current_user, reply: reply)
+    redirect_back fallback_location: @post, notice: "Reply sent to admin feedback."
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: @post, alert: e.message
   end
 
   private
@@ -146,7 +177,7 @@ class PostsController < ApplicationController
   def set_post
     @post = Post.find_by(id: params[:id])
     unless @post
-      redirect_to posts_path, alert: 'Post not found.'
+      redirect_to posts_path, alert: "Post not found."
     end
   end
 
@@ -172,7 +203,13 @@ class PostsController < ApplicationController
 
   def authorize_admin!
     unless current_user&.admin?
-      redirect_to posts_path, alert: 'Admin only.'
+      redirect_to posts_path, alert: "Admin only."
+    end
+  end
+
+  def authorize_feedback_reply!
+    unless current_user == @post.user
+      redirect_to @post, alert: "Only the post author can reply to feedback."
     end
   end
 end
