@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Blog App" %></title>
+    <title><%= content_for(:title) || t("app_name") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -26,14 +26,21 @@
   <body data-controller="syntax-highlight">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div class="text-lg font-semibold">Blog App</div>
+        <div class="text-lg font-semibold"><%= t("app_name") %></div>
         <nav class="flex flex-wrap items-center">
+          <div class="mr-4 flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600">
+            <span class="font-medium"><%= t("locale_switcher.label") %>:</span>
+            <% I18n.available_locales.each do |locale| %>
+              <%= link_to t("locale_switcher.#{locale}"), url_for(locale: locale), class: "rounded px-1.5 py-0.5 #{I18n.locale == locale ? 'bg-indigo-100 text-indigo-700' : 'text-slate-600 hover:text-slate-900'}" %>
+            <% end %>
+          </div>
+
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <span class="text-sm text-gray-700">Hello, <%= current_user.name || current_user.email %></span>
-            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
+            <span class="text-sm text-gray-700"><%= t("nav.hello", name: current_user.name || current_user.email) %></span>
+            <%= link_to t("nav.sign_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
           <% else %>
-            <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900 mr-4" %>
-            <%= link_to "Sign up", new_user_registration_path, class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+            <%= link_to t("nav.sign_in"), new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900 mr-4" %>
+            <%= link_to t("nav.sign_up"), new_user_registration_path, class: "text-sm text-indigo-600 hover:text-indigo-500" %>
           <% end %>
         </nav>
       </div>

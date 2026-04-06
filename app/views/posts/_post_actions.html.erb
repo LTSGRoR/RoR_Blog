@@ -1,0 +1,20 @@
+<% show_read_more = local_assigns.fetch(:show_read_more, false) %>
+<% show_back = local_assigns.fetch(:show_back, false) %>
+
+<div class="flex flex-wrap items-center gap-3">
+  <% if show_back %>
+    <%= btn_link_to t("posts.actions.back_to_posts"), posts_path, variant: :ghost %>
+  <% end %>
+
+  <% if show_read_more %>
+    <%= btn_link_to t("posts.actions.read_more"), post_path(post), variant: :ghost %>
+  <% end %>
+
+  <% if user_signed_in? && policy(post).update? %>
+    <%= btn_link_to t("posts.actions.edit"), edit_post_path(post), variant: :secondary %>
+  <% end %>
+
+  <% if user_signed_in? && policy(post).destroy? %>
+    <%= btn_link_to t("posts.actions.delete"), post_path(post), method: :delete, variant: :danger, data: { confirm: t("posts.actions.confirm_delete") } %>
+  <% end %>
+</div>

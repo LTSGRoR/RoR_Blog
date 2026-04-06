@@ -1,0 +1,131 @@
+vi:
+  app_name: "Blog App"
+
+  time:
+    formats:
+      short: "%d/%m/%Y %H:%M"
+
+  common:
+    unknown: "Không rõ"
+    default_avatar: "Ảnh đại diện mặc định"
+
+  locale_switcher:
+    label: "Ngôn ngữ"
+    en: "EN"
+    vi: "VI"
+    ja: "JP"
+
+  nav:
+    hello: "Xin chào, %{name}"
+    sign_out: "Đăng xuất"
+    sign_in: "Đăng nhập"
+    sign_up: "Đăng ký"
+
+  posts:
+    index:
+      title: "Tất cả bài viết"
+      new_post: "Bài viết mới"
+      no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+    show:
+      by: "bởi"
+      reactions: "Cảm xúc"
+      comments: "Bình luận"
+      join_conversation: "để tham gia cuộc trò chuyện."
+      review_controls:
+        title: "Kiểm duyệt"
+        verified_description: "Bài viết này đã được xác minh. Thêm lý do bên dưới để gửi lại cho tác giả."
+        unverified_description: "Bài viết này đang chờ phê duyệt. Lưu phản hồi cho tác giả hoặc xác minh khi sẵn sàng."
+        verify: "Xác minh bài viết"
+        feedback_label: "Phản hồi cho tác giả"
+        feedback_placeholder: "Giải thích chính xác những gì tác giả cần sửa trước khi xác minh."
+        unverify_with_feedback: "Hủy xác minh kèm phản hồi"
+        save_feedback: "Lưu phản hồi"
+        author_only: "Chỉ tác giả bài viết mới thấy phản hồi này."
+      feedback:
+        title: "Phản hồi"
+        author_reply: "Phản hồi của tác giả"
+        updated_at: "Cập nhật %{time}"
+        reply_label: "Trả lời quản trị viên"
+        reply_placeholder: "Chia sẻ những thay đổi của bạn hoặc đặt câu hỏi làm rõ."
+        send_reply: "Gửi trả lời"
+    new:
+      title: "Bài viết mới"
+    edit:
+      title: "Chỉnh sửa bài viết"
+    form:
+      title_placeholder: "Nhập tiêu đề hấp dẫn..."
+      tags_placeholder: "Tìm kiếm thẻ"
+      remove_tag: "Xóa thẻ"
+      cancel: "Hủy"
+    actions:
+      back_to_posts: "Quay lại danh sách"
+      read_more: "Đọc thêm"
+      edit: "Chỉnh sửa"
+      delete: "Xóa"
+      confirm_delete: "Bạn có chắc chắn không?"
+    status:
+      verified: "Đã xác minh"
+      unverified: "Chưa xác minh"
+
+  comments:
+    form:
+      label: "Thêm bình luận"
+      submit: "Đăng bình luận"
+
+  search:
+    placeholder: "Tìm kiếm bài viết theo tiêu đề, nội dung, thẻ..."
+
+  pagination:
+    label: "Phân trang"
+    first_page: "Trang đầu"
+    previous_page: "Trang trước"
+    next_page: "Trang tiếp"
+    last_page: "Trang cuối"
+
+  pwa:
+    description: "Blog App."
+
+  auth:
+    email_placeholder: "you@example.com"
+    sessions:
+      promo_headline: "Blog App"
+      promo_body: "Nền tảng xuất bản hiện đại, trải nghiệm đọc tuyệt vời. Đăng nhập để quản lý bài viết và cài đặt."
+      feature_1: "Trình soạn thảo nhanh với tự động lưu"
+      feature_2: "SEO và RSS tích hợp sẵn"
+      feature_3: "Giao diện đẹp, dễ tiếp cận"
+      title: "Đăng nhập vào tài khoản"
+      subtitle: "Chào mừng trở lại - nhập thông tin của bạn bên dưới."
+      password_placeholder: "Nhập mật khẩu"
+      remember_me: "Ghi nhớ đăng nhập"
+      forgot_password: "Quên mật khẩu?"
+      submit: "Đăng nhập"
+      no_account: "Chưa có tài khoản?"
+      create_one: "Tạo tài khoản"
+    registrations:
+      promo_headline: "Tham gia Blog App"
+      promo_body: "Tạo tài khoản để viết bài, lưu bản nháp và tùy chỉnh hồ sơ của bạn."
+      feature_1: "Bản nháp riêng tư"
+      feature_2: "Phân tích tích hợp sẵn"
+      feature_3: "Đọc đơn giản, đẹp mắt"
+      title: "Tạo tài khoản của bạn"
+      subtitle: "Bắt đầu xuất bản trong vài phút."
+      name_placeholder: "Họ và tên đầy đủ"
+      password_placeholder: "Chọn mật khẩu"
+      password_confirmation_placeholder: "Xác nhận mật khẩu"
+      submit: "Tạo tài khoản"
+      have_account: "Đã có tài khoản rồi?"
+    links:
+      sign_up: "Đăng ký"
+      sign_in: "Đăng nhập"
+      forgot_password: "Quên mật khẩu?"
+      didnt_receive_confirmation: "Không nhận được hướng dẫn xác nhận?"
+
+  errors:
+    not_authorized: "Bạn không có quyền thực hiện hành động này."
+
+  activerecord:
+    attributes:
+      post:
+        statuses:
+          draft: "Bản nháp"
+          published: "Đã xuất bản"

@@ -1,0 +1,28 @@
+ja:
+  devise:
+    confirmations:
+      confirmed: "メールアドレスが正常に確認されました。"
+      send_instructions: "数分以内にメールアドレス確認の手順が記載されたメールが届きます。"
+      send_paranoid_instructions: "メールアドレスがデータベースに存在する場合、確認手順が記載されたメールが届きます。"
+    failure:
+      already_authenticated: "すでにサインインしています。"
+      inactive: "アカウントはまだ有効化されていません。"
+      invalid: "%{authentication_keys} またはパスワードが無効です。"
+      locked: "アカウントがロックされています。"
+      last_attempt: "あと1回失敗するとアカウントがロックされます。"
+      not_found_in_database: "%{authentication_keys} またはパスワードが無効です。"
+      timeout: "セッションの有効期限が切れました。再度サインインしてください。"
+      unauthenticated: "続行するにはサインインまたは登録が必要です。"
+      unconfirmed: "続行する前にメールアドレスを確認してください。"
+    registrations:
+      signed_up: "ようこそ！登録が完了しました。"
+      updated: "アカウントが正常に更新されました。"
+    sessions:
+      signed_in: "サインインしました。"
+      signed_out: "サインアウトしました。"
+      already_signed_out: "サインアウトしました。"
+  errors:
+    messages:
+      not_saved:
+        one: "1件のエラーにより %{resource} を保存できませんでした:"
+        other: "%{count}件のエラーにより %{resource} を保存できませんでした:"

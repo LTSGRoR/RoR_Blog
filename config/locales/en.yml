@@ -28,4 +28,133 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  app_name: "Blog App"
+
+  time:
+    formats:
+      short: "%b %d, %Y %I:%M %p"
+
+  common:
+    unknown: "Unknown"
+    default_avatar: "Default avatar"
+
+  locale_switcher:
+    label: "Language"
+    en: "EN"
+    vi: "VI"
+    ja: "JP"
+
+  nav:
+    hello: "Hello, %{name}"
+    sign_out: "Sign out"
+    sign_in: "Sign in"
+    sign_up: "Sign up"
+
+  posts:
+    index:
+      title: "All Posts"
+      new_post: "New Post"
+      no_results: "No posts found for \"%{query}\"."
+    show:
+      by: "by"
+      reactions: "Reactions"
+      comments: "Comments"
+      join_conversation: "to join the conversation."
+      review_controls:
+        title: "Review Controls"
+        verified_description: "This post is currently verified. Add a reason below to send it back to the author."
+        unverified_description: "This post is awaiting approval. Save feedback for the author or verify it when ready."
+        verify: "Verify Post"
+        feedback_label: "Feedback for author"
+        feedback_placeholder: "Explain exactly what the author needs to fix before verification."
+        unverify_with_feedback: "Unverify With Feedback"
+        save_feedback: "Save Feedback"
+        author_only: "Only the post author can see this feedback."
+      feedback:
+        title: "Feedback"
+        author_reply: "Author Reply"
+        updated_at: "Updated %{time}"
+        reply_label: "Reply to admin"
+        reply_placeholder: "Share what you changed or ask clarifying questions."
+        send_reply: "Send Reply"
+    new:
+      title: "New Post"
+    edit:
+      title: "Edit Post"
+    form:
+      title_placeholder: "Enter a catchy title..."
+      tags_placeholder: "Search tags"
+      remove_tag: "Remove tag"
+      cancel: "Cancel"
+    actions:
+      back_to_posts: "Back to posts"
+      read_more: "Read more"
+      edit: "Edit"
+      delete: "Delete"
+      confirm_delete: "Are you sure?"
+    status:
+      verified: "Verified"
+      unverified: "Unverified"
+
+  comments:
+    form:
+      label: "Add a comment"
+      submit: "Post comment"
+
+  search:
+    placeholder: "Search posts by title, body, tags..."
+
+  pagination:
+    label: "Pagination"
+    first_page: "First page"
+    previous_page: "Previous page"
+    next_page: "Next page"
+    last_page: "Last page"
+
+  pwa:
+    description: "Blog App."
+
+  auth:
+    email_placeholder: "you@example.com"
+    sessions:
+      promo_headline: "Blog App"
+      promo_body: "Modern publishing, beautiful reading experience. Sign in to manage posts and preferences."
+      feature_1: "Fast editor with Autosave"
+      feature_2: "Built-in SEO and RSS"
+      feature_3: "Responsive, accessible UI"
+      title: "Sign in to your account"
+      subtitle: "Welcome back - enter your details below."
+      password_placeholder: "Enter your password"
+      remember_me: "Remember me"
+      forgot_password: "Forgot your password?"
+      submit: "Sign in"
+      no_account: "Don't have an account?"
+      create_one: "Create one"
+    registrations:
+      promo_headline: "Join Blog App"
+      promo_body: "Create an account to write posts, save drafts, and customize your profile."
+      feature_1: "Private drafts"
+      feature_2: "Built-in analytics"
+      feature_3: "Simple, beautiful reading"
+      title: "Create your account"
+      subtitle: "Start publishing in minutes."
+      name_placeholder: "Your full name"
+      password_placeholder: "Choose a password"
+      password_confirmation_placeholder: "Confirm password"
+      submit: "Create account"
+      have_account: "Already have an account?"
+    links:
+      sign_up: "Sign up"
+      sign_in: "Sign in"
+      forgot_password: "Forgot your password?"
+      didnt_receive_confirmation: "Didn't receive confirmation instructions?"
+
+  errors:
+    not_authorized: "You are not authorized to perform this action."
+
+  activerecord:
+    attributes:
+      post:
+        statuses:
+          draft: "Draft"
+          published: "Published"
