@@ -9,8 +9,4 @@ class User < ApplicationRecord
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
-  validates :email, format: {
-    with: /\A[^@]+@department\.com\z/i,
-    message: "must be a @department.com address"
-  }
 end

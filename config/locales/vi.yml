@@ -17,6 +17,8 @@ vi:
 
   nav:
     hello: "Xin chào, %{name}"
+    hello_prefix: "Xin chào," 
+    tagline: "Xuất bản, kiểm duyệt và quản lý bài viết của bạn."
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"
     sign_up: "Đăng ký"
@@ -87,6 +89,44 @@ vi:
 
   auth:
     email_placeholder: "you@example.com"
+    confirmations:
+      new:
+        sidebar_label: "Xác nhận"
+        title: "Gửi lại hướng dẫn xác nhận"
+        sidebar_body: "Nếu email xác nhận đã hết hạn hoặc chưa đến, chúng tôi có thể gửi lại vào hộp thư của bạn."
+        checks_title: "Trước khi tiếp tục"
+        check_1: "Kiểm tra thư rác hoặc tab quảng cáo"
+        check_2: "Xác nhận bạn đã nhập đúng địa chỉ email"
+        check_3: "Yêu cầu gửi lại bên dưới nếu cần"
+        form_title: "Gửi lại email xác nhận"
+        form_subtitle: "Cần email xác nhận mới? Nhập địa chỉ của bạn bên dưới."
+        submit: "Gửi lại hướng dẫn"
+    passwords:
+      shared:
+        back_to_sign_in: "Quay lại đăng nhập"
+      new:
+        sidebar_label: "Khôi phục"
+        title: "Quên mật khẩu?"
+        sidebar_body: "Chúng tôi sẽ gửi cho bạn một liên kết đặt lại an toàn để bạn có thể nhanh chóng truy cập lại tài khoản."
+        steps_title: "Tiếp theo sẽ diễn ra gì"
+        step_1: "Nhập email gắn với tài khoản của bạn"
+        step_2: "Mở liên kết đặt lại trong hộp thư"
+        step_3: "Chọn mật khẩu mới rồi đăng nhập lại"
+        form_title: "Khôi phục quyền truy cập"
+        form_subtitle: "Nhập email và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu."
+        submit: "Gửi hướng dẫn đặt lại"
+      edit:
+        sidebar_label: "Bảo mật"
+        title: "Chọn mật khẩu mới"
+        sidebar_body: "Hãy dùng một mật khẩu mạnh mà bạn chưa từng sử dụng trước đây và chỉ dùng cho tài khoản này."
+        tips_title: "Mẹo đặt mật khẩu"
+        tip_1: "Kết hợp chữ, số và ký hiệu"
+        tip_2: "Tránh dùng lại mật khẩu cũ"
+        tip_3: "Lưu trong trình quản lý mật khẩu đáng tin cậy"
+        form_title: "Đặt lại mật khẩu"
+        form_subtitle: "Hãy dùng một mật khẩu mạnh mà bạn chưa từng sử dụng trước đây."
+        new_password_label: "Mật khẩu mới"
+        submit: "Đổi mật khẩu"
     sessions:
       promo_headline: "Blog App"
       promo_body: "Nền tảng xuất bản hiện đại, trải nghiệm đọc tuyệt vời. Đăng nhập để quản lý bài viết và cài đặt."
@@ -114,11 +154,50 @@ vi:
       password_confirmation_placeholder: "Xác nhận mật khẩu"
       submit: "Tạo tài khoản"
       have_account: "Đã có tài khoản rồi?"
+      edit:
+        sidebar_label: "Tài khoản"
+        title: "Cài đặt"
+        subtitle: "Cập nhật hồ sơ, đổi mật khẩu và quản lý thông tin tài khoản gắn với các bài viết của bạn."
+        current_password_note: "Devise yêu cầu mật khẩu hiện tại để lưu các thay đổi của tài khoản."
+        quick_links: "Liên kết nhanh"
+        public_profile: "Hồ sơ công khai"
+        back_home: "Về trang chủ"
+        profile_title: "Hồ sơ"
+        profile_subtitle: "Giữ thông tin tác giả công khai của bạn luôn mới nhất."
+        public_badge: "Hiển thị công khai"
+        pending_email_title: "Thay đổi email đang chờ xác nhận"
+        pending_email_body: "Chúng tôi đang chờ xác nhận từ %{email}."
+        upload_avatar: "Tải ảnh\nđại diện"
+        avatar_title: "Ảnh hồ sơ"
+        avatar_hint: "Nên dùng ảnh vuông để hiển thị đẹp nhất trong thẻ tác giả và trang hồ sơ."
+        security_title: "Bảo mật"
+        security_subtitle: "Để trống các ô mật khẩu nếu bạn không muốn thay đổi mật khẩu."
+        current_password_hint: "Bắt buộc khi cập nhật email, mật khẩu hoặc hồ sơ."
+        save_changes: "Lưu thay đổi"
     links:
       sign_up: "Đăng ký"
       sign_in: "Đăng nhập"
       forgot_password: "Quên mật khẩu?"
       didnt_receive_confirmation: "Không nhận được hướng dẫn xác nhận?"
+
+  users:
+    profile:
+      own_badge: "Hồ sơ của bạn"
+      member_since: "Tham gia từ %{date}"
+      published_count:
+        one: "Đã xuất bản %{count} bài viết trên blog này"
+        other: "Đã xuất bản %{count} bài viết trên blog này"
+      manage_account: "Quản lý tài khoản"
+      recent_posts_title: "Bài viết gần đây"
+      recent_posts_subtitle: "Tổng quan nhanh về những bài viết mới nhất của tác giả này."
+      open_post: "Mở bài viết"
+      empty_title: "Chưa có bài viết nào được xuất bản"
+      empty_body: "Tác giả này vẫn chưa chia sẻ bài viết nào trên blog."
+      no_posts_short: "Chưa có bài viết"
+      stats:
+        published: "Bài viết đã xuất bản"
+        verified: "Bài viết đã xác minh"
+        latest: "Bài viết mới nhất"
 
   errors:
     not_authorized: "Bạn không có quyền thực hiện hành động này."

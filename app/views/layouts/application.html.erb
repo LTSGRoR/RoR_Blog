@@ -24,20 +24,42 @@
   </head>
 
   <body data-controller="syntax-highlight">
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div class="text-lg font-semibold"><%= t("app_name") %></div>
-        <nav class="flex flex-wrap items-center">
-          <div class="mr-4 flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600">
-            <span class="font-medium"><%= t("locale_switcher.label") %>:</span>
-            <% I18n.available_locales.each do |locale| %>
-              <%= link_to t("locale_switcher.#{locale}"), url_for(locale: locale), class: "rounded px-1.5 py-0.5 #{I18n.locale == locale ? 'bg-indigo-100 text-indigo-700' : 'text-slate-600 hover:text-slate-900'}" %>
-            <% end %>
-          </div>
+    <header class="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 py-4 px-4 sm:px-6 lg:px-8">
+        <%= link_to root_path, class: "block" do %>
+          <div class="text-lg font-semibold text-slate-900 transition hover:text-indigo-600"><%= t("app_name") %></div>
+          <p class="text-xs text-slate-500"><%= t("nav.tagline") %></p>
+        <% end %>
+        <nav class="flex flex-wrap items-center gap-3">
+          <details class="relative mr-1">
+            <summary class="px-4 flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600">
+              <span class="sr-only"><%= t("locale_switcher.label") %></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9Zm0 0c2.25 2.46 3.5 5.62 3.5 9S14.25 18.54 12 21m0-18C9.75 5.46 8.5 8.62 8.5 12S9.75 18.54 12 21m-8-9h16" />
+              </svg>
+            </summary>
+
+            <div class="absolute right-0 z-20 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              <div class="border-b border-slate-100 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500"><%= t("locale_switcher.label") %></div>
+              <div class="p-1.5">
+                <% I18n.available_locales.each do |locale| %>
+                  <%= link_to url_for(locale: locale), class: "flex items-center justify-between rounded-lg px-3 py-2 text-sm #{I18n.locale == locale ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'}" do %>
+                    <span><%= t("locale_switcher.#{locale}") %></span>
+                    <% if I18n.locale == locale %>
+                      <span class="text-xs font-medium">✓</span>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </details>
 
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <span class="text-sm text-gray-700"><%= t("nav.hello", name: current_user.name || current_user.email) %></span>
-            <%= link_to t("nav.sign_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
+            <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+              <span class="hidden sm:inline"><%= t("nav.hello_prefix", default: "Hello,") %></span>
+              <%= link_to(current_user.name || current_user.email, edit_user_registration_path, class: "font-medium text-slate-800 hover:text-indigo-600") %>
+            </div>
+            <%= link_to t("nav.sign_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" %>
           <% else %>
             <%= link_to t("nav.sign_in"), new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900 mr-4" %>
             <%= link_to t("nav.sign_up"), new_user_registration_path, class: "text-sm text-indigo-600 hover:text-indigo-500" %>
