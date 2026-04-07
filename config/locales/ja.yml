@@ -19,6 +19,7 @@ ja:
     hello: "%{name}さん、こんにちは"
     hello_prefix: "こんにちは、"
     tagline: "投稿の公開、レビュー、管理をまとめて行えます。"
+    manage_users: "ユーザー管理"
     sign_out: "サインアウト"
     sign_in: "サインイン"
     sign_up: "新規登録"
@@ -198,6 +199,44 @@ ja:
         published: "公開済み投稿"
         verified: "確認済み投稿"
         latest: "最新の投稿"
+    admin:
+      index:
+        title: "ユーザー管理"
+        subtitle: "モデレーションのためにアカウントをBANまたは一時停止します。"
+        total: "ユーザー数: %{count}"
+        columns:
+          name: "名前"
+          email: "メール"
+          role: "権限"
+          status: "状態"
+          actions: "操作"
+        status:
+          active: "有効"
+          banned: "BAN"
+          suspended_until: "%{time} まで一時停止"
+        actions_unavailable: "保護されたアカウント"
+      actions:
+        ban: "BAN"
+        unban: "BAN解除"
+        suspend: "一時停止"
+        unsuspend: "一時停止解除"
+        confirm_suspend: "確定"
+      confirm:
+        ban: "このアカウントをBANしてもよろしいですか？"
+      modal:
+        title: "アカウントを一時停止"
+        ban_title: "アカウントをBAN"
+        ban_message: "この操作でユーザーはBAN解除されるまで即時サインインできなくなります。"
+        confirm_ban: "BANを確定"
+        until: "一時停止期限"
+        cancel: "キャンセル"
+        close: "閉じる"
+      flash:
+        banned: "%{email} をBANしました。"
+        unbanned: "%{email} のBANを解除しました。"
+        suspended: "%{email} を %{time} まで一時停止しました。"
+        unsuspended: "%{email} の一時停止を解除しました。"
+        invalid_suspend_date: "有効な未来日時を指定してください。"
 
   errors:
     not_authorized: "この操作を実行する権限がありません。"

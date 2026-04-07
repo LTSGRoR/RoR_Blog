@@ -19,6 +19,7 @@ vi:
     hello: "Xin chào, %{name}"
     hello_prefix: "Xin chào," 
     tagline: "Xuất bản, kiểm duyệt và quản lý bài viết của bạn."
+    manage_users: "Quản lý người dùng"
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"
     sign_up: "Đăng ký"
@@ -198,6 +199,44 @@ vi:
         published: "Bài viết đã xuất bản"
         verified: "Bài viết đã xác minh"
         latest: "Bài viết mới nhất"
+    admin:
+      index:
+        title: "Quản lý người dùng"
+        subtitle: "Cấm hoặc tạm khóa tài khoản để kiểm duyệt."
+        total: "%{count} người dùng"
+        columns:
+          name: "Tên"
+          email: "Email"
+          role: "Vai trò"
+          status: "Trạng thái"
+          actions: "Hành động"
+        status:
+          active: "Đang hoạt động"
+          banned: "Đã cấm"
+          suspended_until: "Tạm khóa đến %{time}"
+        actions_unavailable: "Tài khoản được bảo vệ"
+      actions:
+        ban: "Cấm"
+        unban: "Bỏ cấm"
+        suspend: "Tạm khóa"
+        unsuspend: "Mở tạm khóa"
+        confirm_suspend: "Xác nhận"
+      confirm:
+        ban: "Bạn có chắc muốn cấm tài khoản này không?"
+      modal:
+        title: "Tạm khóa tài khoản"
+        ban_title: "Cấm tài khoản"
+        ban_message: "Hành động này sẽ chặn người dùng đăng nhập ngay lập tức cho đến khi được bỏ cấm."
+        confirm_ban: "Xác nhận cấm"
+        until: "Tạm khóa đến"
+        cancel: "Hủy"
+        close: "Đóng"
+      flash:
+        banned: "%{email} đã bị cấm."
+        unbanned: "%{email} đã được bỏ cấm."
+        suspended: "%{email} đã bị tạm khóa đến %{time}."
+        unsuspended: "%{email} đã được mở tạm khóa."
+        invalid_suspend_date: "Vui lòng nhập ngày giờ hợp lệ trong tương lai để tạm khóa."
 
   errors:
     not_authorized: "Bạn không có quyền thực hiện hành động này."

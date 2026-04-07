@@ -48,6 +48,7 @@ en:
     hello: "Hello, %{name}"
     hello_prefix: "Hello,"
     tagline: "Publish, review, and manage your writing."
+    manage_users: "Manage users"
     sign_out: "Sign out"
     sign_in: "Sign in"
     sign_up: "Sign up"
@@ -227,6 +228,44 @@ en:
         published: "Published posts"
         verified: "Verified posts"
         latest: "Latest post"
+    admin:
+      index:
+        title: "User management"
+        subtitle: "Ban or suspend accounts for moderation."
+        total: "%{count} users"
+        columns:
+          name: "Name"
+          email: "Email"
+          role: "Role"
+          status: "Status"
+          actions: "Actions"
+        status:
+          active: "Active"
+          banned: "Banned"
+          suspended_until: "Suspended until %{time}"
+        actions_unavailable: "Protected account"
+      actions:
+        ban: "Ban"
+        unban: "Unban"
+        suspend: "Suspend"
+        unsuspend: "Unsuspend"
+        confirm_suspend: "Confirm"
+      confirm:
+        ban: "Are you sure you want to ban this account?"
+      modal:
+        title: "Suspend account"
+        ban_title: "Ban account"
+        ban_message: "This will immediately block this user from signing in until you unban them."
+        confirm_ban: "Confirm ban"
+        until: "Suspend until"
+        cancel: "Cancel"
+        close: "Close"
+      flash:
+        banned: "%{email} has been banned."
+        unbanned: "%{email} has been unbanned."
+        suspended: "%{email} has been suspended until %{time}."
+        unsuspended: "%{email} has been unsuspended."
+        invalid_suspend_date: "Please provide a valid future date and time for suspension."
 
   errors:
     not_authorized: "You are not authorized to perform this action."

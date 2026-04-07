@@ -6,11 +6,13 @@ ja:
       send_paranoid_instructions: "メールアドレスがデータベースに存在する場合、確認手順が記載されたメールが届きます。"
     failure:
       already_authenticated: "すでにサインインしています。"
+      banned: "アカウントはBANされています。管理者にお問い合わせください。"
       inactive: "アカウントはまだ有効化されていません。"
       invalid: "%{authentication_keys} またはパスワードが無効です。"
       locked: "アカウントがロックされています。"
       last_attempt: "あと1回失敗するとアカウントがロックされます。"
       not_found_in_database: "%{authentication_keys} またはパスワードが無効です。"
+      suspended: "アカウントは一時停止中です。しばらくしてから再度お試しください。"
       timeout: "セッションの有効期限が切れました。再度サインインしてください。"
       unauthenticated: "続行するにはサインインまたは登録が必要です。"
       unconfirmed: "続行する前にメールアドレスを確認してください。"

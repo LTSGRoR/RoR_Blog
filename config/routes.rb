@@ -15,7 +15,14 @@ Rails.application.routes.draw do
   root "posts#index"
   resources :tags, only: [:index, :create]
   resources :reactions, only: [:create]
-  resources :users, only: [:show]
+  resources :users, only: [:show, :index] do
+    member do
+      post :ban
+      post :unban
+      post :suspend
+      post :unsuspend
+    end
+  end
 
     resources :posts do
       resources :comments, only: [:create]

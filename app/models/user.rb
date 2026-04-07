@@ -9,4 +9,23 @@ class User < ApplicationRecord
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
+
+  def banned?
+    banned_at.present?
+  end
+
+  def suspended?
+    suspended_until.present? && suspended_until.future?
+  end
+
+  def active_for_authentication?
+    super && !banned? && !suspended?
+  end
+
+  def inactive_message
+    return :banned if banned?
+    return :suspended if suspended?
+
+    super
+  end
 end
