@@ -5,9 +5,20 @@
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-slate-800"><%= @post.title %></h1>
 
-      <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500">
-        <span><%= t("posts.show.by") %> <%= @post.user&.name || t("common.unknown") %></span>
-        <span>·</span>
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+        <% if @post.user.present? %>
+          <%= link_to user_path(@post.user), class: "flex items-center gap-2 font-medium text-slate-700 transition hover:text-indigo-600" do %>
+            <% if @post.user.avatar.attached? %>
+              <%= image_tag @post.user.avatar.variant(resize_to_fill: [20, 20]), class: "h-5 w-5 rounded-full border border-slate-200 object-cover", alt: @post.user.name.presence || @post.user.email %>
+            <% else %>
+              <div class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700"><%= (@post.user.name.presence || @post.user.email).to_s.first(1).upcase %></div>
+            <% end %>
+            <%= @post.user.name.presence || @post.user.email %>
+          <% end %>
+        <% else %>
+          <span><%= t("common.unknown") %></span>
+        <% end %>
+        <span class="text-slate-300">·</span>
         <span><%= l(@post.created_at, format: :short) %></span>
         <% if @post.verified? %>
           <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><%= t("posts.status.verified") %></span>

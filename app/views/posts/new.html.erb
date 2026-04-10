@@ -1,11 +1,5 @@
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <h1 class="text-3xl font-bold text-slate-800 mb-6"><%= t("posts.new.title") %></h1>
 
-  <% if flash[:alert] %>
-    <div class="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">
-      <%= flash[:alert] %>
-    </div>
-  <% end %>
-
   <%= render 'form', post: @post %>
 </div>

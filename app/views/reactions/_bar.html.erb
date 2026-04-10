@@ -14,12 +14,12 @@
                       },
                       method: :post,
                       form: { class: "inline-block" },
-                      class: "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition #{reacted ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}", style: "margin-right: 0.5rem;" do %>
+                      class: "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition #{reacted ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}" do %>
           <span><%= emoji %></span>
           <span><%= total %></span>
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
           <span><%= emoji %></span>
           <span><%= total %></span>
         </span>

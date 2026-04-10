@@ -1,7 +1,15 @@
 <div class="mb-6">
-  <%= form_tag posts_path, method: :get, class: 'w-full', data: { controller: 'search', 'search-url-value': posts_path, 'search-delay-value': 300 } do %>
-    <div class="flex items-center w-full max-w-3xl mx-auto">
-      <%= text_field_tag :q, params[:q], placeholder: t("search.placeholder"), class: 'w-full h-10 px-4 rounded-full border shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500', data: { action: 'input->search#changed' } %>
+  <%= form_tag posts_path, method: :get, class: "w-full", data: { controller: "search", "search-url-value": posts_path, "search-delay-value": 300 } do %>
+    <div class="relative mx-auto w-full max-w-3xl">
+      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+      </div>
+      <%= text_field_tag :q, params[:q],
+            placeholder: t("search.placeholder"),
+            class: "w-full h-10 pl-10 pr-4 rounded-full border border-slate-200 bg-white shadow-sm text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition",
+            data: { action: "input->search#changed" } %>
     </div>
   <% end %>
 </div>

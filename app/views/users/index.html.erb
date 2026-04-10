@@ -83,7 +83,7 @@
                     <% else %>
                       <button
                         type="button"
-                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
                         data-action="click->suspend-form#openBan"
                         data-suspend-form-url-param="<%= ban_user_path(user) %>"
                         data-suspend-form-user-param="<%= user.name.presence || user.email %>">
@@ -92,11 +92,11 @@
                     <% end %>
 
                     <% if user.suspended? %>
-                      <%= button_to t("users.admin.actions.unsuspend"), unsuspend_user_path(user), method: :post, class: "rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100" %>
+                      <%= button_to t("users.admin.actions.unsuspend"), unsuspend_user_path(user), method: :post, class: "rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-100" %>
                     <% else %>
                       <button
                         type="button"
-                        class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100"
+                        class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100"
                         data-action="click->suspend-form#openSuspend"
                         data-suspend-form-url-param="<%= suspend_user_path(user) %>"
                         data-suspend-form-user-param="<%= user.name.presence || user.email %>">

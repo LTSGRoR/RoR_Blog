@@ -19,6 +19,7 @@ vi:
     hello: "Xin chào, %{name}"
     hello_prefix: "Xin chào," 
     tagline: "Xuất bản, kiểm duyệt và quản lý bài viết của bạn."
+    profile_settings: "Cài đặt hồ sơ"
     manage_users: "Quản lý người dùng"
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"

@@ -19,6 +19,7 @@ ja:
     hello: "%{name}さん、こんにちは"
     hello_prefix: "こんにちは、"
     tagline: "投稿の公開、レビュー、管理をまとめて行えます。"
+    profile_settings: "プロフィール設定"
     manage_users: "ユーザー管理"
     sign_out: "サインアウト"
     sign_in: "サインイン"

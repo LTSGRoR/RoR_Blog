@@ -31,41 +31,79 @@
           <p class="text-xs text-slate-500"><%= t("nav.tagline") %></p>
         <% end %>
         <nav class="flex flex-wrap items-center gap-3">
-          <details class="relative mr-1">
-            <summary class="px-4 flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600">
-              <span class="sr-only"><%= t("locale_switcher.label") %></span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9Zm0 0c2.25 2.46 3.5 5.62 3.5 9S14.25 18.54 12 21m0-18C9.75 5.46 8.5 8.62 8.5 12S9.75 18.54 12 21m-8-9h16" />
-              </svg>
-            </summary>
-
-            <div class="absolute right-0 z-20 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-              <div class="border-b border-slate-100 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500"><%= t("locale_switcher.label") %></div>
-              <div class="p-1.5">
-                <% I18n.available_locales.each do |locale| %>
-                  <%= link_to url_for(locale: locale), class: "flex items-center justify-between rounded-lg px-3 py-2 text-sm #{I18n.locale == locale ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'}" do %>
-                    <span><%= t("locale_switcher.#{locale}") %></span>
-                    <% if I18n.locale == locale %>
-                      <span class="text-xs font-medium">✓</span>
-                    <% end %>
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
-          </details>
-
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
-              <span class="hidden sm:inline"><%= t("nav.hello_prefix", default: "Hello,") %></span>
-              <%= link_to(current_user.name || current_user.email, edit_user_registration_path, class: "font-medium text-slate-800 hover:text-indigo-600") %>
-            </div>
-            <% if current_user.admin? %>
-              <%= link_to t("nav.manage_users"), users_path, class: "text-sm font-medium text-slate-700 hover:text-slate-900" %>
-            <% end %>
-            <%= link_to t("nav.sign_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" %>
+            <details class="relative">
+              <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:bg-white">
+                <span class="hidden sm:inline text-slate-400"><%= t("nav.hello_prefix", default: "Hello,") %></span>
+                <span class="font-semibold text-slate-800"><%= current_user.name || current_user.email %></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+              </summary>
+
+              <div class="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg">
+                <%# Language — side flyout on hover (Stimulus hover-menu) %>
+                <div class="relative border-t border-slate-100" data-controller="hover-menu">
+                  <button type="button"
+                          data-action="mouseenter->hover-menu#show mouseleave->hover-menu#hide"
+                          class="flex w-full items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9Zm0 0c2.25 2.46 3.5 5.62 3.5 9S14.25 18.54 12 21m0-18C9.75 5.46 8.5 8.62 8.5 12S9.75 18.54 12 21m-8-9h16" />
+                    </svg>
+                    <span class="mr-auto"><%= t("locale_switcher.label") %></span>
+                    <span class="rounded border border-indigo-100 bg-indigo-50 px-1.5 py-0.5 text-xs font-semibold text-indigo-600"><%= t("locale_switcher.#{I18n.locale}") %></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L10.94 10 7.23 6.29a.75.75 0 1 1 1.06-1.06l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.08-.02Z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+
+                  <%# Flyout panel — pops out to the RIGHT of the main dropdown %>
+                  <div data-hover-menu-target="panel"
+                       data-action="mouseenter->hover-menu#stayOpen mouseleave->hover-menu#hide"
+                       class="hidden absolute left-full top-0 ml-1 w-28 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-30 max-sm:left-auto max-sm:right-full max-sm:ml-0 max-sm:mr-1">
+                    <% I18n.available_locales.each do |locale| %>
+                      <%= link_to url_for(locale: locale), class: "block px-2 py-2 text-sm text-center #{I18n.locale == locale ? 'text-indigo-700 font-medium bg-indigo-50' : 'text-slate-700 hover:bg-slate-50'}" do %>
+                        <%= t("locale_switcher.#{locale}") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+
+                <%# Profile settings %>
+                <%= link_to edit_user_registration_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                  <%= t("nav.profile_settings") %>
+                <% end %>
+
+                <%# Manage users (admin only) %>
+                <% if current_user.admin? %>
+                  <div class="border-t border-slate-100">
+                      <%= link_to users_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.79-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                      <%= t("nav.manage_users") %>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <%# Sign out %>
+                <div class="border-t border-slate-100">
+                  <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+                    </svg>
+                    <%= t("nav.sign_out") %>
+                  <% end %>
+                </div>
+
+              </div>
+            </details>
           <% else %>
-            <%= link_to t("nav.sign_in"), new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900 mr-4" %>
-            <%= link_to t("nav.sign_up"), new_user_registration_path, class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+            <%= link_to t("nav.sign_in"), new_user_session_path, class: "rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white" %>
+            <%= link_to t("nav.sign_up"), new_user_registration_path, class: "rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700" %>
           <% end %>
         </nav>
       </div>
