@@ -6,6 +6,10 @@ cleanup() {
 		kill "$SERVER_PID" 2>/dev/null || true
 	fi
 
+	if [[ -n "${SIDEKIQ_PID:-}" ]]; then
+		kill "$SIDEKIQ_PID" 2>/dev/null || true
+	fi
+
 	if [[ -n "${TAILWIND_PID:-}" ]]; then
 		kill "$TAILWIND_PID" 2>/dev/null || true
 	fi
@@ -16,7 +20,10 @@ trap cleanup EXIT INT TERM
 ./bin/rails server "$@" &
 SERVER_PID=$!
 
+bundle exec sidekiq &
+SIDEKIQ_PID=$!
+
 ./bin/rails tailwindcss:watch &
 TAILWIND_PID=$!
 
-wait -n "$SERVER_PID" "$TAILWIND_PID"
+wait -n "$SERVER_PID" "$SIDEKIQ_PID" "$TAILWIND_PID"

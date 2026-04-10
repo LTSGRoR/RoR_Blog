@@ -27,19 +27,19 @@ class PostsController < ApplicationController
           search_scope = if current_user&.admin?
             {
               _or: [
-                { status: Post.statuses[:published] },
+                { status: Post.statuses.key(Post.statuses[:published]) },
                 { user_id: current_user.id }
               ]
             }
           elsif current_user
             {
               _or: [
-                { status: Post.statuses[:published], verified: true },
+                { status: Post.statuses.key(Post.statuses[:published]), verified: true },
                 { user_id: current_user.id }
               ]
             }
           else
-            { status: Post.statuses[:published], verified: true }
+            { status: Post.statuses.key(Post.statuses[:published]), verified: true }
           end
           @posts = Post.search(
             query,
@@ -52,15 +52,10 @@ class PostsController < ApplicationController
           )
         rescue StandardError => e
           Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
+          @posts = Post.none.page(@page).per(@per_page)
         end
-      end
-      unless @posts
-        @posts = base_scope.includes(:tags)
-                          .left_joins(:tags)
-                          .where("posts.title ILIKE :q OR tags.name ILIKE :q", q: "%#{query}%")
-                          .distinct
-                          .order(created_at: :desc)
-                          .page(@page).per(@per_page)
+      else
+        @posts = Post.none.page(@page).per(@per_page)
       end
     else
       @posts = base_scope.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)

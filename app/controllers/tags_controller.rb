@@ -7,10 +7,9 @@ class TagsController < ApplicationController
       begin
         Tag.search(q, fields: [{ name: :word_start }], limit: 20, load: false)
            .map { |t| { id: t.id, name: t.name } }
-      rescue => e
+      rescue StandardError => e
         Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-        Tag.where("name ILIKE ?", "#{q}%").order(:name).limit(20)
-           .pluck(:id, :name).map { |id, name| { id: id, name: name } }
+        []
       end
     else
       Tag.order(:name).limit(20).pluck(:id, :name).map { |id, name| { id: id, name: name } }
