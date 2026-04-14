@@ -14,7 +14,7 @@ services:
     environment:
       RAILS_ENV: development
       APP_HOST: ${APP_HOST:-localhost}
-      APP_PORT: 3000
+      APP_PORT: ${APP_PORT:-3000}
       DB_HOST: ror_blog_db
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -44,6 +44,8 @@ services:
     command: bundle exec sidekiq
     environment:
       RAILS_ENV: development
+      APP_HOST: ${APP_HOST:-localhost}
+      APP_PORT: ${APP_PORT:-3000}
       DB_HOST: ror_blog_db
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
