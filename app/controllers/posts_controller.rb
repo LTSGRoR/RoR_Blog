@@ -52,6 +52,8 @@ class PostsController < ApplicationController
             operator: query.include?(" ") ? "and" : "or",
             misspellings: { below: 5 }
           )
+          # Searchkick executes lazily; force execution here so errors are rescued in controller.
+          @posts.total_count
         rescue StandardError => e
           Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
           @posts = Post.none.page(@page).per(@per_page)
