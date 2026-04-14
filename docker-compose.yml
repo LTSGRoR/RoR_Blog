@@ -1,26 +1,24 @@
-version: '3.8'
-
 services:
-  app:
-    build: .
-    image: ror_blog_app
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    environment:
-      RAILS_ENV: development
-      DB_HOST: ror_blog_db
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      DB_NAME: ${DB_NAME:-ror_blog_development}
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      REDIS_URL: redis://redis:6379/0
-    depends_on:
-      - ror_blog_db
-      - redis
-      - elasticsearch
-    volumes:
-      - .:/rails
+  # app:
+  #   build: .
+  #   image: ror_blog_app
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:80"
+  #   environment:
+  #     RAILS_ENV: development
+  #     DB_HOST: ror_blog_db
+  #     DB_USERNAME: ${DB_USERNAME:-postgres}
+  #     DB_PASSWORD: ${DB_PASSWORD:-postgres}
+  #     DB_NAME: ${DB_NAME:-ror_blog_development}
+  #     ELASTICSEARCH_URL: http://elasticsearch:9200
+  #     REDIS_URL: redis://redis:6379/0
+  #   depends_on:
+  #     - ror_blog_db
+  #     - redis
+  #     - elasticsearch
+  #   volumes:
+  #     - .:/rails
 
   sidekiq:
     build: .
