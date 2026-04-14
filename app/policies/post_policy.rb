@@ -1,5 +1,4 @@
 class PostPolicy < ApplicationPolicy
-  # Anyone can view published posts; authors may view their own drafts.
   def show?
     return true if record.published? && record.verified?
     return false unless user

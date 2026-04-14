@@ -51,9 +51,11 @@
       <section class="mt-8 border-t border-slate-200 pt-6">
         <h2 class="text-xl font-semibold text-slate-800"><%= t("posts.show.comments") %></h2>
 
-        <div id="comments" class="mt-4 space-y-4">
-          <%= render @comments %>
-        </div>
+        <%= turbo_frame_tag "comments" do %>
+          <div class="mt-4 space-y-4">
+            <%= render @comments %>
+          </div>
+        <% end %>
 
         <% if user_signed_in? %>
           <%= render "comments/form", post: @post, comment: @comment %>
