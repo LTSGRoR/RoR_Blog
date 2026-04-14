@@ -89,3 +89,69 @@ trix-toolbar .trix-button-group {
   margin-bottom: 5px;
   border-bottom: none !important; /* Prevents double borders when wrapped */
 }
+
+/* ActionText figure and figcaption styling */
+.prose figure {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+.prose figure img,
+.prose figure figcaption {
+  display: block;
+}
+
+.prose figcaption {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+/* Keep ActionText attachment caption tied to its image width in view mode */
+.prose figure.attachment {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+}
+
+.prose figure.attachment img {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose figure.attachment .attachment__caption {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+/* Trix editor attachment caption layout */
+trix-editor figure.attachment {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  margin: 1rem 0;
+  vertical-align: top;
+}
+
+trix-editor figure.attachment img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+trix-editor figure.attachment .attachment__caption {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+trix-editor figure.attachment .attachment__caption-editor {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+}

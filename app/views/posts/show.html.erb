@@ -106,7 +106,7 @@
     <% end %>
 
     <% can_view_feedback = current_user&.admin? || current_user == @post.user %>
-    <% if can_view_feedback && (@post.unverify_reason.present? || @post.author_feedback_reply.present? || current_user == @post.user) %>
+    <% if can_view_feedback && (@post.unverify_reason.present? || @post.author_feedback_reply.present?) %>
       <section class="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5">
         <h2 class="text-lg font-semibold text-amber-900"><%= t("posts.show.feedback.title") %></h2>
 
@@ -124,7 +124,7 @@
           </div>
         <% end %>
 
-        <% if current_user == @post.user %>
+        <% if current_user == @post.user && @post.unverify_reason.present? && @post.author_feedback_reply.blank? %>
           <%= form_with url: reply_feedback_post_path(@post), method: :post, class: "mt-4 space-y-3" do %>
             <div>
               <%= label_tag "post_author_feedback_reply", t("posts.show.feedback.reply_label"), class: "mb-2 block text-sm font-medium text-amber-900" %>
