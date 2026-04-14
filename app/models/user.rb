@@ -28,4 +28,10 @@ class User < ApplicationRecord
 
     super
   end
+
+  protected
+
+  def send_devise_notification(notification, *args)
+    devise_mailer.public_send(notification, self, *args).deliver_later
+  end
 end
