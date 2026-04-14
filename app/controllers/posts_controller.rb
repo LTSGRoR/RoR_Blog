@@ -2,8 +2,10 @@
 class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy verify unverify reply_feedback]
   before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback]
+  before_action :authorize_show!, only: %i[show]
   before_action :authorize_post!, only: %i[edit update destroy]
-  before_action :authorize_admin!, only: %i[verify unverify]
+  before_action :authorize_verify!, only: %i[verify]
+  before_action :authorize_unverify!, only: %i[unverify]
   before_action :authorize_feedback_reply!, only: %i[reply_feedback]
 
   def index
@@ -196,10 +198,16 @@ class PostsController < ApplicationController
     authorize @post
   end
 
-  def authorize_admin!
-    unless current_user&.admin?
-      redirect_to posts_path, alert: "Admin only."
-    end
+  def authorize_show!
+    authorize @post, :show?
+  end
+
+  def authorize_verify!
+    authorize @post, :verify?
+  end
+
+  def authorize_unverify!
+    authorize @post, :unverify?
   end
 
   def authorize_feedback_reply!

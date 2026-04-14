@@ -2,6 +2,7 @@ class Post < ApplicationRecord
   searchkick word_middle: [ :title, :tags ], callbacks: :async
 
   belongs_to :user
+  belongs_to :reviewed_by, class_name: "User", optional: true
   has_many :comments, dependent: :destroy
   has_many :reactions, as: :reactable, dependent: :destroy
   has_many :taggings, dependent: :destroy

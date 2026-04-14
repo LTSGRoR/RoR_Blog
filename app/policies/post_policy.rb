@@ -1,7 +1,7 @@
 class PostPolicy < ApplicationPolicy
   # Anyone can view published posts; authors may view their own drafts.
   def show?
-    return true if record.published?
+    return true if record.published? && record.verified?
     return false unless user
     user.admin? || record.user == user
   end
@@ -12,7 +12,7 @@ class PostPolicy < ApplicationPolicy
 
   def update?
     return false unless user.present?
-    return false if user.admin?
+    return record.user == user if user.admin?
     record.user == user && !record.verified?
   end
 
@@ -33,9 +33,10 @@ class PostPolicy < ApplicationPolicy
       if user&.admin?
         scope.all
       elsif user
-        scope.where("status = ? OR user_id = ?", Post.statuses[:published], user.id)
+        scope.where(status: Post.statuses[:published], verified: true)
+             .or(scope.where(user_id: user.id))
       else
-        scope.where(status: Post.statuses[:published])
+        scope.where(status: Post.statuses[:published], verified: true)
       end
     end
   end
