@@ -51,10 +51,8 @@
       <section class="mt-8 border-t border-slate-200 pt-6">
         <h2 class="text-xl font-semibold text-slate-800"><%= t("posts.show.comments") %></h2>
 
-        <%= turbo_frame_tag "comments" do %>
-          <div id="comments_list" class="mt-4 space-y-4">
-            <%= render @comments %>
-          </div>
+        <%= turbo_frame_tag "comments", class: "mt-4 block space-y-4" do %>
+          <%= render @comments %>
         <% end %>
 
         <% if user_signed_in? %>
