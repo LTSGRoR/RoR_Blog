@@ -1,11 +1,15 @@
 <%= turbo_frame_tag dom_id(reactable, :reactions) do %>
   <% compact = local_assigns.fetch(:compact, false) %>
+  <% warden_available = request&.env&.key?("warden") %>
+  <% signed_in_viewer = warden_available && user_signed_in? %>
+  <% render_reaction_buttons = warden_available ? signed_in_viewer : true %>
+  <% viewer_id = signed_in_viewer ? current_user.id : nil %>
   <div class="<%= compact ? 'mt-3' : 'mt-8' %> flex flex-wrap items-center gap-2">
     <% Reaction::EMOJI_TYPES.each do |emoji| %>
       <% total = reactable.reactions.where(emoji_type: emoji).count %>
-      <% reacted = user_signed_in? && reactable.reactions.exists?(user_id: current_user.id, emoji_type: emoji) %>
+      <% reacted = viewer_id.present? && reactable.reactions.exists?(user_id: viewer_id, emoji_type: emoji) %>
 
-      <% if user_signed_in? %>
+      <% if render_reaction_buttons %>
         <%= button_to reactions_path,
                       params: {
                         reactable_type: reactable.class.name,

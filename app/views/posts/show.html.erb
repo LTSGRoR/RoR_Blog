@@ -51,9 +51,13 @@
       <section class="mt-8 border-t border-slate-200 pt-6">
         <h2 class="text-xl font-semibold text-slate-800"><%= t("posts.show.comments") %></h2>
 
-        <%= turbo_frame_tag "comments", class: "mt-4 block space-y-4" do %>
+        <%= turbo_frame_tag dom_id(@post, :comments), class: "mt-4 block space-y-4" do %>
           <%= render @comments %>
         <% end %>
+
+        <div class="mt-5">
+          <%= paginate @comments %>
+        </div>
 
         <% if user_signed_in? %>
           <%= render "comments/form", post: @post, comment: @comment %>

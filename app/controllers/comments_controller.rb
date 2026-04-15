@@ -8,6 +8,8 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
+      # Ensure realtime append to the post's comments container for subscribed clients
+      @comment.broadcast_append_to(@post, target: helpers.dom_id(@post, :comments), partial: "comments/comment", locals: { comment: @comment })
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace(

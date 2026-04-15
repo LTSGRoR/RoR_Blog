@@ -4,6 +4,4 @@ class Comment < ApplicationRecord
   has_many :reactions, as: :reactable, dependent: :destroy
 
   validates :body, presence: true
-
-  broadcasts_to :post, inserts_by: :append
 end
