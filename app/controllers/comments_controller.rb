@@ -10,11 +10,18 @@ class CommentsController < ApplicationController
     if @comment.save
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "new_comment",
-            partial: "comments/form",
-            locals: { post: @post, comment: Comment.new }
-          )
+          render turbo_stream: [
+            turbo_stream.append(
+              "comments_list",
+              partial: "comments/comment",
+              locals: { comment: @comment }
+            ),
+            turbo_stream.replace(
+              "new_comment",
+              partial: "comments/form",
+              locals: { post: @post, comment: Comment.new }
+            )
+          ]
         end
         format.html { redirect_to @post, notice: "Comment posted." }
       end

@@ -52,7 +52,7 @@
         <h2 class="text-xl font-semibold text-slate-800"><%= t("posts.show.comments") %></h2>
 
         <%= turbo_frame_tag "comments" do %>
-          <div class="mt-4 space-y-4">
+          <div id="comments_list" class="mt-4 space-y-4">
             <%= render @comments %>
           </div>
         <% end %>
