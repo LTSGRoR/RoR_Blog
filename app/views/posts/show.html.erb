@@ -20,11 +20,6 @@
         <% end %>
         <span class="text-slate-300">·</span>
         <span><%= l(@post.created_at, format: :short) %></span>
-        <% if @post.verified? %>
-          <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><%= t("posts.status.verified") %></span>
-        <% else %>
-          <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><%= t("posts.status.unverified") %></span>
-        <% end %>
       </div>
 
       <% if @post.tags.any? %>
@@ -54,7 +49,33 @@
         <% end %>
         <% if current_user == @post.user %>
           <div class="mt-3">
-            <%= btn_link_to t("post_revisions.status_panel.open_editor"), edit_post_revision_path(@post), variant: :secondary %>
+            <% label = @active_revision.pending_review? ? t("post_revisions.status_panel.view_revision") : t("post_revisions.status_panel.open_editor") %>
+            <%= btn_link_to label, edit_post_revision_path(@post), variant: :secondary %>
+          </div>
+        <% end %>
+      </section>
+    <% elsif @rejected_revision.present? %>
+      <section class="mt-6 rounded-xl border border-amber-200 bg-amber-50/80 p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-amber-800"><%= t("post_revisions.status_panel.rejected_title") %></h2>
+            <p class="mt-2 text-sm text-amber-950"><%= t("post_revisions.status_panel.rejected_detail") %></p>
+          </div>
+          <% if @rejected_revision.reviewed_at.present? %>
+            <p class="text-xs font-medium text-amber-700"><%= t("post_revisions.status_panel.reviewed_at", time: l(@rejected_revision.reviewed_at, format: :short)) %></p>
+          <% end %>
+        </div>
+
+        <% if @rejected_revision.review_note.present? %>
+          <div class="mt-4 rounded-lg border border-amber-200 bg-white px-4 py-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><%= t("post_revisions.status_panel.review_note_label") %></p>
+            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700"><%= @rejected_revision.review_note %></p>
+          </div>
+        <% end %>
+
+        <% if current_user == @post.user %>
+          <div class="mt-4">
+            <%= btn_link_to t("post_revisions.status_panel.start_new_revision"), new_post_revision_path(@post), variant: :secondary %>
           </div>
         <% end %>
       </section>
@@ -86,76 +107,6 @@
             <%= link_to t("nav.sign_in"), new_user_session_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>
             <%= t("posts.show.join_conversation") %>
           </p>
-        <% end %>
-      </section>
-    <% end %>
-
-    <% if current_user&.admin? && @post.published? %>
-      <section class="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-5">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 class="text-lg font-semibold text-slate-900"><%= t("posts.show.review_controls.title") %></h2>
-            <p class="mt-1 text-sm text-slate-600">
-              <% if @post.verified? %>
-                <%= t("posts.show.review_controls.verified_description") %>
-              <% else %>
-                <%= t("posts.show.review_controls.unverified_description") %>
-              <% end %>
-            </p>
-          </div>
-
-          <% unless @post.verified? %>
-            <div>
-              <%= btn_link_to t("posts.show.review_controls.verify"), verify_post_path(@post), method: :post, variant: :success, data: { confirm: t("posts.show.review_controls.verify") + "?" } %>
-            </div>
-          <% end %>
-        </div>
-
-        <%= form_with url: unverify_post_path(@post), method: :post, class: "mt-5 space-y-3 border-t border-slate-200 pt-4" do %>
-          <div>
-            <%= label_tag "post_unverify_reason", t("posts.show.review_controls.feedback_label"), class: "mb-2 block text-sm font-medium text-slate-700" %>
-            <%= text_area_tag "post[unverify_reason]", @post.unverify_reason, rows: 4, placeholder: t("posts.show.review_controls.feedback_placeholder"), required: true, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" %>
-          </div>
-
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex flex-wrap items-center gap-3">
-              <%= button_tag(@post.verified? ? t("posts.show.review_controls.unverify_with_feedback") : t("posts.show.review_controls.save_feedback"), type: "submit", class: "inline-flex items-center h-10 px-4 rounded-md text-sm font-medium border bg-amber-500 border-amber-500 text-yellow-950 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition") %>
-            </div>
-            <p class="text-xs leading-5 text-slate-500"><%= t("posts.show.review_controls.author_only") %></p>
-          </div>
-        <% end %>
-      </section>
-    <% end %>
-
-    <% can_view_feedback = current_user&.admin? || current_user == @post.user %>
-    <% if can_view_feedback && (@post.unverify_reason.present? || @post.author_feedback_reply.present?) %>
-      <section class="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-5">
-        <h2 class="text-lg font-semibold text-amber-900"><%= t("posts.show.feedback.title") %></h2>
-
-        <% if @post.unverify_reason.present? %>
-          <div class="mt-4 rounded-lg border border-amber-300 bg-white/70 px-4 py-3 text-sm leading-6 text-amber-950 whitespace-pre-wrap"><%= @post.unverify_reason %></div>
-        <% end %>
-
-        <% if @post.author_feedback_reply.present? %>
-          <div class="mt-4 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3">
-            <p class="text-xs font-semibold uppercase tracking-wide text-sky-700"><%= t("posts.show.feedback.author_reply") %></p>
-            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-sky-900"><%= @post.author_feedback_reply %></p>
-            <% if @post.author_replied_at.present? %>
-              <p class="mt-2 text-xs text-sky-700"><%= t("posts.show.feedback.updated_at", time: l(@post.author_replied_at, format: :short)) %></p>
-            <% end %>
-          </div>
-        <% end %>
-
-        <% if current_user == @post.user && @post.unverify_reason.present? && @post.author_feedback_reply.blank? %>
-          <%= form_with url: reply_feedback_post_path(@post), method: :post, class: "mt-4 space-y-3" do %>
-            <div>
-              <%= label_tag "post_author_feedback_reply", t("posts.show.feedback.reply_label"), class: "mb-2 block text-sm font-medium text-amber-900" %>
-              <%= text_area_tag "post[author_feedback_reply]", @post.author_feedback_reply, rows: 3, placeholder: t("posts.show.feedback.reply_placeholder"), required: true, class: "w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" %>
-            </div>
-            <div>
-              <%= button_tag t("posts.show.feedback.send_reply"), type: "submit", class: "inline-flex items-center h-10 px-4 rounded-md text-sm font-medium border bg-sky-600 border-sky-600 text-white hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition" %>
-            </div>
-          <% end %>
         <% end %>
       </section>
     <% end %>

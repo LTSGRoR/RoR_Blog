@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_120500) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -158,9 +158,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_120500) do
     t.datetime "updated_at", null: false
     t.datetime "banned_at"
     t.datetime "suspended_until"
+    t.string "suspended_time_zone"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["suspended_time_zone"], name: "index_users_on_suspended_time_zone"
   end
 
   add_foreign_key "comments", "posts"

@@ -25,9 +25,15 @@ Rails.application.routes.draw do
   end
 
     resources :posts do
+      collection do
+        get :community
+        get :mine
+      end
+
       resources :comments, only: [:create]
       resource :revision, controller: :post_revisions, only: [:new, :create, :edit, :update] do
         post :submit
+        post :withdraw
       end
 
       member do
@@ -39,7 +45,7 @@ Rails.application.routes.draw do
 
     namespace :admin do
       resources :posts, only: [:index]
-      resources :post_revisions, only: [] do
+      resources :post_revisions, only: [:show, :destroy] do
         member do
           post :approve
           post :reject

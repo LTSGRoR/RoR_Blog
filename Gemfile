@@ -40,6 +40,7 @@ gem "solid_cable"
 
 # Background jobs: Sidekiq + Redis (Phase 1)
 gem "sidekiq"
+gem "sidekiq-cron"
 gem "redis"
 
 # Authorization

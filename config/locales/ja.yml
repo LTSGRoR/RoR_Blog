@@ -32,6 +32,34 @@ ja:
       new_post: "新しい投稿"
       moderation_queue: "レビューキュー"
       no_results: "\"%{query}\" に一致する投稿は見つかりませんでした。"
+    mine:
+      title: "投稿を管理"
+      subtitle: "下書き、レビュー対応、公開済み投稿を一か所で確認できます。"
+      empty: "まだ投稿がありません。"
+      no_results: "\"%{query}\" に一致する投稿はありません。"
+      no_revision: "進行中の修正はありません"
+      search_placeholder: "タイトルまたはタグで自分の投稿を検索..."
+      search: "検索"
+      clear_search: "クリア"
+      stats:
+        drafts: "下書き"
+        needs_review: "要対応"
+        published: "公開済み"
+      list:
+        title: "あなたの投稿キュー"
+        subtitle: "公開フィードとは分けて、自分の投稿だけを管理できます。"
+      columns:
+        post: "投稿"
+        visibility: "投稿状態"
+        revision: "修正"
+        updated: "更新日時"
+        actions: "操作"
+      badges:
+        draft: "下書き"
+        awaiting_review: "レビュー待ち"
+        published: "公開済み"
+      actions:
+        view: "表示"
     show:
       by: "投稿者"
       reactions: "リアクション"
@@ -249,6 +277,7 @@ ja:
     flash:
       saved: "修正ドラフトを保存しました。"
       submitted: "管理者レビューに修正を提出しました。"
+      withdrawn: "修正をドラフトに戻しました。"
       start_first: "先に修正ドラフトを作成してください。"
     new:
       title: "修正を作成"
@@ -256,27 +285,53 @@ ja:
     edit:
       title: "修正を編集"
       subtitle: "保留中の修正を更新し、準備ができたら提出します。"
+      pending_subtitle: "この修正はレビュー中です。編集を続けるにはドラフトへ戻してください。"
       pending_notice: "この修正は提出済みで、管理者レビュー待ちです。"
     form:
       live_post_notice: "公開中の投稿は変更されません"
       live_post_notice_detail: "編集内容は管理者の承認後にのみ反映されます。"
+      feedback_title: "直近の管理者フィードバック"
       tags: "タグ"
       tags_placeholder: "tag1, tag2, tag3"
+      no_tags: "タグはありません"
       back_to_post: "投稿に戻る"
       save_draft: "ドラフトを保存"
       submit_for_review: "レビューに提出"
       confirm_submit: "この修正を管理者レビューに提出しますか？"
+      statuses:
+        draft: "ドラフト"
+        pending_review: "レビュー待ち"
+        approved: "承認済み"
+        rejected: "却下済み"
+      withdraw: "レビューから取り下げる"
+      confirm_withdraw: "この修正をレビューから取り下げてドラフトに戻しますか？"
     status_panel:
       title: "修正ステータス"
       current_status: "現在の状態: %{status}"
       submitted_at: "%{time} に提出"
       open_editor: "修正エディタを開く"
+      view_revision: "修正を確認する"
+      rejected_title: "修正に更新が必要です"
+      rejected_detail: "レビュー内容は以下です。準備ができたら修正版を作成してください。"
+      reviewed_at: "%{time} にレビュー済み"
+      review_note_label: "レビュー内容"
+      start_new_revision: "修正版を作成する"
+      propose_edits: "編集を提案する"
 
   admin:
     posts:
       flash:
         approved: "修正が承認され、公開投稿に反映されました。"
         rejected: "修正を却下しました。"
+        deleted: "修正を削除しました。"
+      show:
+        subtitle: "%{author} の下書き内容をレビューしています"
+        back_to_queue: "モデレーションに戻る"
+        draft_badge: "下書きプレビュー"
+        live_post_title: "現在の公開投稿"
+        review_actions: "レビュー操作"
+        draft_notice: "この修正はまだ下書きです。承認または却下する前に、著者がレビューへ提出する必要があります。"
+        review_complete: "この修正はすでにレビュー済みです。"
       statuses:
         draft: "ドラフト"
         pending_review: "レビュー待ち"
@@ -289,15 +344,40 @@ ja:
         search: "検索"
         empty: "このフィルタに一致する修正はありません。"
         no_action: "実行可能な操作はありません"
+        open_draft: "下書きを開く"
+        confirm_approve: "承認して公開投稿に反映しますか？"
+        confirm_delete_revision: "この修正を削除しますか？この操作は元に戻せません。"
         open_live_post: "公開投稿を開く"
+        review: "レビュー"
         approve: "承認"
+        unverify: "確認解除"
         reject: "却下"
         approve_note_placeholder: "メモ（任意）"
         reject_note_placeholder: "却下理由（必須）"
         stats:
-          pending: "レビュー待ち"
+          pending_posts: "新規投稿"
+          pending_revisions: "修正レビュー待ち"
           open: "編集中ドラフト"
           reviewed_today: "本日のレビュー件数"
+        pending_posts:
+          title: "投稿管理"
+          subtitle: "公開済み投稿の確認、差し戻し、削除を管理します。"
+          no_feedback: "まだフィードバックはありません"
+          empty: "この条件に一致する投稿はありません。"
+          columns:
+            post: "投稿"
+            author: "著者"
+            status: "状態"
+            submitted: "投稿日"
+            feedback: "フィードバック"
+            actions: "操作"
+        pending_revisions:
+          title: "修正レビュー"
+          subtitle: "確認済み投稿への編集を、公開版へ反映する前にレビューします。"
+        scopes:
+          all: "すべてのモデレーション"
+          posts: "投稿"
+          revisions: "修正"
         filters:
           pending: "レビュー待ち"
           open: "ドラフト"

@@ -1,5 +1,6 @@
 <div class="mb-6">
-  <%= form_tag posts_path, method: :get, class: "w-full", data: { controller: "search", "search-url-value": posts_path, "search-delay-value": 300 } do %>
+  <% search_path = local_assigns.fetch(:search_path, posts_path) %>
+  <%= form_tag search_path, method: :get, class: "w-full", data: { controller: "search", "search-url-value": search_path, "search-delay-value": 300 } do %>
     <div class="relative mx-auto w-full max-w-3xl">
       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">

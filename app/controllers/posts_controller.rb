@@ -1,7 +1,7 @@
 
 class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy verify unverify reply_feedback]
-  before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback]
+  before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback mine]
   before_action :authorize_show!, only: %i[show]
   before_action :authorize_post!, only: %i[edit update destroy]
   before_action :authorize_verify!, only: %i[verify]
@@ -9,89 +9,47 @@ class PostsController < ApplicationController
   before_action :authorize_feedback_reply!, only: %i[reply_feedback]
 
   def index
-    @page     = params[:page] || 1
-    @per_page = 10
-
-    base_scope = if current_user&.admin?
-      Post.where(status: Post.statuses[:published])
-          .or(Post.where(user_id: current_user.id))
-    elsif current_user
-      Post.where(status: Post.statuses[:published], verified: true)
-          .or(Post.where(user_id: current_user.id))
-    else
-      Post.where(status: Post.statuses[:published], verified: true)
+    if current_user&.admin?
+      redirect_to admin_posts_path
+      return
     end
 
-    if params[:q].present?
-      query = params[:q].to_s.strip
-      if defined?(Searchkick)
-        begin
-          search_scope = if current_user&.admin?
-            {
-              _or: [
-                { status: Post.statuses.key(Post.statuses[:published]) },
-                { user_id: current_user.id }
-              ]
-            }
-          elsif current_user
-            {
-              _or: [
-                { status: Post.statuses.key(Post.statuses[:published]), verified: true },
-                { user_id: current_user.id }
-              ]
-            }
-          else
-            { status: Post.statuses.key(Post.statuses[:published]), verified: true }
-          end
-          @posts = Post.search(
-            query,
-            fields: [ "title^5", "tags^3", "body" ],
-            where: search_scope,
-            page: @page,
-            per_page: @per_page,
-            operator: query.include?(" ") ? "and" : "or",
-            misspellings: { below: 5 }
-          )
-          # Searchkick executes lazily; force execution here so errors are rescued in controller.
-          @posts.total_count
-        rescue StandardError => e
-          Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-          @posts = Post.none.page(@page).per(@per_page)
-        end
-      else
-        @posts = Post.none.page(@page).per(@per_page)
-      end
-    else
-      @posts = base_scope.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
-    end
-    respond_to do |format|
-      format.html
-      format.json do
-        posts_json = @posts.map do |post|
-          {
-            id: post.id,
-            title: post.title,
-            body: post.body.to_plain_text,
-            tags: post.tags.map(&:name),
-            verified: post.verified,
-            user: post.user&.name,
-            created_at: post.created_at
-          }
-        end
+    load_public_posts
+    respond_with_posts
+  end
 
-        render json: {
-          count: (@posts.respond_to?(:total_count) ? @posts.total_count : @posts.size),
-          posts: posts_json
-        }
-      end
+  def community
+    load_public_posts
+    render :index
+  end
+
+  def mine
+    @query = params[:q].to_s.strip
+    @posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
+
+    if @query.present?
+      lowered_query = "%#{@query.downcase}%"
+      @posts = @posts.left_outer_joins(:tags).where(
+        "LOWER(posts.title) LIKE :query OR LOWER(tags.name) LIKE :query",
+        query: lowered_query
+      ).distinct
     end
+
+    @draft_posts_count = @posts.where(status: Post.statuses[:draft]).count
+    @needs_review_posts_count = @posts.where(status: Post.statuses[:published], verified: false).count
+    @published_posts_count = @posts.where(status: Post.statuses[:published], verified: true).count
+
+    @posts = @posts.page(params[:page]).per(10)
   end
 
   def show
     @comments = @post.comments.includes(:user).order(created_at: :asc).page(params[:page]).per(10)
     @comment = Comment.new
-    @active_revision = if current_user&.admin? || current_user == @post.user
+    @active_revision = if current_user == @post.user
       @post.active_revision
+    end
+    @rejected_revision = if current_user == @post.user && @active_revision.nil?
+      @post.post_revisions.rejected.where(author_id: current_user.id).order(reviewed_at: :desc).first
     end
   end
 
@@ -164,17 +122,74 @@ class PostsController < ApplicationController
     reply = params.dig(:post, :author_feedback_reply).to_s.strip
 
     if reply.blank?
-      redirect_back fallback_location: @post, alert: "Reply is required."
+      redirect_back fallback_location: mine_posts_path, alert: "Reply is required."
       return
     end
 
     @post.reply_to_feedback!(author: current_user, reply: reply)
-    redirect_back fallback_location: @post, notice: "Reply sent to admin feedback."
+    redirect_back fallback_location: mine_posts_path, notice: "Reply sent to admin feedback."
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
-    redirect_back fallback_location: @post, alert: e.message
+    redirect_back fallback_location: mine_posts_path, alert: e.message
   end
 
   private
+
+  def load_public_posts
+    @page = params[:page] || 1
+    @per_page = 10
+    @search_path = current_user&.admin? ? community_posts_path : posts_path
+    public_scope = Post.where(status: Post.statuses[:published], verified: true)
+
+    if params[:q].present?
+      query = params[:q].to_s.strip
+      if defined?(Searchkick)
+        begin
+          search_scope = { status: Post.statuses.key(Post.statuses[:published]), verified: true }
+          @posts = Post.search(
+            query,
+            fields: [ "title^5", "tags^3", "body" ],
+            where: search_scope,
+            page: @page,
+            per_page: @per_page,
+            operator: query.include?(" ") ? "and" : "or",
+            misspellings: { below: 5 }
+          )
+          @posts.total_count
+        rescue StandardError => e
+          Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
+          @posts = Post.none.page(@page).per(@per_page)
+        end
+      else
+        @posts = Post.none.page(@page).per(@per_page)
+      end
+    else
+      @posts = public_scope.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
+    end
+  end
+
+  def respond_with_posts
+    respond_to do |format|
+      format.html
+      format.json do
+        posts_json = @posts.map do |post|
+          {
+            id: post.id,
+            title: post.title,
+            body: post.body.to_plain_text,
+            tags: post.tags.map(&:name),
+            verified: post.verified,
+            user: post.user&.name,
+            created_at: post.created_at
+          }
+        end
+
+        render json: {
+          count: (@posts.respond_to?(:total_count) ? @posts.total_count : @posts.size),
+          posts: posts_json
+        }
+      end
+    end
+  end
 
   def set_post
     @post = Post.find_by(id: params[:id])

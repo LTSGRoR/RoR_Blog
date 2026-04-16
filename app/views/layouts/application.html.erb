@@ -24,15 +24,15 @@
   </head>
 
   <body data-controller="syntax-highlight">
-    <header class="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+    <header class=" border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur" style="position: relative; top: 0; z-index: 50;">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 py-4 px-4 sm:px-6 lg:px-8">
-        <%= link_to root_path, class: "block" do %>
+        <%= link_to(current_user&.admin? ? community_posts_path : root_path, class: "block") do %>
           <div class="text-lg font-semibold text-slate-900 transition hover:text-indigo-600"><%= t("app_name") %></div>
           <p class="text-xs text-slate-500"><%= t("nav.tagline") %></p>
         <% end %>
         <nav class="flex flex-wrap items-center gap-3">
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <details class="relative">
+            <details class="relative z-50">
               <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:bg-white">
                 <span class="hidden sm:inline text-slate-400"><%= t("nav.hello_prefix", default: "Hello,") %></span>
                 <span class="font-semibold text-slate-800"><%= current_user.name || current_user.email %></span>
@@ -41,11 +41,11 @@
                 </svg>
               </summary>
 
-              <div class="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg">
+              <div class="absolute right-0 z-[100] mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg">
                 <%# Language — side flyout on hover (Stimulus hover-menu) %>
                 <div class="relative border-t border-slate-100" data-controller="hover-menu">
                   <button type="button"
-                          data-action="mouseenter->hover-menu#show mouseleave->hover-menu#hide"
+                          data-action="mouseenter->hover-menu#show mouseleave->hover-menu#hide click->hover-menu#toggle"
                           class="flex w-full items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9Zm0 0c2.25 2.46 3.5 5.62 3.5 9S14.25 18.54 12 21m0-18C9.75 5.46 8.5 8.62 8.5 12S9.75 18.54 12 21m-8-9h16" />
@@ -60,7 +60,7 @@
                   <%# Flyout panel — pops out to the RIGHT of the main dropdown %>
                   <div data-hover-menu-target="panel"
                        data-action="mouseenter->hover-menu#stayOpen mouseleave->hover-menu#hide"
-                       class="hidden absolute left-full top-0 ml-1 w-28 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-30 max-sm:left-auto max-sm:right-full max-sm:ml-0 max-sm:mr-1">
+                       class="hidden absolute left-full top-0 z-[110] ml-1 w-28 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                     <% I18n.available_locales.each do |locale| %>
                       <%= link_to url_for(locale: locale), class: "block px-2 py-2 text-sm text-center #{I18n.locale == locale ? 'text-indigo-700 font-medium bg-indigo-50' : 'text-slate-700 hover:bg-slate-50'}" do %>
                         <%= t("locale_switcher.#{locale}") %>
@@ -77,24 +77,24 @@
                   <%= t("nav.profile_settings") %>
                 <% end %>
 
+                <div class="border-t border-slate-100">
+                  <%= link_to(current_user.admin? ? admin_posts_path : mine_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5m-16.5 7.5h16.5m-16.5 7.5h16.5" />
+                    </svg>
+                    <%= t("nav.manage_posts") %>
+                  <% end %>
+
                 <%# Manage users (admin only) %>
                 <% if current_user.admin? %>
-                  <div class="border-t border-slate-100">
-                    <%= link_to admin_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5m-16.5 7.5h16.5m-16.5 7.5h16.5" />
-                      </svg>
-                      <%= t("nav.manage_posts") %>
-                    <% end %>
-
-                      <%= link_to users_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
+                    <%= link_to users_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.79-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                       </svg>
                       <%= t("nav.manage_users") %>
                     <% end %>
-                  </div>
                 <% end %>
+                </div>
 
                 <%# Sign out %>
                 <div class="border-t border-slate-100">

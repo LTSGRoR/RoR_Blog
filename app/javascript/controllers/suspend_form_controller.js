@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["suspendModal", "suspendForm", "suspendInput", "suspendUserLabel", "banModal", "banForm", "banUserLabel"]
+  static targets = ["suspendModal", "suspendForm", "suspendInput", "suspendTimeZone", "suspendTimeZoneLabel", "suspendUserLabel", "banModal", "banForm", "banUserLabel"]
 
   openSuspend(event) {
     const { url, user } = event.params
@@ -10,6 +10,13 @@ export default class extends Controller {
     this.suspendUserLabelTarget.textContent = user
     this.suspendInputTarget.value = ""
     this.suspendInputTarget.min = this.currentLocalDateTime()
+    if (this.hasSuspendTimeZoneTarget) {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+      this.suspendTimeZoneTarget.value = tz
+      if (this.hasSuspendTimeZoneLabelTarget) {
+        this.suspendTimeZoneLabelTarget.textContent = `Time zone: ${tz}`
+      }
+    }
     this.showModal(this.suspendModalTarget)
 
     this.suspendInputTarget.focus()

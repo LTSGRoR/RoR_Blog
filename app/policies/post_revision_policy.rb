@@ -1,4 +1,8 @@
 class PostRevisionPolicy < ApplicationPolicy
+  def show?
+    user&.admin?
+  end
+
   def new?
     create?
   end
@@ -8,15 +12,19 @@ class PostRevisionPolicy < ApplicationPolicy
   end
 
   def edit?
-    update?
-  end
-
-  def update?
     user.present? && record.author == user && (record.draft? || record.pending_review?)
   end
 
+  def update?
+    user.present? && record.author == user && record.draft?
+  end
+
   def submit?
-    update?
+    user.present? && record.author == user && record.draft?
+  end
+
+  def withdraw?
+    user.present? && record.author == user && record.pending_review?
   end
 
   def approve?
@@ -24,6 +32,10 @@ class PostRevisionPolicy < ApplicationPolicy
   end
 
   def reject?
+    user&.admin?
+  end
+
+  def destroy?
     user&.admin?
   end
 

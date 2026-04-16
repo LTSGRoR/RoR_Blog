@@ -32,6 +32,34 @@ vi:
       new_post: "Bài viết mới"
       moderation_queue: "Hàng đợi kiểm duyệt"
       no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+    mine:
+      title: "Quản lý bài viết của bạn"
+      subtitle: "Theo dõi bản nháp, phản hồi kiểm duyệt và bài viết đã xuất bản tại một nơi."
+      empty: "Bạn chưa tạo bài viết nào."
+      no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+      no_revision: "Không có bản chỉnh sửa đang hoạt động"
+      search_placeholder: "Tìm bài viết của bạn theo tiêu đề hoặc thẻ..."
+      search: "Tìm"
+      clear_search: "Xóa"
+      stats:
+        drafts: "Bản nháp"
+        needs_review: "Cần xem lại"
+        published: "Đã xuất bản"
+      list:
+        title: "Hàng đợi bài viết của bạn"
+        subtitle: "Mọi bài viết của bạn, tách biệt khỏi luồng bài viết công khai."
+      columns:
+        post: "Bài viết"
+        visibility: "Trạng thái bài viết"
+        revision: "Bản chỉnh sửa"
+        updated: "Cập nhật"
+        actions: "Thao tác"
+      badges:
+        draft: "Bản nháp"
+        awaiting_review: "Chờ duyệt"
+        published: "Đã xuất bản"
+      actions:
+        view: "Xem"
     show:
       by: "bởi"
       reactions: "Cảm xúc"
@@ -249,6 +277,7 @@ vi:
     flash:
       saved: "Đã lưu bản nháp chỉnh sửa."
       submitted: "Đã gửi bản chỉnh sửa để quản trị viên duyệt."
+      withdrawn: "Đã rút bản chỉnh sửa về trạng thái nháp."
       start_first: "Hãy tạo bản nháp chỉnh sửa trước."
     new:
       title: "Tạo bản chỉnh sửa"
@@ -256,27 +285,53 @@ vi:
     edit:
       title: "Chỉnh sửa bản nháp"
       subtitle: "Cập nhật bản chỉnh sửa và gửi khi đã sẵn sàng."
+      pending_subtitle: "Bản chỉnh sửa này đang chờ duyệt. Hãy rút về bản nháp nếu bạn muốn tiếp tục chỉnh sửa."
       pending_notice: "Bản chỉnh sửa này đã được gửi và đang chờ quản trị viên duyệt."
     form:
       live_post_notice: "Bài viết đang hiển thị không đổi"
       live_post_notice_detail: "Nội dung mới chỉ hiển thị sau khi được quản trị viên phê duyệt."
+      feedback_title: "Phản hồi mới nhất từ quản trị viên"
       tags: "Thẻ"
       tags_placeholder: "the1, the2, the3"
+      no_tags: "Chưa chọn thẻ nào"
       back_to_post: "Quay lại bài viết"
       save_draft: "Lưu bản nháp"
       submit_for_review: "Gửi duyệt"
       confirm_submit: "Gửi bản chỉnh sửa này để quản trị viên duyệt?"
+      statuses:
+        draft: "Bản nháp"
+        pending_review: "Chờ duyệt"
+        approved: "Đã duyệt"
+        rejected: "Đã từ chối"
+      withdraw: "Rút khỏi hàng duyệt"
+      confirm_withdraw: "Rút bản chỉnh sửa về trạng thái nháp?"
     status_panel:
       title: "Trạng thái chỉnh sửa"
       current_status: "Trạng thái hiện tại: %{status}"
       submitted_at: "Đã gửi lúc %{time}"
       open_editor: "Mở trình chỉnh sửa"
+      view_revision: "Xem bản chỉnh sửa"
+      rejected_title: "Bản chỉnh sửa cần cập nhật"
+      rejected_detail: "Phản hồi duyệt ở bên dưới. Hãy tạo bản chỉnh sửa mới khi bạn sẵn sàng."
+      reviewed_at: "Đã duyệt %{time}"
+      review_note_label: "Phản hồi duyệt"
+      start_new_revision: "Tạo bản chỉnh sửa cập nhật"
+      propose_edits: "Đề xuất chỉnh sửa"
 
   admin:
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
         rejected: "Đã từ chối bản chỉnh sửa."
+        deleted: "Đã xóa bản chỉnh sửa."
+      show:
+        subtitle: "Đang duyệt nội dung nháp từ %{author}"
+        back_to_queue: "Quay lại kiểm duyệt"
+        draft_badge: "Xem trước bản nháp"
+        live_post_title: "Bài viết đang hiển thị"
+        review_actions: "Hành động duyệt"
+        draft_notice: "Bản chỉnh sửa này vẫn là bản nháp. Tác giả phải gửi duyệt trước khi có thể phê duyệt hoặc từ chối."
+        review_complete: "Bản chỉnh sửa này đã được xử lý."
       statuses:
         draft: "Bản nháp"
         pending_review: "Chờ duyệt"
@@ -289,15 +344,40 @@ vi:
         search: "Tìm"
         empty: "Không có bản chỉnh sửa phù hợp bộ lọc."
         no_action: "Không có hành động"
+        open_draft: "Mở bản nháp"
+        confirm_approve: "Phê duyệt và đăng lên bài viết?"
+        confirm_delete_revision: "Xóa bản chỉnh sửa này? Hành động này không thể hoàn tác."
         open_live_post: "Mở bài viết đang hiển thị"
+        review: "Duyệt"
         approve: "Phê duyệt"
+        unverify: "Hủy xác minh"
         reject: "Từ chối"
         approve_note_placeholder: "Ghi chú (không bắt buộc)"
         reject_note_placeholder: "Ghi chú từ chối (bắt buộc)"
         stats:
-          pending: "Đang chờ duyệt"
+          pending_posts: "Bài viết mới"
+          pending_revisions: "Bản sửa chờ duyệt"
           open: "Bản nháp mở"
           reviewed_today: "Đã xử lý hôm nay"
+        pending_posts:
+          title: "Quản Lý Bài Viết"
+          subtitle: "Quản lý các bài viết đã xuất bản, bao gồm xác minh, phản hồi và xóa."
+          no_feedback: "Chưa có phản hồi"
+          empty: "Không có bài viết nào phù hợp bộ lọc."
+          columns:
+            post: "Bài viết"
+            author: "Tác giả"
+            status: "Trạng thái"
+            submitted: "Ngày gửi"
+            feedback: "Phản hồi"
+            actions: "Hành động"
+        pending_revisions:
+          title: "Duyệt Bản Chỉnh Sửa"
+          subtitle: "Duyệt các chỉnh sửa của bài viết đã xác minh trước khi cập nhật bản hiển thị."
+        scopes:
+          all: "Tất cả kiểm duyệt"
+          posts: "Bài viết"
+          revisions: "Bản chỉnh sửa"
         filters:
           pending: "Chờ duyệt"
           open: "Bản nháp"

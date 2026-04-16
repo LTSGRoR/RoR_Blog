@@ -1,60 +1,15 @@
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
     <h1 class="text-3xl font-bold text-slate-800"><%= t("posts.index.title") %></h1>
-    <div class="flex flex-wrap items-center gap-2">
-      <% if current_user&.admin? %>
-        <%= btn_link_to t("posts.index.moderation_queue"), admin_posts_path, variant: :secondary %>
-      <% end %>
-      <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
-    </div>
+    <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
   </div>
 
-  <%= render 'shared/search_form' %>
+  <%= render 'shared/search_form', search_path: (@search_path || posts_path) %>
 
   <div id="posts-results">
     <div class="space-y-6">
       <% @posts.each do |post| %>
-      <article class="group bg-white border border-slate-200 shadow-sm rounded-xl p-6 flex items-start gap-4 transition hover:border-indigo-200 hover:shadow-md">
-        <div class="flex-shrink-0">
-          <% if post.user&.avatar&.attached? %>
-            <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name %>
-          <% else %>
-            <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || t("common.default_avatar") %>
-          <% end %>
-        </div>
-        <div class="flex-1 min-w-0">
-          <h2 class="text-xl font-semibold text-slate-800">
-            <%= link_to post.title, post_path(post), class: "transition hover:text-indigo-600" %>
-            <% if post.verified? %>
-              <span class="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /></svg>
-                <%= t("posts.status.verified") %>
-              </span>
-            <% else %>
-              <span class="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800"><%= t("posts.status.unverified") %></span>
-            <% end %>
-          </h2>
-          <div class="text-sm text-slate-500 mt-2">
-            by
-            <% if post.user.present? %>
-              <%= link_to(post.user.name.presence || post.user.email, user_path(post.user), class: 'font-medium text-slate-600 hover:text-indigo-600') %>
-            <% else %>
-              Unknown
-            <% end %>
-            · <%= post.created_at.strftime('%b %d, %Y') %>
-          </div>
-          <% if post.tags.any? %>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <% post.tags.each do |tag| %>
-                <%= render "tag_chip", tag: tag %>
-              <% end %>
-            </div>
-          <% end %>
-          <div class="mt-4">
-            <%= render "post_actions", post: post, show_read_more: true %>
-          </div>
-        </div>
-      </article>
+        <%= render "index_post_card", post: post %>
       <% end %>
     </div>
     <div class="mt-8">

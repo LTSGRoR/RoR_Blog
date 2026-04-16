@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "list", "chips"]
+  static values = { hiddenInputName: { type: String, default: "post[tag_ids][]" } }
 
   connect() {
     this.timer = null
@@ -158,7 +159,7 @@ export default class extends Controller {
 
     const hidden = document.createElement("input")
     hidden.type = "hidden"
-    hidden.name = "post[tag_ids][]"
+    hidden.name = this.hiddenInputNameValue
     hidden.value = id
     hidden.dataset.tagId = id
 
@@ -167,11 +168,11 @@ export default class extends Controller {
   }
 
   ensureEmptyField() {
-    if (this.chipsTarget.querySelector('input[name="post[tag_ids][]"]')) return
+    if (this.chipsTarget.querySelector(`input[name="${this.hiddenInputNameValue}"]`)) return
 
     const hidden = document.createElement("input")
     hidden.type = "hidden"
-    hidden.name = "post[tag_ids][]"
+    hidden.name = this.hiddenInputNameValue
     hidden.value = ""
     hidden.dataset.emptyTagIds = "true"
 

@@ -32,7 +32,7 @@ class PostPolicy < ApplicationPolicy
   end
 
   def destroy?
-    user.present? && (user.admin? || record.user == user)
+    user.present? && (user.admin? || (record.user == user && !record.verified?))
   end
 
   class Scope < Scope

@@ -17,11 +17,12 @@ class PostRevision < ApplicationRecord
   validates :title, presence: true
   validate :author_owns_post
 
-  scope :open_for_edit, -> { where(moderation_status: [ moderation_statuses[:draft], moderation_statuses[:pending_review] ]) }
+  scope :current_state, -> { where(moderation_status: [ moderation_statuses[:draft], moderation_statuses[:pending_review] ]) }
+  scope :open_for_edit, -> { where(moderation_status: moderation_statuses[:draft]) }
   scope :queue, -> { pending_review.includes(:post, :author).order(submitted_at: :asc, created_at: :asc) }
 
   def editable_by?(user)
-    user.present? && user == author && (draft? || pending_review?)
+    user.present? && user == author && draft?
   end
 
   def submit!
@@ -29,6 +30,13 @@ class PostRevision < ApplicationRecord
     raise ArgumentError, "Body is required" if body.to_plain_text.to_s.strip.blank?
 
     update!(moderation_status: :pending_review, submitted_at: Time.current)
+  end
+
+  def prepare_as_draft!
+    return unless pending_review?
+
+    self.moderation_status = :draft
+    self.submitted_at = nil
   end
 
   def approve!(admin:, note: nil)

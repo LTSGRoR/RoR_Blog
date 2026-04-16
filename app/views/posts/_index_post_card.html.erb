@@ -1,0 +1,33 @@
+<article class="group bg-white border border-slate-200 shadow-sm rounded-xl p-6 flex items-start gap-4 transition hover:border-indigo-200 hover:shadow-md">
+  <div class="flex-shrink-0">
+    <% if post.user&.avatar&.attached? %>
+      <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name %>
+    <% else %>
+      <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || t("common.default_avatar") %>
+    <% end %>
+  </div>
+  <div class="flex-1 min-w-0">
+    <h2 class="text-xl font-semibold text-slate-800">
+      <%= link_to post.title, post_path(post), class: "transition hover:text-indigo-600" %>
+    </h2>
+    <div class="mt-2 text-sm text-slate-500">
+      <%= t("posts.show.by") %>
+      <% if post.user.present? %>
+        <%= link_to(post.user.name.presence || post.user.email, user_path(post.user), class: "font-medium text-slate-600 hover:text-indigo-600") %>
+      <% else %>
+        <%= t("common.unknown") %>
+      <% end %>
+      · <%= post.created_at.strftime('%b %d, %Y') %>
+    </div>
+    <% if post.tags.any? %>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <% post.tags.each do |tag| %>
+          <%= render "tag_chip", tag: tag %>
+        <% end %>
+      </div>
+    <% end %>
+    <div class="mt-4">
+      <%= render "post_actions", post: post, show_read_more: true %>
+    </div>
+  </div>
+</article>

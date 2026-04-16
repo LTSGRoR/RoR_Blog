@@ -1,4 +1,10 @@
-<%= form_with model: [@post, @revision], local: true, class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200" do |f| %>
+<%= form_with model: @revision,
+              url: post_revision_path(@post),
+              method: (@revision.persisted? ? :patch : :post),
+              local: true,
+              class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200" do |f| %>
+  <% readonly_revision = @revision.persisted? && @revision.pending_review? %>
+
   <% if @revision.errors.any? %>
     <div class="p-4 mb-6 rounded-lg bg-red-50 border-l-4 border-red-500">
       <h3 class="text-sm font-medium text-red-800"><%= t("errors.messages.not_saved", count: @revision.errors.count, resource: @revision.model_name.human.downcase) %></h3>
@@ -10,39 +16,98 @@
     </div>
   <% end %>
 
+  <% if @feedback_revision&.review_note.present? %>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+      <p class="font-medium"><%= t("post_revisions.form.feedback_title") %></p>
+      <p class="mt-1 whitespace-pre-wrap"><%= @feedback_revision.review_note %></p>
+    </div>
+  <% end %>
+
   <div class="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
     <p class="font-medium"><%= t("post_revisions.form.live_post_notice") %></p>
     <p class="mt-1"><%= t("post_revisions.form.live_post_notice_detail") %></p>
   </div>
 
-  <div>
+  <div> 
     <%= f.label :title, class: "block text-sm font-semibold text-slate-700" %>
     <div class="mt-1">
-      <%= f.text_field :title, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
+      <% if readonly_revision %>
+        <div class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700"><%= @revision.title %></div>
+      <% else %>
+        <%= f.text_field :title, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
+      <% end %>
     </div>
   </div>
 
   <div>
     <%= f.label :body, class: "block text-sm font-semibold text-slate-700" %>
-    <div class="mt-1 prose-trix">
-      <%= f.rich_text_area :body, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-h-[300px] border px-2" %>
-    </div>
+    <% if readonly_revision %>
+      <div class="prose prose-slate mt-1 max-w-none rounded-md border border-slate-200 bg-slate-50 px-4 py-4 text-slate-800">
+        <%= @revision.body %>
+      </div>
+    <% else %>
+      <div class="mt-1 prose-trix">
+        <%= f.rich_text_area :body, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-h-[300px] border px-2" %>
+      </div>
+    <% end %>
   </div>
 
-  <div>
-    <%= f.label :tag_list, t("post_revisions.form.tags"), class: "block text-sm font-semibold text-slate-700" %>
-    <div class="mt-1">
-      <%= f.text_field :tag_list, value: @revision.tag_list, placeholder: t("post_revisions.form.tags_placeholder"), class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
+  <% if readonly_revision %>
+    <div class="mt-4">
+      <%= f.label :tags, t("post_revisions.form.tags"), class: "block text-sm font-semibold text-slate-700" %>
+      <div class="mt-2 flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+        <% if @revision.tags.any? %>
+          <% @revision.tags.each do |tag| %>
+            <span class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800"><%= tag.name %></span>
+          <% end %>
+        <% else %>
+          <span class="text-sm text-slate-500"><%= t("post_revisions.form.no_tags") %></span>
+        <% end %>
+      </div>
     </div>
-  </div>
+  <% else %>
+    <div data-controller="tag-input" data-tag-input-hidden-input-name-value="post_revision[tag_ids][]" class="mt-4">
+      <%= f.label :tags, t("post_revisions.form.tags"), class: "block text-sm font-semibold text-slate-700" %>
+      <div class="mt-1 relative">
+        <input data-tag-input-target="input"
+               data-action="input->tag-input#search keydown->tag-input#handleKeydown"
+               name="post_revision[tag_list]"
+               type="text"
+               placeholder="<%= t('post_revisions.form.tags_placeholder') %>"
+               autocomplete="off"
+               class="block w-full rounded-md border-slate-300 shadow-sm sm:text-sm px-4 py-3 border focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+        <div data-tag-input-target="list" class="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto overflow-hidden rounded-lg border border-slate-200 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.14)] backdrop-blur empty:hidden"></div>
+      </div>
+      <div data-tag-input-target="chips" class="mt-2 flex flex-wrap items-center gap-2">
+        <input type="hidden" name="post_revision[tag_ids][]" value="" data-empty-tag-ids="true" />
+        <% @revision.tags.each do |tag| %>
+          <span data-tag-id="<%= tag.id %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+            <%= tag.name %>
+            <button type="button" data-action="click->tag-input#remove" data-tag-id="<%= tag.id %>" class="pl-1 text-sm leading-none text-indigo-400 hover:text-indigo-700" aria-label="<%= t('posts.form.remove_tag') %>">&times;</button>
+          </span>
+          <input type="hidden" name="post_revision[tag_ids][]" value="<%= tag.id %>" data-tag-id="<%= tag.id %>" />
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
     <%= btn_link_to t("post_revisions.form.back_to_post"), post_path(@post), variant: :ghost %>
+    <% if @revision.persisted? && @revision.pending_review? && policy(@revision).withdraw? %>
+      <%= btn_button_to t("post_revisions.form.withdraw"), withdraw_post_revision_path(@post), method: :post, variant: :danger, data: { turbo_confirm: t("post_revisions.form.confirm_withdraw") } %>
+    <% end %>
+
+    <% if @revision.persisted? %>
+      <% badge_classes = @revision.draft? ? "bg-slate-100 text-slate-600" : @revision.pending_review? ? "bg-yellow-100 text-yellow-700" : @revision.approved? ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" %>
+      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %>">
+        <%= t("post_revisions.form.statuses.#{@revision.moderation_status}") %>
+      </span>
+    <% end %>
 
     <div class="flex flex-wrap items-center gap-2">
-      <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary %>
-      <% if @revision.persisted? %>
-        <%= btn_button_to t("post_revisions.form.submit_for_review"), submit_post_revision_path(@post), method: :post, variant: :primary, data: { confirm: t("post_revisions.form.confirm_submit") } %>
+      <% unless readonly_revision %>
+        <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary, name: "commit_action", value: "save_draft" %>
+        <%= btn_submit f, t("post_revisions.form.submit_for_review"), variant: :primary, name: "commit_action", value: "submit_for_review", data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
       <% end %>
     </div>
   </div>

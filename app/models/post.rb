@@ -17,7 +17,7 @@ class Post < ApplicationRecord
   scope :unverified, -> { where(verified: false) }
 
   def active_revision
-    post_revisions.open_for_edit.order(updated_at: :desc).first
+    post_revisions.current_state.order(updated_at: :desc).first
   end
 
   def apply_approved_revision!(revision:, admin:)

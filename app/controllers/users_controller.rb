@@ -34,15 +34,19 @@ class UsersController < ApplicationController
       redirect_to users_path, alert: t("users.admin.flash.invalid_suspend_date")
       return
     end
+    # store canonical timezone name where possible; accept a sensible fallback
+    tz_param = params[:suspend_time_zone].to_s
+    alias_map = { "Asia/Saigon" => "Asia/Ho_Chi_Minh" }
+    canonical_tz = ActiveSupport::TimeZone[tz_param]&.name || ActiveSupport::TimeZone[alias_map[tz_param]]&.name || Time.zone.name
 
-    @user.update!(suspended_until: suspended_until, banned_at: nil)
+    @user.update!(suspended_until: suspended_until, suspended_time_zone: canonical_tz, banned_at: nil)
     redirect_to users_path, notice: t("users.admin.flash.suspended", email: @user.email, time: l(suspended_until, format: :short))
   end
 
   def unsuspend
     authorize @user, :unsuspend?
 
-    @user.update!(suspended_until: nil)
+    @user.update!(suspended_until: nil, suspended_time_zone: nil)
     redirect_to users_path, notice: t("users.admin.flash.unsuspended", email: @user.email)
   end
 
@@ -58,8 +62,15 @@ class UsersController < ApplicationController
 
   def parse_suspended_until
     return nil if params[:suspended_until].blank?
+    # Support browser-provided IANA names and a few common aliases (e.g. Asia/Saigon)
+    tz_param = params[:suspend_time_zone].to_s
+    alias_map = {
+      "Asia/Saigon" => "Asia/Ho_Chi_Minh"
+    }
 
-    Time.zone.parse(params[:suspended_until])
+    parsed_zone = ActiveSupport::TimeZone[tz_param] || ActiveSupport::TimeZone[alias_map[tz_param]]
+    effective_zone = parsed_zone || Time.zone
+    effective_zone.parse(params[:suspended_until])
   rescue ArgumentError
     nil
   end
