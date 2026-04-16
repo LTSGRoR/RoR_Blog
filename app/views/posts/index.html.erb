@@ -1,7 +1,12 @@
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
     <h1 class="text-3xl font-bold text-slate-800"><%= t("posts.index.title") %></h1>
-    <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
+    <div class="flex flex-wrap items-center gap-2">
+      <% if current_user&.admin? %>
+        <%= btn_link_to t("posts.index.moderation_queue"), admin_posts_path, variant: :secondary %>
+      <% end %>
+      <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
+    </div>
   </div>
 
   <%= render 'shared/search_form' %>

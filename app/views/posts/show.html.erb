@@ -40,6 +40,26 @@
       <%= @post.body %>
     </div>
 
+    <% if @active_revision.present? %>
+      <section class="mt-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-800"><%= t("post_revisions.status_panel.title") %></h2>
+        <p class="mt-2 text-sm text-indigo-900">
+          <%= t("post_revisions.status_panel.current_status", status: t("admin.posts.statuses.#{@active_revision.moderation_status}")) %>
+        </p>
+        <% if @active_revision.submitted_at.present? %>
+          <p class="mt-1 text-xs text-indigo-700"><%= t("post_revisions.status_panel.submitted_at", time: l(@active_revision.submitted_at, format: :short)) %></p>
+        <% end %>
+        <% if @active_revision.review_note.present? %>
+          <div class="mt-3 rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm text-slate-700"><%= @active_revision.review_note %></div>
+        <% end %>
+        <% if current_user == @post.user %>
+          <div class="mt-3">
+            <%= btn_link_to t("post_revisions.status_panel.open_editor"), edit_post_revision_path(@post), variant: :secondary %>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
     <% if @post.interactions_enabled? %>
       <section class="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-600"><%= t("posts.show.reactions") %></p>

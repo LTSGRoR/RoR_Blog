@@ -49,6 +49,7 @@ en:
     hello_prefix: "Hello,"
     tagline: "Publish, review, and manage your writing."
     profile_settings: "Profile Settings"
+    manage_posts: "Manage posts"
     manage_users: "Manage users"
     sign_out: "Sign out"
     sign_in: "Sign in"
@@ -58,6 +59,7 @@ en:
     index:
       title: "All Posts"
       new_post: "New Post"
+      moderation_queue: "Moderation Queue"
       no_results: "No posts found for \"%{query}\"."
     show:
       by: "by"
@@ -94,6 +96,7 @@ en:
       back_to_posts: "Back to posts"
       read_more: "Read more"
       edit: "Edit"
+      edit_revision: "Edit For Re-Review"
       delete: "Delete"
       confirm_delete: "Are you sure?"
     status:
@@ -267,6 +270,70 @@ en:
         suspended: "%{email} has been suspended until %{time}."
         unsuspended: "%{email} has been unsuspended."
         invalid_suspend_date: "Please provide a valid future date and time for suspension."
+
+  post_revisions:
+    flash:
+      saved: "Revision draft saved."
+      submitted: "Revision submitted for admin review."
+      start_first: "Start a revision draft first."
+    new:
+      title: "Create Revision"
+      subtitle: "Edit your verified post safely without changing the live page."
+    edit:
+      title: "Edit Revision"
+      subtitle: "Update your pending revision and submit it when ready."
+      pending_notice: "This revision has been submitted and is awaiting admin review."
+    form:
+      live_post_notice: "Live post stays unchanged"
+      live_post_notice_detail: "Your edits will be visible only after admin approval."
+      tags: "Tags"
+      tags_placeholder: "tag1, tag2, tag3"
+      back_to_post: "Back to post"
+      save_draft: "Save draft"
+      submit_for_review: "Submit for review"
+      confirm_submit: "Submit this revision for admin review?"
+    status_panel:
+      title: "Revision Status"
+      current_status: "Current status: %{status}"
+      submitted_at: "Submitted at %{time}"
+      open_editor: "Open revision editor"
+
+  admin:
+    posts:
+      flash:
+        approved: "Revision approved and published to live post."
+        rejected: "Revision rejected."
+      statuses:
+        draft: "Draft"
+        pending_review: "Pending review"
+        approved: "Approved"
+        rejected: "Rejected"
+      index:
+        title: "Post Moderation"
+        subtitle: "Review author revisions and approve changes to live posts."
+        search_placeholder: "Search by post title or author"
+        search: "Search"
+        empty: "No revisions found for this filter."
+        no_action: "No action available"
+        open_live_post: "Open live post"
+        approve: "Approve"
+        reject: "Reject"
+        approve_note_placeholder: "Optional note"
+        reject_note_placeholder: "Required rejection note"
+        stats:
+          pending: "Pending review"
+          open: "Open drafts"
+          reviewed_today: "Reviewed today"
+        filters:
+          pending: "Pending"
+          open: "Open Drafts"
+          reviewed: "Reviewed"
+        columns:
+          post: "Post"
+          author: "Author"
+          status: "Status"
+          submitted: "Submitted"
+          actions: "Actions"
 
   errors:
     not_authorized: "You are not authorized to perform this action."

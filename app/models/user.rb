@@ -5,6 +5,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable, :confirmable
   has_one_attached :avatar
   has_many :posts, dependent: :destroy
+  has_many :post_revisions, foreign_key: :author_id, dependent: :destroy
+  has_many :reviewed_post_revisions, class_name: "PostRevision", foreign_key: :reviewer_id, dependent: :nullify
   has_many :comments, dependent: :destroy
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }

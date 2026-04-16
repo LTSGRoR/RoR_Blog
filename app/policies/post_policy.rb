@@ -23,6 +23,14 @@ class PostPolicy < ApplicationPolicy
     user.present? && user.admin? && record.published?
   end
 
+  def request_revision?
+    user.present? && record.user == user && record.verified? && record.published?
+  end
+
+  def moderation_index?
+    user&.admin?
+  end
+
   def destroy?
     user.present? && (user.admin? || record.user == user)
   end

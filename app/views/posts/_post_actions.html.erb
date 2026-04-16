@@ -10,7 +10,10 @@
     <%= btn_link_to t("posts.actions.read_more"), post_path(post), variant: :ghost %>
   <% end %>
 
-  <% if user_signed_in? && policy(post).update? %>
+  <% if user_signed_in? && post.verified? && post.user == current_user %>
+    <% revision_path = post.active_revision.present? ? edit_post_revision_path(post) : new_post_revision_path(post) %>
+    <%= btn_link_to t("posts.actions.edit_revision"), revision_path, variant: :secondary %>
+  <% elsif user_signed_in? && policy(post).update? %>
     <%= btn_link_to t("posts.actions.edit"), edit_post_path(post), variant: :secondary %>
   <% end %>
 

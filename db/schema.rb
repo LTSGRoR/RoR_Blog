@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_06_072649) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_120500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_072649) do
     t.datetime "updated_at", null: false
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "post_revision_taggings", force: :cascade do |t|
+    t.bigint "post_revision_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_revision_id", "tag_id"], name: "index_post_revision_taggings_on_post_revision_id_and_tag_id", unique: true
+    t.index ["post_revision_id"], name: "index_post_revision_taggings_on_post_revision_id"
+    t.index ["tag_id"], name: "index_post_revision_taggings_on_tag_id"
+  end
+
+  create_table "post_revisions", force: :cascade do |t|
+    t.bigint "post_id", null: false
+    t.bigint "author_id", null: false
+    t.bigint "reviewer_id"
+    t.integer "moderation_status", default: 0, null: false
+    t.string "title", null: false
+    t.text "review_note"
+    t.datetime "submitted_at"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_post_revisions_on_author_id"
+    t.index ["moderation_status"], name: "index_post_revisions_on_moderation_status"
+    t.index ["post_id", "moderation_status"], name: "index_post_revisions_on_post_id_and_open_status", unique: true, where: "(moderation_status = ANY (ARRAY[0, 1]))"
+    t.index ["post_id"], name: "index_post_revisions_on_post_id"
+    t.index ["reviewer_id"], name: "index_post_revisions_on_reviewer_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -137,6 +165,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_072649) do
 
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
+  add_foreign_key "post_revision_taggings", "post_revisions"
+  add_foreign_key "post_revision_taggings", "tags"
+  add_foreign_key "post_revisions", "posts"
+  add_foreign_key "post_revisions", "users", column: "author_id"
+  add_foreign_key "post_revisions", "users", column: "reviewer_id"
   add_foreign_key "posts", "users"
   add_foreign_key "posts", "users", column: "reviewed_by_id"
   add_foreign_key "reactions", "users"

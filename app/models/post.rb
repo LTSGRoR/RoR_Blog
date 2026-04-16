@@ -3,6 +3,7 @@ class Post < ApplicationRecord
 
   belongs_to :user
   belongs_to :reviewed_by, class_name: "User", optional: true
+  has_many :post_revisions, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :reactions, as: :reactable, dependent: :destroy
   has_many :taggings, dependent: :destroy
@@ -14,6 +15,19 @@ class Post < ApplicationRecord
 
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
+
+  def active_revision
+    post_revisions.open_for_edit.order(updated_at: :desc).first
+  end
+
+  def apply_approved_revision!(revision:, admin:)
+    raise ArgumentError, "Revision does not belong to this post" unless revision.post_id == id
+
+    self.title = revision.title
+    self.body = revision.body.to_s
+    self.tag_ids = revision.tags.pluck(:id)
+    verify!(admin)
+  end
 
   def verify!(admin)
     raise "Cannot verify draft posts" unless published?

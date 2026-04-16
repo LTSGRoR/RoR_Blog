@@ -3,6 +3,8 @@ class Tag < ApplicationRecord
 
   has_many :taggings, dependent: :destroy
   has_many :posts, through: :taggings
+  has_many :post_revision_taggings, dependent: :destroy
+  has_many :post_revisions, through: :post_revision_taggings
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 

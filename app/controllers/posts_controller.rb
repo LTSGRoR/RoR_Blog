@@ -90,6 +90,9 @@ class PostsController < ApplicationController
   def show
     @comments = @post.comments.includes(:user).order(created_at: :asc).page(params[:page]).per(10)
     @comment = Comment.new
+    @active_revision = if current_user&.admin? || current_user == @post.user
+      @post.active_revision
+    end
   end
 
   def new

@@ -26,11 +26,24 @@ Rails.application.routes.draw do
 
     resources :posts do
       resources :comments, only: [:create]
+      resource :revision, controller: :post_revisions, only: [:new, :create, :edit, :update] do
+        post :submit
+      end
 
       member do
         post :verify
         post :unverify
         post :reply_feedback
+      end
+    end
+
+    namespace :admin do
+      resources :posts, only: [:index]
+      resources :post_revisions, only: [] do
+        member do
+          post :approve
+          post :reject
+        end
       end
     end
 

@@ -20,6 +20,7 @@ ja:
     hello_prefix: "こんにちは、"
     tagline: "投稿の公開、レビュー、管理をまとめて行えます。"
     profile_settings: "プロフィール設定"
+    manage_posts: "投稿管理"
     manage_users: "ユーザー管理"
     sign_out: "サインアウト"
     sign_in: "サインイン"
@@ -29,6 +30,7 @@ ja:
     index:
       title: "すべての投稿"
       new_post: "新しい投稿"
+      moderation_queue: "レビューキュー"
       no_results: "\"%{query}\" に一致する投稿は見つかりませんでした。"
     show:
       by: "投稿者"
@@ -65,6 +67,7 @@ ja:
       back_to_posts: "投稿一覧に戻る"
       read_more: "続きを読む"
       edit: "編集"
+      edit_revision: "再レビュー用に編集"
       delete: "削除"
       confirm_delete: "本当によろしいですか？"
     status:
@@ -241,6 +244,70 @@ ja:
 
   errors:
     not_authorized: "この操作を実行する権限がありません。"
+
+  post_revisions:
+    flash:
+      saved: "修正ドラフトを保存しました。"
+      submitted: "管理者レビューに修正を提出しました。"
+      start_first: "先に修正ドラフトを作成してください。"
+    new:
+      title: "修正を作成"
+      subtitle: "公開中の投稿を変えずに、確認済み投稿を安全に編集できます。"
+    edit:
+      title: "修正を編集"
+      subtitle: "保留中の修正を更新し、準備ができたら提出します。"
+      pending_notice: "この修正は提出済みで、管理者レビュー待ちです。"
+    form:
+      live_post_notice: "公開中の投稿は変更されません"
+      live_post_notice_detail: "編集内容は管理者の承認後にのみ反映されます。"
+      tags: "タグ"
+      tags_placeholder: "tag1, tag2, tag3"
+      back_to_post: "投稿に戻る"
+      save_draft: "ドラフトを保存"
+      submit_for_review: "レビューに提出"
+      confirm_submit: "この修正を管理者レビューに提出しますか？"
+    status_panel:
+      title: "修正ステータス"
+      current_status: "現在の状態: %{status}"
+      submitted_at: "%{time} に提出"
+      open_editor: "修正エディタを開く"
+
+  admin:
+    posts:
+      flash:
+        approved: "修正が承認され、公開投稿に反映されました。"
+        rejected: "修正を却下しました。"
+      statuses:
+        draft: "ドラフト"
+        pending_review: "レビュー待ち"
+        approved: "承認済み"
+        rejected: "却下"
+      index:
+        title: "投稿モデレーション"
+        subtitle: "著者の修正内容を確認し、公開投稿への反映を承認します。"
+        search_placeholder: "投稿タイトルまたは著者で検索"
+        search: "検索"
+        empty: "このフィルタに一致する修正はありません。"
+        no_action: "実行可能な操作はありません"
+        open_live_post: "公開投稿を開く"
+        approve: "承認"
+        reject: "却下"
+        approve_note_placeholder: "メモ（任意）"
+        reject_note_placeholder: "却下理由（必須）"
+        stats:
+          pending: "レビュー待ち"
+          open: "編集中ドラフト"
+          reviewed_today: "本日のレビュー件数"
+        filters:
+          pending: "レビュー待ち"
+          open: "ドラフト"
+          reviewed: "レビュー済み"
+        columns:
+          post: "投稿"
+          author: "著者"
+          status: "状態"
+          submitted: "提出日時"
+          actions: "操作"
 
   activerecord:
     attributes:

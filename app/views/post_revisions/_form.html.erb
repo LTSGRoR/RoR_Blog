@@ -1,0 +1,49 @@
+<%= form_with model: [@post, @revision], local: true, class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200" do |f| %>
+  <% if @revision.errors.any? %>
+    <div class="p-4 mb-6 rounded-lg bg-red-50 border-l-4 border-red-500">
+      <h3 class="text-sm font-medium text-red-800"><%= t("errors.messages.not_saved", count: @revision.errors.count, resource: @revision.model_name.human.downcase) %></h3>
+      <ul class="mt-2 list-disc pl-5 text-sm text-red-700 space-y-1">
+        <% @revision.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+    <p class="font-medium"><%= t("post_revisions.form.live_post_notice") %></p>
+    <p class="mt-1"><%= t("post_revisions.form.live_post_notice_detail") %></p>
+  </div>
+
+  <div>
+    <%= f.label :title, class: "block text-sm font-semibold text-slate-700" %>
+    <div class="mt-1">
+      <%= f.text_field :title, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :body, class: "block text-sm font-semibold text-slate-700" %>
+    <div class="mt-1 prose-trix">
+      <%= f.rich_text_area :body, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-h-[300px] border px-2" %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :tag_list, t("post_revisions.form.tags"), class: "block text-sm font-semibold text-slate-700" %>
+    <div class="mt-1">
+      <%= f.text_field :tag_list, value: @revision.tag_list, placeholder: t("post_revisions.form.tags_placeholder"), class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+    <%= btn_link_to t("post_revisions.form.back_to_post"), post_path(@post), variant: :ghost %>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary %>
+      <% if @revision.persisted? %>
+        <%= btn_button_to t("post_revisions.form.submit_for_review"), submit_post_revision_path(@post), method: :post, variant: :primary, data: { confirm: t("post_revisions.form.confirm_submit") } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
