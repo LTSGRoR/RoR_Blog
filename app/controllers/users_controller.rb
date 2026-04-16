@@ -35,9 +35,10 @@ class UsersController < ApplicationController
       return
     end
     # store canonical timezone name where possible; accept a sensible fallback
-    tz_param = params[:suspend_time_zone].to_s
-    alias_map = { "Asia/Saigon" => "Asia/Ho_Chi_Minh" }
-    canonical_tz = ActiveSupport::TimeZone[tz_param]&.name || ActiveSupport::TimeZone[alias_map[tz_param]]&.name || Time.zone.name
+    tz_param = params[:suspend_time_zone].to_s.presence
+    canonical_lookup = (defined?(TIMEZONE_ALIASES) && TIMEZONE_ALIASES[tz_param]) || tz_param
+    zone = ActiveSupport::TimeZone[canonical_lookup] || ActiveSupport::TimeZone[tz_param]
+    canonical_tz = zone&.name || Time.zone.name
 
     @user.update!(suspended_until: suspended_until, suspended_time_zone: canonical_tz, banned_at: nil)
     redirect_to users_path, notice: t("users.admin.flash.suspended", email: @user.email, time: l(suspended_until, format: :short))
@@ -63,14 +64,20 @@ class UsersController < ApplicationController
   def parse_suspended_until
     return nil if params[:suspended_until].blank?
     # Support browser-provided IANA names and a few common aliases (e.g. Asia/Saigon)
-    tz_param = params[:suspend_time_zone].to_s
-    alias_map = {
-      "Asia/Saigon" => "Asia/Ho_Chi_Minh"
-    }
+    tz_param = params[:suspend_time_zone].to_s.presence
+    canonical_lookup = (defined?(TIMEZONE_ALIASES) && TIMEZONE_ALIASES[tz_param]) || tz_param
+    zone = ActiveSupport::TimeZone[canonical_lookup] || ActiveSupport::TimeZone[tz_param] || Time.zone
 
-    parsed_zone = ActiveSupport::TimeZone[tz_param] || ActiveSupport::TimeZone[alias_map[tz_param]]
-    effective_zone = parsed_zone || Time.zone
-    effective_zone.parse(params[:suspended_until])
+    raw = params[:suspended_until].to_s
+    # HTML `datetime-local` posts values like "YYYY-MM-DDTHH:MM" (no zone).
+    # Parse components and construct a zoned time to avoid ambiguous parsing.
+    if raw =~ /\A(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})\z/
+      y = $1.to_i; m = $2.to_i; d = $3.to_i; hh = $4.to_i; mm = $5.to_i
+      return zone.local(y, m, d, hh, mm)
+    end
+
+    # Fallback to zone.parse for other formats
+    zone.parse(raw)
   rescue ArgumentError
     nil
   end

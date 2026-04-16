@@ -11,7 +11,13 @@ export default class extends Controller {
     this.suspendInputTarget.value = ""
     this.suspendInputTarget.min = this.currentLocalDateTime()
     if (this.hasSuspendTimeZoneTarget) {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+      let tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+      // map a few common legacy/browser aliases to canonical IANA names
+      const aliasMap = {
+        "Asia/Saigon": "Asia/Ho_Chi_Minh",
+      }
+      if (aliasMap[tz]) tz = aliasMap[tz]
+
       this.suspendTimeZoneTarget.value = tz
       if (this.hasSuspendTimeZoneLabelTarget) {
         this.suspendTimeZoneLabelTarget.textContent = `Time zone: ${tz}`
