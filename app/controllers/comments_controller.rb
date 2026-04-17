@@ -8,15 +8,27 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
-      # Ensure realtime append to the post's comments container for subscribed clients
-      @comment.broadcast_append_to(@post, target: helpers.dom_id(@post, :comments), partial: "comments/comment", locals: { comment: @comment })
+      @comment.broadcast_append_later_to(
+        @post,
+        target: helpers.dom_id(@post, :comments),
+        partial: "comments/comment",
+        locals: { comment: @comment }
+      )
+
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "new_comment",
-            partial: "comments/form",
-            locals: { post: @post, comment: Comment.new }
-          )
+          render turbo_stream: [
+            turbo_stream.append(
+              helpers.dom_id(@post, :comments),
+              partial: "comments/comment",
+              locals: { comment: @comment }
+            ),
+            turbo_stream.replace(
+              "new_comment",
+              partial: "comments/form",
+              locals: { post: @post, comment: Comment.new }
+            )
+          ]
         end
         format.html { redirect_to @post, notice: "Comment posted." }
       end

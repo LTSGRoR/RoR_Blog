@@ -33,6 +33,9 @@ en:
   time:
     formats:
       short: "%b %d, %Y %I:%M %p"
+  date:
+    formats:
+      short: "%b %d, %Y"
 
   common:
     unknown: "Unknown"

@@ -4,6 +4,9 @@ ja:
   time:
     formats:
       short: "%Y/%m/%d %H:%M"
+  date:
+    formats:
+      short: "%Y/%m/%d"
 
   common:
     unknown: "不明"
