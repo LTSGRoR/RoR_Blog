@@ -36,6 +36,34 @@ en:
   date:
     formats:
       short: "%b %d, %Y"
+    month_names:
+      - ~
+      - "January"
+      - "February"
+      - "March"
+      - "April"
+      - "May"
+      - "June"
+      - "July"
+      - "August"
+      - "September"
+      - "October"
+      - "November"
+      - "December"
+    abbr_month_names:
+      - ~
+      - "Jan"
+      - "Feb"
+      - "Mar"
+      - "Apr"
+      - "May"
+      - "Jun"
+      - "Jul"
+      - "Aug"
+      - "Sep"
+      - "Oct"
+      - "Nov"
+      - "Dec"
 
   common:
     unknown: "Unknown"
@@ -134,7 +162,7 @@ en:
       back_to_posts: "Back to posts"
       read_more: "Read more"
       edit: "Edit"
-      edit_revision: "Edit For Re-Review"
+      edit_revision: "Edit"
       delete: "Delete"
       confirm_delete: "Are you sure?"
     status:

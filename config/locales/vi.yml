@@ -3,10 +3,38 @@ vi:
 
   time:
     formats:
-      short: "%d/%m/%Y %H:%M"
+      short: "%d %B %Y %H:%M"
   date:
     formats:
-      short: "%d/%m/%Y"
+      short: "%d %B %Y"
+    month_names:
+      - ~
+      - "Tháng 1"
+      - "Tháng 2"
+      - "Tháng 3"
+      - "Tháng 4"
+      - "Tháng 5"
+      - "Tháng 6"
+      - "Tháng 7"
+      - "Tháng 8"
+      - "Tháng 9"
+      - "Tháng 10"
+      - "Tháng 11"
+      - "Tháng 12"
+    abbr_month_names:
+      - ~
+      - "Thg 1"
+      - "Thg 2"
+      - "Thg 3"
+      - "Thg 4"
+      - "Thg 5"
+      - "Thg 6"
+      - "Thg 7"
+      - "Thg 8"
+      - "Thg 9"
+      - "Thg 10"
+      - "Thg 11"
+      - "Thg 12"
 
   common:
     unknown: "Không rõ"
@@ -105,7 +133,7 @@ vi:
       back_to_posts: "Quay lại danh sách"
       read_more: "Đọc thêm"
       edit: "Chỉnh sửa"
-      edit_revision: "Chỉnh sửa để duyệt lại"
+      edit_revision: "Chỉnh sửa"
       delete: "Xóa"
       confirm_delete: "Bạn có chắc chắn không?"
     status:

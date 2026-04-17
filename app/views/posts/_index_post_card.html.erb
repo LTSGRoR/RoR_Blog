@@ -17,7 +17,7 @@
       <% else %>
         <%= t("common.unknown") %>
       <% end %>
-      · <%= post.created_at.strftime('%b %d, %Y') %>
+      · <%= l(post.created_at, format: :short) %>
     </div>
     <% if post.tags.any? %>
       <div class="mt-2 flex flex-wrap gap-2">

@@ -14,7 +14,7 @@
                 <span class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium  ring-1 ring-white/15"><%= t("users.profile.own_badge") %></span>
               <% end %>
             </div>
-            <p class="mt-2 text-sm text-slate-200"><%= t("users.profile.member_since", date: l(@user.created_at.to_date, format: :short)) %></p>
+            <p class="mt-2 text-sm text-slate-200"><%= t("users.profile.member_since", date: l(@user.created_at, format: :short)) %></p>
             <p class="mt-1 text-sm text-slate-300"><%= t("users.profile.published_count", count: @posts.size) %></p>
           </div>
         </div>
@@ -27,15 +27,15 @@
       <div class="mt-8 grid gap-3 sm:grid-cols-3">
         <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
           <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.published") %></p>
-          <p class="mt-2 text-2xl font-semibold "><%= @posts.size %></p>
+          <p class="mt-2 text-2xl font-semibold "><%= @posts_count %></p>
         </div>
         <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
           <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.verified") %></p>
-          <p class="mt-2 text-2xl font-semibold "><%= @posts.count(&:verified?) %></p>
+          <p class="mt-2 text-2xl font-semibold "><%= @verified_count %></p>
         </div>
         <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
           <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.latest") %></p>
-          <p class="mt-2 text-sm font-medium "><%= @posts.first ? l(@posts.first.created_at.to_date, format: :short) : t("users.profile.no_posts_short") %></p>
+          <p class="mt-2 text-sm font-medium "><%= @posts.first ? l(@posts.first.created_at, format: :short) : t("users.profile.no_posts_short") %></p>
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
                   <h3 class="text-lg font-semibold text-slate-800">
                     <%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %>
                   </h3>
-                  <p class="mt-2 text-sm text-slate-500"><%= post.created_at.strftime('%b %d, %Y') %></p>
+                  <p class="mt-2 text-sm text-slate-500"><%= l(post.created_at, format: :short) %></p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">

@@ -3,10 +3,38 @@ ja:
 
   time:
     formats:
-      short: "%Y/%m/%d %H:%M"
+      short: "%Y年%-m月%-d日 %H:%M"
   date:
     formats:
-      short: "%Y/%m/%d"
+      short: "%Y年%-m月%-d日"
+    month_names:
+      - ~
+      - "1月"
+      - "2月"
+      - "3月"
+      - "4月"
+      - "5月"
+      - "6月"
+      - "7月"
+      - "8月"
+      - "9月"
+      - "10月"
+      - "11月"
+      - "12月"
+    abbr_month_names:
+      - ~
+      - "1月"
+      - "2月"
+      - "3月"
+      - "4月"
+      - "5月"
+      - "6月"
+      - "7月"
+      - "8月"
+      - "9月"
+      - "10月"
+      - "11月"
+      - "12月"
 
   common:
     unknown: "不明"
@@ -105,7 +133,7 @@ ja:
       back_to_posts: "投稿一覧に戻る"
       read_more: "続きを読む"
       edit: "編集"
-      edit_revision: "再レビュー用に編集"
+      edit_revision: "編集"
       delete: "削除"
       confirm_delete: "本当によろしいですか？"
     status:
@@ -254,28 +282,28 @@ ja:
           actions: "操作"
         status:
           active: "有効"
-          banned: "BAN"
+          banned: "禁止"
           suspended_until: "%{time} まで一時停止"
         actions_unavailable: "保護されたアカウント"
       actions:
-        ban: "BAN"
-        unban: "BAN解除"
+        ban: "禁止"
+        unban: "禁止解除"
         suspend: "一時停止"
         unsuspend: "一時停止解除"
         confirm_suspend: "確定"
       confirm:
-        ban: "このアカウントをBANしてもよろしいですか？"
+        ban: "このアカウントを禁止してもよろしいですか？"
       modal:
         title: "アカウントを一時停止"
-        ban_title: "アカウントをBAN"
-        ban_message: "この操作でユーザーはBAN解除されるまで即時サインインできなくなります。"
-        confirm_ban: "BANを確定"
+        ban_title: "アカウントを禁止"
+        ban_message: "この操作でユーザーは禁止解除されるまで即時サインインできなくなります。"
+        confirm_ban: "禁止を確定"
         until: "一時停止期限"
         cancel: "キャンセル"
         close: "閉じる"
       flash:
-        banned: "%{email} をBANしました。"
-        unbanned: "%{email} のBANを解除しました。"
+        banned: "%{email} を禁止しました。"
+        unbanned: "%{email} の禁止を解除しました。"
         suspended: "%{email} を %{time} まで一時停止しました。"
         unsuspended: "%{email} の一時停止を解除しました。"
         invalid_suspend_date: "有効な未来日時を指定してください。"

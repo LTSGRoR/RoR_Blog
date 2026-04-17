@@ -4,7 +4,9 @@ class UsersController < ApplicationController
   before_action :set_managed_user, only: [:ban, :unban, :suspend, :unsuspend]
 
   def show
-    @posts = @user.posts.published.order(created_at: :desc)
+    @posts = @user.posts.published.order(created_at: :desc).limit(3)
+    @posts_count = @user.posts.published.count
+    @verified_count = @user.posts.published.where(verified: true).count
   end
 
   def index

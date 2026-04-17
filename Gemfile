@@ -12,6 +12,8 @@ gem "puma"
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
+# Internationalization helpers & locale data
+gem "rails-i18n"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 # Search and pagination
