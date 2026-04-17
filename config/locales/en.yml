@@ -43,6 +43,13 @@ en:
     en: "EN"
     vi: "VI"
     ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "Language changed to %{locale_name}"
+    unsupported: "Unsupported locale: %{locale_name}"
 
   nav:
     hello: "Hello, %{name}"

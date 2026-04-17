@@ -14,6 +14,13 @@ ja:
     en: "EN"
     vi: "VI"
     ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "言語を%{locale_name}に変更しました"
+    unsupported: "サポートされていない言語: %{locale_name}"
 
   nav:
     hello: "%{name}さん、こんにちは"

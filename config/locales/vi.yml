@@ -14,6 +14,13 @@ vi:
     en: "EN"
     vi: "VI"
     ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "Đã đổi ngôn ngữ sang %{locale_name}"
+    unsupported: "Ngôn ngữ không được hỗ trợ: %{locale_name}"
 
   nav:
     hello: "Xin chào, %{name}"

@@ -9,15 +9,24 @@ class ApplicationController < ActionController::Base
   before_action :set_locale
   before_action :configure_permitted_parameters, if: :devise_controller?
 
-  def default_url_options
-    { locale: I18n.locale }
-  end
-
   private
 
   def set_locale
-    locale = params[:locale]&.to_sym
-    I18n.locale = I18n.available_locales.include?(locale) ? locale : I18n.default_locale
+    locale = params[:locale] ||
+             session[:locale] ||
+             (current_user&.locale) ||
+             I18n.default_locale
+
+    if I18n.available_locales.map(&:to_s).include?(locale.to_s)
+      I18n.locale = locale
+      session[:locale] = locale
+    else
+      I18n.locale = I18n.default_locale
+    end
+  end
+
+  def default_url_options
+    { locale: I18n.locale }
   end
 
   def user_not_authorized(exception)

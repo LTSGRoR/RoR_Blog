@@ -159,8 +159,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
     t.datetime "banned_at"
     t.datetime "suspended_until"
     t.string "suspended_time_zone"
+    t.string "locale"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["locale"], name: "index_users_on_locale"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["suspended_time_zone"], name: "index_users_on_suspended_time_zone"
   end

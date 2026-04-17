@@ -62,4 +62,5 @@ Rails.application.routes.draw do
       end
     end
   end
+  post '/set_locale', to: 'locales#create', as: :set_locale
 end
