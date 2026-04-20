@@ -1,4 +1,3 @@
-
 class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy verify unverify reply_feedback]
   before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback mine]
@@ -9,16 +8,6 @@ class PostsController < ApplicationController
   before_action :authorize_feedback_reply!, only: %i[reply_feedback]
 
   def index
-    if current_user&.admin?
-      redirect_to admin_posts_path
-      return
-    end
-
-    load_public_posts
-    respond_with_posts
-  end
-
-  def community
     load_public_posts
     render :index
   end
@@ -137,7 +126,7 @@ class PostsController < ApplicationController
   def load_public_posts
     @page = params[:page] || 1
     @per_page = 10
-    @search_path = current_user&.admin? ? community_posts_path : posts_path
+    @search_path = posts_path
     public_scope = Post.where(status: Post.statuses[:published], verified: true)
 
     if params[:q].present?

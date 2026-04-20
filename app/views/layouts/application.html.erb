@@ -26,7 +26,7 @@
   <body data-controller="syntax-highlight confirm">
     <header class=" border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur" style="position: relative; top: 0; z-index: 50;">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 py-4 px-4 sm:px-6 lg:px-8">
-        <%= link_to(current_user&.admin? ? community_posts_path : root_path, class: "block") do %>
+        <%= link_to(root_path, class: "block") do %>
           <div class="text-lg font-semibold text-slate-900 transition hover:text-indigo-600"><%= t("app_name") %></div>
           <p class="text-xs text-slate-500"><%= t("nav.tagline") %></p>
         <% end %>

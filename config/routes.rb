@@ -26,7 +26,7 @@ Rails.application.routes.draw do
 
     resources :posts do
       collection do
-        get :community
+        # get :community (removed, merged into index)
         get :mine
       end
 
