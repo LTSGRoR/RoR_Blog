@@ -32,7 +32,7 @@
     </header>
 
     <div class="prose prose-slate max-w-none text-slate-800" data-controller="syntax-highlight">
-      <%= @post.body %>
+      <%= raw @post.body %>
     </div>
 
     <% if @active_revision.present? %>
