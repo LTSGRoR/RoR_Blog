@@ -30,7 +30,7 @@
           <%= render "devise/shared/error_messages", resource: resource %>
 
           <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-            <%= f.hidden_field :reset_password_token %>
+            <%= f.hidden_field :reset_password_token, value: (resource.reset_password_token.presence || params[:reset_password_token]) %>
 
             <div class="space-y-4">
               <div>
