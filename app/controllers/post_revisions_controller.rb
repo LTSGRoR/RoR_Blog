@@ -13,16 +13,26 @@ class PostRevisionsController < ApplicationController
     authorize @revision
     @revision.assign_attributes(revision_params)
     apply_revision_tags(@revision)
-    @revision.prepare_as_draft! unless submit_for_review_request?
+
+    if submit_for_review_request?
+      @revision.submit!
+    else
+      @revision.prepare_as_draft!
+    end
 
     if @revision.save
-      return submit_saved_revision if submit_for_review_request?
-
-      redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
+      if submit_for_review_request?
+        redirect_to @post, notice: t("post_revisions.flash.submitted")
+      else
+        redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
+      end
     else
       flash.now[:alert] = @revision.errors.full_messages.to_sentence
       render :new, status: :unprocessable_entity
     end
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.message
+    render :new, status: :unprocessable_entity
   end
 
   def edit
@@ -33,16 +43,26 @@ class PostRevisionsController < ApplicationController
     authorize @revision
     @revision.assign_attributes(revision_params)
     apply_revision_tags(@revision)
-    @revision.prepare_as_draft! unless submit_for_review_request?
+
+    if submit_for_review_request?
+      @revision.submit!
+    else
+      @revision.prepare_as_draft!
+    end
 
     if @revision.save
-      return submit_saved_revision if submit_for_review_request?
-
-      redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
+      if submit_for_review_request?
+        redirect_to @post, notice: t("post_revisions.flash.submitted")
+      else
+        redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
+      end
     else
       flash.now[:alert] = @revision.errors.full_messages.to_sentence
       render :edit, status: :unprocessable_entity
     end
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.message
+    render :edit, status: :unprocessable_entity
   end
 
   def submit
@@ -110,14 +130,6 @@ class PostRevisionsController < ApplicationController
 
   def submit_for_review_request?
     params[:commit_action] == "submit_for_review"
-  end
-
-  def submit_saved_revision
-    @revision.submit!
-    redirect_to @post, notice: t("post_revisions.flash.submitted")
-  rescue ArgumentError, ActiveRecord::RecordInvalid => e
-    flash.now[:alert] = e.message
-    render(action_name == "create" ? :new : :edit, status: :unprocessable_entity)
   end
 
   def latest_rejected_revision

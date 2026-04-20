@@ -106,8 +106,14 @@
 
     <div class="flex flex-wrap items-center gap-2">
       <% unless readonly_revision %>
-        <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary, name: "commit_action", value: "save_draft" %>
-        <%= btn_submit f, t("post_revisions.form.submit_for_review"), variant: :primary, name: "commit_action", value: "submit_for_review", data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
+        <input type="hidden" name="commit_action" id="commit_action_input" value="save_draft" />
+
+        <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary,
+            onclick: "document.getElementById('commit_action_input').value='save_draft'" %>
+
+        <%= btn_submit f, t("post_revisions.form.submit_for_review"), variant: :primary,
+            onclick: "document.getElementById('commit_action_input').value='submit_for_review'",
+            data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
       <% end %>
     </div>
   </div>
