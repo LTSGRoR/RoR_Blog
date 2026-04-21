@@ -2,7 +2,26 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["suspendModal", "suspendForm", "suspendInput", "suspendTimeZone", "suspendTimeZoneLabel", "suspendUserLabel", "banModal", "banForm", "banUserLabel"]
+  connect() {
+    this._submitEndHandler = this.handleSubmitEnd.bind(this)
+    document.addEventListener("turbo:submit-end", this._submitEndHandler)
+  }
 
+  disconnect() {
+    document.removeEventListener("turbo:submit-end", this._submitEndHandler)
+    document.body.classList.remove("overflow-hidden")
+  }
+
+  handleSubmitEnd(event) {
+    if (!event.detail.success) return
+    const form = event.detail.formSubmission.formElement
+    if (
+      (this.hasSuspendFormTarget && form === this.suspendFormTarget) ||
+      (this.hasBanFormTarget && form === this.banFormTarget)
+    ) {
+      this.close()
+    }
+  }
   openSuspend(event) {
     const { url, user } = event.params
 

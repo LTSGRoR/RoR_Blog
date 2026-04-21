@@ -5,12 +5,10 @@
 <%= turbo_stream_from "users" %>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-controller="suspend-form" data-action="keydown.esc@window->suspend-form#close">
-  <div id="users_summary">
-    <%= render partial: "users/users_summary", locals: { total_count: @users.size, active_count: active_count, suspended_count: suspended_count, banned_count: banned_count } %>
-  </div>
+  <%= render partial: "users/users_summary", locals: { total_count: @users.size, active_count: active_count, suspended_count: suspended_count, banned_count: banned_count } %>
 
   <div class="mb-6">
-    <%= form_with url: admin_users_path, method: :get, local: false, data: { controller: "admin-user-search", turbo_frame: "admin_users_list" }, html: { class: "flex gap-3 items-center mb-4 mt-4" } do |f| %>
+    <%= form_with url: users_path, method: :get, data: { controller: "admin-user-search", turbo_frame: "users_list" }, html: { class: "flex gap-3 items-center mb-4 mt-4" } do |f| %>
       <div class="flex-1 min-w-0">
         <%= f.search_field :q, value: params[:q], placeholder: t("users.admin.index.search_placeholder"), class: "h-10 block w-full rounded-lg border border-slate-200 bg-white px-4 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm", data: { action: "input->admin-user-search#search" } %>
       </div>
@@ -23,7 +21,7 @@
     <% end %>
   </div>
 
-  <%= turbo_frame_tag "admin_users_list" do %>
+  <%= turbo_frame_tag "users_list" do %>
     <%= render partial: "users/users_table", locals: { users: @users } %>
   <% end %>
 
@@ -41,7 +39,7 @@
         </button>
       </div>
 
-      <%= form_with url: "#", method: :post, local: true, html: { data: { suspend_form_target: "suspendForm" }, class: "space-y-4" } do |form| %>
+      <%= form_with url: "#", method: :post, html: { data: { suspend_form_target: "suspendForm" }, class: "space-y-4" } do |form| %>
         <%= hidden_field_tag :suspend_time_zone, nil, data: { suspend_form_target: "suspendTimeZone" } %>
         <div class="mt-2 text-xs text-slate-500" data-suspend-form-target="suspendTimeZoneLabel"></div>
         <div>
@@ -72,7 +70,7 @@
 
       <p class="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700"><%= t("users.admin.modal.ban_message") %></p>
 
-      <%= form_with url: "#", method: :post, local: true, html: { data: { suspend_form_target: "banForm" }, class: "mt-4 flex items-center justify-end gap-2" } do |form| %>
+      <%= form_with url: "#", method: :post, html: { data: { suspend_form_target: "banForm" }, class: "mt-4 flex items-center justify-end gap-2" } do |form| %>
         <button type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" data-action="click->suspend-form#close"><%= t("users.admin.modal.cancel") %></button>
         <%= form.submit t("users.admin.modal.confirm_ban"), class: "rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700" %>
       <% end %>

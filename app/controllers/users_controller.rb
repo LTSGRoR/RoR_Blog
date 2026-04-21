@@ -11,21 +11,49 @@ class UsersController < ApplicationController
 
   def index
     authorize User
-    @users = User.order(created_at: :desc)
+
+    @query = params[:q].to_s.strip
+    @role = params[:role].to_s.presence
+    @status = params[:status].to_s.presence
+
+    users_scope = User.order(created_at: :desc)
+    users_scope = users_scope.by_name(@query)
+    users_scope = users_scope.by_role(@role)
+    users_scope = users_scope.by_status(@status)
+
+    @users = users_scope.page(params[:page]).per(20)
+    respond_to do |format|
+      format.html { render "users/index" }
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace(
+            "admin_users_list",
+            partial: "users/users_table",
+            locals: { users: @users }
+          ),
+          turbo_stream.replace(
+            "flash_messages",
+            partial: "shared/flash"
+          )
+        ]
+      end
+    end
   end
 
   def ban
     authorize @user, :ban?
 
     @user.update!(banned_at: Time.current, suspended_until: nil)
-    redirect_to users_path, notice: t("users.admin.flash.banned", email: @user.email)
+    broadcast_user_and_summary(@user)
+    redirect_to users_path, notice: t("users.admin.flash.banned", email: @user.email), status: :see_other
   end
 
   def unban
     authorize @user, :unban?
 
     @user.update!(banned_at: nil)
-    redirect_to users_path, notice: t("users.admin.flash.unbanned", email: @user.email)
+    broadcast_user_and_summary(@user)
+    redirect_to users_path, notice: t("users.admin.flash.unbanned", email: @user.email), status: :see_other
   end
 
   def suspend
@@ -43,14 +71,16 @@ class UsersController < ApplicationController
     canonical_tz = zone&.name || Time.zone.name
 
     @user.update!(suspended_until: suspended_until, suspended_time_zone: canonical_tz, banned_at: nil)
-    redirect_to users_path, notice: t("users.admin.flash.suspended", email: @user.email, time: l(suspended_until, format: :short))
+    broadcast_user_and_summary(@user)
+    redirect_to users_path, notice: t("users.admin.flash.suspended", email: @user.email, time: l(suspended_until, format: :short)), status: :see_other
   end
 
   def unsuspend
     authorize @user, :unsuspend?
-
     @user.update!(suspended_until: nil, suspended_time_zone: nil)
-    redirect_to users_path, notice: t("users.admin.flash.unsuspended", email: @user.email)
+
+    broadcast_user_and_summary(@user)
+    redirect_to users_path, notice: t("users.admin.flash.unsuspended", email: @user.email), status: :see_other
   end
 
   private
@@ -82,5 +112,28 @@ class UsersController < ApplicationController
     zone.parse(raw)
   rescue ArgumentError
     nil
+  end
+
+  def broadcast_user_and_summary(user)
+    begin
+      order_ids = User.order(created_at: :desc).pluck(:id)
+
+      Turbo::StreamsChannel.broadcast_replace_to "users",
+        target: "user_#{user.id}",
+        partial: "users/user_row",
+        locals: { user: user, i: order_ids.index(user.id) }
+
+      total = User.count
+      banned = User.where.not(banned_at: nil).count
+      suspended = User.where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current).count
+      active = total - banned - suspended
+
+      Turbo::StreamsChannel.broadcast_replace_to "users",
+        target: "users_summary",
+        partial: "users/users_summary",
+        locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+    rescue => e
+      Rails.logger.error "UsersController#broadcast_user_and_summary: broadcast failed for user=#{user.id} — #{e.message}"
+    end
   end
 end

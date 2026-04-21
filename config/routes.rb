@@ -45,7 +45,6 @@ Rails.application.routes.draw do
 
     namespace :admin do
       resources :posts, only: [:index]
-      resources :users, only: [:index]
       resources :post_revisions, only: [:show, :destroy] do
         member do
           post :approve
