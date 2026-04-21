@@ -273,6 +273,7 @@ vi:
       index:
         title: "Quản lý người dùng"
         subtitle: "Cấm hoặc tạm khóa tài khoản để kiểm duyệt."
+        search_placeholder: "Tìm theo tên hoặc email"
         total: "%{count} người dùng"
         columns:
           name: "Tên"

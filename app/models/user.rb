@@ -12,6 +12,31 @@ class User < ApplicationRecord
   enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
 
+  # Scopes for admin user management
+  scope :by_name, ->(q) {
+    return all if q.blank?
+    where("users.name ILIKE :q OR users.email ILIKE :q", q: "%#{q}%")
+  }
+
+  scope :by_role, ->(r) {
+    return all if r.blank?
+    where(role: r)
+  }
+
+  scope :by_status, ->(s) {
+    return all if s.blank?
+    case s.to_s
+    when "banned"
+      where.not(banned_at: nil)
+    when "suspended"
+      where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current)
+    when "active"
+      where(banned_at: nil).where("suspended_until IS NULL OR suspended_until <= ?", Time.current)
+    else
+      all
+    end
+  }
+
   def banned?
     banned_at.present?
   end

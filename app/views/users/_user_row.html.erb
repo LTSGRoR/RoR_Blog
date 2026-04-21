@@ -4,13 +4,15 @@
       <div class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold uppercase text-slate-700">
         <%= (user.name.presence || user.email).to_s.first(2) %>
       </div>
-      <div>
-        <p class="text-sm font-semibold text-slate-900"><%= user.name %></p>
+      <div class="min-w-0 w-56">
+        <p class="text-sm font-semibold text-slate-900 break-words" title="<%= h(user.name.to_s) %>"><%= h(user.name.to_s) %></p>
         <p class="text-xs text-slate-500">ID: <%= user.id %></p>
       </div>
     </div>
   </td>
-  <td class="px-4 py-4 text-sm text-slate-600"><%= user.email %></td>
+  <td class="px-4 py-4 text-sm text-slate-600">
+    <div class="min-w-0 w-80 break-words whitespace-normal" title="<%= h(user.email.to_s) %>"><%= h(user.email.to_s) %></div>
+  </td>
   <td class="px-4 py-4 text-sm">
     <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= user.admin? ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700" %>">
       <%= user.role %>
@@ -21,13 +23,17 @@
       <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700"><%= t("users.admin.index.status.banned") %></span>
     <% elsif user.suspended? %>
       <div>
-        <% display_zone = user.suspended_time_zone.presence || Time.zone.name %>
-        <% display_time = user.suspended_until.in_time_zone(display_zone) rescue user.suspended_until %>
-        <span class="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700"><%= t("users.admin.index.status.suspended_until", time: l(display_time, format: :short)) %></span>
-        <% if user.suspended_time_zone.present? %>
-          <div class="mt-1 text-xs text-slate-500"><%= user.suspended_time_zone %></div>
-        <% end %>
-      </div>
+          <% display_zone = user.suspended_time_zone.presence || Time.zone.name %>
+          <% display_time = user.suspended_until.in_time_zone(display_zone) rescue user.suspended_until %>
+          <div class="inline-flex flex-col items-start gap-1 max-w-xs">
+            <div class="rounded-md bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700 whitespace-normal break-words">
+              <%= t("users.admin.index.status.suspended_until", time: l(display_time, format: :short)) %>
+            </div>
+            <% if user.suspended_time_zone.present? %>
+              <div class="text-xs text-slate-500 break-words"><%= user.suspended_time_zone %></div>
+            <% end %>
+          </div>
+        </div>
     <% else %>
       <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"><%= t("users.admin.index.status.active") %></span>
     <% end %>
