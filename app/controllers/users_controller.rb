@@ -21,7 +21,7 @@ class UsersController < ApplicationController
     users_scope = users_scope.by_role(@role)
     users_scope = users_scope.by_status(@status)
 
-    @users = users_scope.page(params[:page]).per(20)
+    @users = users_scope.page(params[:page]).per(10)
     respond_to do |format|
       format.html { render "users/index" }
       format.turbo_stream do

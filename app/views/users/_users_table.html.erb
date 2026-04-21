@@ -17,4 +17,9 @@
       </tbody>
     </table>
   </div>
+  <div class="p-4">
+    <div class="flex items-center justify-center">
+      <%= paginate users, params: request.query_parameters %>
+    </div>
+  </div>
 </div>
