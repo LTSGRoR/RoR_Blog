@@ -49,6 +49,9 @@ class ReactionsController < ApplicationController
     end
 
     @reactable = klass.find_by(id: params[:reactable_id])
+    unless @reactable
+      redirect_back fallback_location: root_path, alert: "Item not found." and return
+    end
     authorize reactable_post, :show?
   end
 

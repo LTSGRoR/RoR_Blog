@@ -52,6 +52,9 @@ class CommentsController < ApplicationController
 
   def set_post
     @post = Post.find_by(id: params[:post_id])
+    unless @post
+      redirect_to posts_path, alert: "Post not found." and return
+    end
     authorize @post, :show?
   end
 

@@ -98,10 +98,16 @@ class UsersController < ApplicationController
 
   def set_profile_user
     @user = User.includes(:posts).find_by(id: params[:id])
+    unless @user
+      redirect_to users_path, alert: "User not found." and return
+    end
   end
 
   def set_managed_user
     @user = User.find_by(id: params[:id])
+    unless @user
+      redirect_to users_path, alert: "User not found." and return
+    end
   end
 
   def parse_suspended_until

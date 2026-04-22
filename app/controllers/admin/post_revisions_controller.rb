@@ -34,6 +34,9 @@ class Admin::PostRevisionsController < ApplicationController
 
   def set_revision
     @revision = PostRevision.includes(:post, :author).find_by(id: params[:id])
+    unless @revision
+      redirect_to admin_posts_path, alert: "Revision not found." and return
+    end
   end
 
   def review_note
