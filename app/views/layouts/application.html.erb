@@ -80,11 +80,23 @@
                 <% end %>
 
                 <div class="border-t border-slate-100">
-                  <%= link_to(current_user.admin? ? admin_posts_path : mine_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5m-16.5 7.5h16.5m-16.5 7.5h16.5" />
-                    </svg>
-                    <%= t("nav.manage_posts") %>
+                  <% if current_user.admin? %>
+                    <%= link_to(admin_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5m-16.5 7.5h16.5m-16.5 7.5h16.5" />
+                      </svg>
+                      <%= t("nav.manage_posts") %>
+                    <% end %>
+                  <% end %>
+
+                  <%# Also surface a direct "My posts" link for admin users who are authors %>
+                  <% if current_user %>
+                    <%= link_to(mine_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V7.5L13.5 3H4z" />
+                      </svg>
+                      <%= t("posts.mine.title") %>
+                    <% end %>
                   <% end %>
 
                 <%# Manage users (admin only) %>
