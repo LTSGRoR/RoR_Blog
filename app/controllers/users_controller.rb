@@ -21,6 +21,17 @@ class UsersController < ApplicationController
     users_scope = users_scope.by_role(@role)
     users_scope = users_scope.by_status(@status)
 
+    # compute counts efficiently from the filtered scope (before pagination)
+    total = users_scope.count
+    banned = users_scope.where.not(banned_at: nil).count
+    suspended = users_scope.where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current).count
+    active = total - banned - suspended
+
+    @total_count = total
+    @banned_count = banned
+    @suspended_count = suspended
+    @active_count = active
+
     @users = users_scope.page(params[:page]).per(10)
     respond_to do |format|
       format.html { render "users/index" }

@@ -1,11 +1,7 @@
-<% active_count = @users.count { |u| !u.banned? && !u.suspended? } %>
-<% suspended_count = @users.count(&:suspended?) %>
-<% banned_count = @users.count(&:banned?) %>
-
 <%= turbo_stream_from "users" %>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-controller="suspend-form" data-action="keydown.esc@window->suspend-form#close">
-  <%= render partial: "users/users_summary", locals: { total_count: @users.size, active_count: active_count, suspended_count: suspended_count, banned_count: banned_count } %>
+  <%= render partial: "users/users_summary", locals: { total_count: (@total_count || @users.size), active_count: (@active_count || @users.count { |u| !u.banned? && !u.suspended? }), suspended_count: (@suspended_count || @users.count(&:suspended?)), banned_count: (@banned_count || @users.count(&:banned?)) } %>
 
   <div class="mb-6">
     <%= form_with url: users_path, method: :get, data: { controller: "admin-user-search", turbo_frame: "users_list" }, html: { class: "flex gap-3 items-center mb-4 mt-4" } do |f| %>
