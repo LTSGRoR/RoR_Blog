@@ -51,7 +51,7 @@ class CommentsController < ApplicationController
   private
 
   def set_post
-    @post = Post.find(params[:post_id])
+    @post = Post.find_by(id: params[:post_id])
     authorize @post, :show?
   end
 

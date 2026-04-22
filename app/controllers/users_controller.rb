@@ -97,11 +97,11 @@ class UsersController < ApplicationController
   private
 
   def set_profile_user
-    @user = User.includes(:posts).find(params[:id])
+    @user = User.includes(:posts).find_by(id: params[:id])
   end
 
   def set_managed_user
-    @user = User.find(params[:id])
+    @user = User.find_by(id: params[:id])
   end
 
   def parse_suspended_until

@@ -48,7 +48,7 @@ class ReactionsController < ApplicationController
       return
     end
 
-    @reactable = klass.find(params[:reactable_id])
+    @reactable = klass.find_by(id: params[:reactable_id])
     authorize reactable_post, :show?
   end
 

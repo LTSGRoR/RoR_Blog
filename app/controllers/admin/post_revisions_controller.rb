@@ -33,7 +33,7 @@ class Admin::PostRevisionsController < ApplicationController
   private
 
   def set_revision
-    @revision = PostRevision.includes(:post, :author).find(params[:id])
+    @revision = PostRevision.includes(:post, :author).find_by(id: params[:id])
   end
 
   def review_note
