@@ -303,7 +303,6 @@ en:
         title: "User management"
         subtitle: "Ban or suspend accounts for moderation."
         search_placeholder: "Search name or email"
-        total: "%{count} users"
         columns:
           name: "Name"
           email: "Email"
