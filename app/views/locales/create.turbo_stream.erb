@@ -1,0 +1,5 @@
+<%= render 'shared/flash.turbo_stream' %>
+
+<%= turbo_stream.replace "current_locale_label" do %>
+  <%= render 'shared/current_locale' %>
+<% end %>

@@ -1,30 +1,5 @@
-<div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-  <div class="bg-white shadow-sm rounded-lg p-8">
-    <h1 class="text-2xl font-semibold text-slate-800 mb-4">New Post</h1>
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <h1 class="text-3xl font-bold text-slate-800 mb-6"><%= t("posts.new.title") %></h1>
 
-    <% if flash[:alert] %>
-      <div class="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">
-        <%= flash[:alert] %>
-      </div>
-    <% end %>
-
-    <%= form_with model: @post, local: true do |f| %>
-      <div class="space-y-4">
-        <div>
-          <%= f.label :title, class: 'block text-sm font-medium text-slate-600' %>
-          <%= f.text_field :title, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
-        </div>
-
-        <div>
-          <%= f.label :body, class: 'block text-sm font-medium text-slate-600' %>
-          <%= f.rich_text_area :body, class: 'mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500' %>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <%= btn_submit(f, 'Create Post', variant: :primary) %>
-          <%= btn_link_to 'Cancel', posts_path, variant: :ghost %>
-        </div>
-      </div>
-    <% end %>
-  </div>
+  <%= render 'form', post: @post %>
 </div>

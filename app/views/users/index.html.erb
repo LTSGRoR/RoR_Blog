@@ -1,0 +1,75 @@
+<%= turbo_stream_from "users" %>
+
+<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-controller="suspend-form" data-action="keydown.esc@window->suspend-form#close">
+  <%= render partial: "users/users_summary", locals: { total_count: (@total_count || @users.size), active_count: (@active_count || @users.count { |u| !u.banned? && !u.suspended? }), suspended_count: (@suspended_count || @users.count(&:suspended?)), banned_count: (@banned_count || @users.count(&:banned?)) } %>
+
+  <div class="mb-6">
+    <%= form_with url: users_path, method: :get, data: { controller: "admin-user-search", turbo_frame: "users_list" }, html: { class: "flex gap-3 items-center mb-4 mt-4" } do |f| %>
+      <div class="flex-1 min-w-0">
+        <%= f.search_field :q, value: params[:q], placeholder: t("users.admin.index.search_placeholder"), class: "h-10 block w-full rounded-lg border border-slate-200 bg-white px-4 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm", data: { action: "input->admin-user-search#search" } %>
+      </div>
+      <div>
+        <%= select_tag :role, options_for_select([["Any",""],["Admin","admin"],["Author","author"]], params[:role]), include_blank: false, class: "h-10 rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm", data: { action: "change->admin-user-search#search" } %>
+      </div>
+      <div>
+        <%= select_tag :status, options_for_select([["Any",""],["Active","active"],["Banned","banned"],["Suspended","suspended"]], params[:status]), include_blank: false, class: "h-10 rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm", data: { action: "change->admin-user-search#search" } %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= turbo_frame_tag "users_list" do %>
+    <%= render partial: "users/users_table", locals: { users: @users } %>
+  <% end %>
+
+  <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 p-4" data-suspend-form-target="suspendModal" data-action="click->suspend-form#backdropCloseSuspend">
+    <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="suspend-modal-title">
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 id="suspend-modal-title" class="text-lg font-semibold text-slate-900"><%= t("users.admin.modal.title") %></h2>
+          <p class="mt-1 text-sm text-slate-500" data-suspend-form-target="suspendUserLabel"></p>
+        </div>
+        <button type="button" class="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700" data-action="click->suspend-form#close" aria-label="<%= t("users.admin.modal.close") %>">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <%= form_with url: "#", method: :post, html: { data: { suspend_form_target: "suspendForm" }, class: "space-y-4" } do |form| %>
+        <%= hidden_field_tag :suspend_time_zone, nil, data: { suspend_form_target: "suspendTimeZone" } %>
+        <div class="mt-2 text-xs text-slate-500" data-suspend-form-target="suspendTimeZoneLabel"></div>
+        <div>
+          <%= form.label :suspended_until, t("users.admin.modal.until"), class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+          <%= form.datetime_local_field :suspended_until, min: Time.current.strftime("%Y-%m-%dT%H:%M"), class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700", data: { suspend_form_target: "suspendInput" } %>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" data-action="click->suspend-form#close"><%= t("users.admin.modal.cancel") %></button>
+          <%= form.submit t("users.admin.actions.confirm_suspend"), class: "rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 p-4" data-suspend-form-target="banModal" data-action="click->suspend-form#backdropCloseBan">
+    <div class="w-full max-w-md rounded-2xl border border-red-100 bg-white p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="ban-modal-title">
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 id="ban-modal-title" class="text-lg font-semibold text-slate-900"><%= t("users.admin.modal.ban_title") %></h2>
+          <p class="mt-1 text-sm text-slate-500" data-suspend-form-target="banUserLabel"></p>
+        </div>
+        <button type="button" class="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700" data-action="click->suspend-form#close" aria-label="<%= t("users.admin.modal.close") %>">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700"><%= t("users.admin.modal.ban_message") %></p>
+
+      <%= form_with url: "#", method: :post, html: { data: { suspend_form_target: "banForm" }, class: "mt-4 flex items-center justify-end gap-2" } do |form| %>
+        <button type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" data-action="click->suspend-form#close"><%= t("users.admin.modal.cancel") %></button>
+        <%= form.submit t("users.admin.modal.confirm_ban"), class: "rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700" %>
+      <% end %>
+    </div>
+  </div>
+</section>

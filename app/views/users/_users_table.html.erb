@@ -1,0 +1,25 @@
+<div id="users_table" class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="max-h-[70vh] overflow-auto">
+    <table class="w-full divide-y divide-slate-200 min-w-full table-auto">
+      <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 w-56"><%= t("users.admin.index.columns.name") %></th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 w-80"><%= t("users.admin.index.columns.email") %></th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("users.admin.index.columns.role") %></th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("users.admin.index.columns.status") %></th>
+          <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("users.admin.index.columns.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 bg-white">
+        <% users.each_with_index do |user, i| %>
+          <%= render partial: "users/user_row", locals: { user: user, i: i } %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="p-4">
+    <div class="flex items-center justify-center">
+      <%= paginate users, params: request.query_parameters %>
+    </div>
+  </div>
+</div>

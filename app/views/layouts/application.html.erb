@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Blog App" %></title>
+    <title><%= content_for(:title) || t("app_name") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -23,17 +23,108 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="syntax-highlight">
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div class="text-lg font-semibold">Blog App</div>
-        <nav class="space-x-4">
+  <body data-controller="syntax-highlight confirm">
+    <header class=" border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur" style="position: relative; top: 0; z-index: 50;">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 py-4 px-4 sm:px-6 lg:px-8">
+        <%= link_to(root_path, class: "block") do %>
+          <div class="text-lg font-semibold text-slate-900 transition hover:text-indigo-600"><%= t("app_name") %></div>
+          <p class="text-xs text-slate-500"><%= t("nav.tagline") %></p>
+        <% end %>
+        <nav class="flex flex-wrap items-center gap-3">
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <span class="text-sm text-gray-700">Hello, <%= current_user.name || current_user.email %></span>
-            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-indigo-600 hover:text-indigo-500 ml-4" %>
+            <details class="relative z-50">
+              <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:bg-white">
+                <span class="hidden sm:inline text-slate-400"><%= t("nav.hello_prefix", default: "Hello,") %></span>
+                <span class="font-semibold text-slate-800"><%= current_user.name || current_user.email %></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+              </summary>
+
+              <div class="absolute right-0 z-[100] mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-lg">
+                <%# Language — side flyout on hover (Stimulus hover-menu) %>
+                <div class="relative border-t border-slate-100" data-controller="hover-menu">
+                  <button type="button"
+                          data-action="mouseenter->hover-menu#show mouseleave->hover-menu#hide click->hover-menu#toggle"
+                          class="flex w-full items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9Zm0 0c2.25 2.46 3.5 5.62 3.5 9S14.25 18.54 12 21m0-18C9.75 5.46 8.5 8.62 8.5 12S9.75 18.54 12 21m-8-9h16" />
+                    </svg>
+                    <span class="mr-auto"><%= t("locale_switcher.label") %></span>
+                    <div id="current_locale_label">
+                      <%= render 'shared/current_locale' %>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L10.94 10 7.23 6.29a.75.75 0 1 1 1.06-1.06l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.08-.02Z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+
+                  <%# Flyout panel — pops out to the RIGHT of the main dropdown %>
+                  <div data-hover-menu-target="panel"
+                       data-action="mouseenter->hover-menu#stayOpen mouseleave->hover-menu#hide"
+                       class="hidden absolute left-full top-0 z-[110] ml-1 w-28 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                    <% I18n.available_locales.each do |locale| %>
+                      <%= button_to set_locale_path, method: :post, params: { chosen_locale: locale }, form: { class: 'm-0' }, class: "block px-2 py-2 text-sm text-center w-full #{I18n.locale == locale ? 'text-indigo-700 font-medium bg-indigo-50' : 'text-slate-700 hover:bg-slate-50'}" do %>
+                        <%= t("locale_switcher.#{locale}") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+
+                <%# Profile settings %>
+                <%= link_to edit_user_registration_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                  <%= t("nav.profile_settings") %>
+                <% end %>
+
+                <div class="border-t border-slate-100">
+                  <% if current_user.admin? %>
+                    <%= link_to(admin_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5m-16.5 7.5h16.5m-16.5 7.5h16.5" />
+                      </svg>
+                      <%= t("nav.manage_posts") %>
+                    <% end %>
+                  <% end %>
+
+                  <%# Also surface a direct "My posts" link for admin users who are authors %>
+                  <% if current_user %>
+                    <%= link_to(mine_posts_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition") do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V7.5L13.5 3H4z" />
+                      </svg>
+                      <%= t("posts.mine.title") %>
+                    <% end %>
+                  <% end %>
+
+                <%# Manage users (admin only) %>
+                <% if current_user.admin? %>
+                    <%= link_to users_path, class: "flex items-center gap-2.5 whitespace-nowrap px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.79-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                      <%= t("nav.manage_users") %>
+                    <% end %>
+                <% end %>
+                </div>
+
+                <%# Sign out %>
+                <div class="border-t border-slate-100">
+                  <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+                    </svg>
+                    <%= t("nav.sign_out") %>
+                  <% end %>
+                </div>
+
+              </div>
+            </details>
           <% else %>
-            <%= link_to "Sign in", new_user_session_path, class: "text-sm text-gray-700 hover:text-gray-900" %>
-            <%= link_to "Sign up", new_user_registration_path, class: "ml-4 text-sm text-indigo-600 hover:text-indigo-500" %>
+            <%= link_to t("nav.sign_in"), new_user_session_path, class: "rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white" %>
+            <%= link_to t("nav.sign_up"), new_user_registration_path, class: "rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700" %>
           <% end %>
         </nav>
       </div>
@@ -41,9 +132,13 @@
 
     <main class="py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <%= render 'shared/flash' %>
+        <%= turbo_stream_from "flash" %>
+        <div id="flash_messages">
+          <%= render 'shared/flash' %>
+        </div>
         <%= yield %>
       </div>
     </main>
+    <div data-confirm-target="container"></div>
   </body>
 </html>

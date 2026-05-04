@@ -1,0 +1,9 @@
+# Common browser/legacy timezone aliases -> canonical IANA zone
+# Add more entries as needed
+Asia/Saigon: Asia/Ho_Chi_Minh
+Asia/Singapore: Asia/Singapore
+Europe/Kiev: Europe/Kyiv
+US/Pacific: America/Los_Angeles
+US/Eastern: America/New_York
+GMT: Etc/UTC
+UTC: Etc/UTC

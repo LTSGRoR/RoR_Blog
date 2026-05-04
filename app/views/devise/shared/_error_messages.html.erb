@@ -1,10 +1,19 @@
 <% if resource && resource.errors.any? %>
-  <div class="mb-4 bg-red-50 border border-red-200 p-4 rounded">
-    <p class="text-sm text-red-700 font-medium"><%= pluralize(resource.errors.count, "error") %> prohibited this <%= resource.class.model_name.human.downcase %> from being saved:</p>
-    <ul class="mt-2 text-sm text-red-700 list-disc ml-5">
-      <% resource.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-    </ul>
+  <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M18 10A8 8 0 114 4.228V3a1 1 0 112 0v2.228A8 8 0 0118 10zm-9-3a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 15z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-red-800"><%= t("errors.messages.not_saved", count: resource.errors.count, resource: resource.class.model_name.human.downcase) %></p>
+        <ul class="mt-3 space-y-1 text-sm text-red-700">
+          <% resource.errors.full_messages.each do |msg| %>
+            <li class="flex gap-2"><span aria-hidden="true">•</span><span><%= msg %></span></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
   </div>
 <% end %>

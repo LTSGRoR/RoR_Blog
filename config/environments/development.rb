@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  app_host = ENV.fetch("APP_HOST", "localhost")
+  app_port = ENV.fetch("APP_PORT", 3000)
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
@@ -31,9 +34,21 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  # Use Letter Opener in development to preview emails in the browser.
-  config.action_mailer.delivery_method = :letter_opener
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address:              ENV["SMTP_ADDRESS"],
+      port:                 ENV.fetch("SMTP_PORT", 587).to_i,
+      domain:               ENV.fetch("SMTP_DOMAIN", "localhost"),
+      user_name:            ENV["SMTP_USERNAME"],
+      password:             ENV["SMTP_PASSWORD"],
+      authentication:       :plain,
+      enable_starttls_auto: true
+    }
+  else
+    config.action_mailer.delivery_method = :file
+    config.action_mailer.file_settings = { location: Rails.root.join("tmp/mails") }
+  end
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
 
@@ -41,7 +56,10 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  config.action_mailer.default_url_options = { host: app_host, port: app_port }
+
+  # Allow direct access from a configured public host or IP in development.
+  config.hosts << app_host unless app_host == "localhost"
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

@@ -28,4 +28,437 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  app_name: "Blog App"
+
+  time:
+    formats:
+      short: "%b %d, %Y %I:%M %p"
+  date:
+    formats:
+      short: "%b %d, %Y"
+    month_names:
+      - ~
+      - "January"
+      - "February"
+      - "March"
+      - "April"
+      - "May"
+      - "June"
+      - "July"
+      - "August"
+      - "September"
+      - "October"
+      - "November"
+      - "December"
+    abbr_month_names:
+      - ~
+      - "Jan"
+      - "Feb"
+      - "Mar"
+      - "Apr"
+      - "May"
+      - "Jun"
+      - "Jul"
+      - "Aug"
+      - "Sep"
+      - "Oct"
+      - "Nov"
+      - "Dec"
+
+  common:
+    unknown: "Unknown"
+    default_avatar: "Default avatar"
+
+  locale_switcher:
+    label: "Language"
+    en: "EN"
+    vi: "VI"
+    ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "Language changed to %{locale_name}"
+    unsupported: "Unsupported locale: %{locale_name}"
+
+  nav:
+    hello: "Hello, %{name}"
+    hello_prefix: "Hello,"
+    tagline: "Publish, review, and manage your writing."
+    profile_settings: "Profile Settings"
+    manage_posts: "Manage posts"
+    manage_users: "Manage users"
+    sign_out: "Sign out"
+    sign_in: "Sign in"
+    sign_up: "Sign up"
+
+  posts:
+    index:
+      title: "All Posts"
+      new_post: "New Post"
+      moderation_queue: "Moderation Queue"
+      no_results: "No posts found for \"%{query}\"."
+    mine:
+      title: "Manage Your Posts"
+      subtitle: "Track drafts, review feedback, and published posts in one place."
+      empty: "You have not created any posts yet."
+      no_results: "No posts found for \"%{query}\"."
+      no_revision: "No active revision"
+      search_placeholder: "Search your posts by title or tag..."
+      search: "Search"
+      clear_search: "Clear"
+      stats:
+        drafts: "Drafts"
+        needs_review: "Needs Review"
+        published: "Published"
+      list:
+        title: "Your Post Queue"
+        subtitle: "Everything you own, separate from the public feed."
+      columns:
+        post: "Post"
+        visibility: "Post Status"
+        revision: "Revision"
+        updated: "Updated"
+        actions: "Actions"
+      badges:
+        draft: "Draft"
+        awaiting_review: "Awaiting Review"
+        published: "Published"
+      actions:
+        view: "View"
+    show:
+      by: "by"
+      reactions: "Reactions"
+      comments: "Comments"
+      join_conversation: "to join the conversation."
+      review_controls:
+        title: "Review Controls"
+        verified_description: "This post is currently verified. Add a reason below to send it back to the author."
+        unverified_description: "This post is awaiting approval. Save feedback for the author or verify it when ready."
+        verify: "Verify Post"
+        feedback_label: "Feedback for author"
+        feedback_placeholder: "Explain exactly what the author needs to fix before verification."
+        unverify_with_feedback: "Unverify With Feedback"
+        save_feedback: "Save Feedback"
+        author_only: "Only the post author can see this feedback."
+      feedback:
+        title: "Feedback"
+        author_reply: "Author Reply"
+        updated_at: "Updated %{time}"
+        reply_label: "Reply to admin"
+        reply_placeholder: "Share what you changed or ask clarifying questions."
+        send_reply: "Send Reply"
+    new:
+      title: "New Post"
+    edit:
+      title: "Edit Post"
+    form:
+      title_placeholder: "Enter a catchy title..."
+      tags_placeholder: "Search tags"
+      remove_tag: "Remove tag"
+      cancel: "Cancel"
+    actions:
+      back_to_posts: "Back to posts"
+      read_more: "Read more"
+      edit: "Edit"
+      edit_revision: "Edit"
+      delete: "Delete"
+      confirm_delete: "Are you sure?"
+    status:
+      verified: "Verified"
+      unverified: "Unverified"
+
+  comments:
+    form:
+      label: "Add a comment"
+      submit: "Post comment"
+
+  search:
+    placeholder: "Search posts by title, body, tags..."
+
+  pagination:
+    label: "Pagination"
+    first_page: "First page"
+    previous_page: "Previous page"
+    next_page: "Next page"
+    last_page: "Last page"
+
+  pwa:
+    description: "Blog App."
+
+  auth:
+    email_placeholder: "you@example.com"
+    confirmations:
+      new:
+        sidebar_label: "Confirmation"
+        title: "Resend confirmation instructions"
+        sidebar_body: "If your confirmation email expired or never arrived, we can send another one to your inbox."
+        checks_title: "Before you continue"
+        check_1: "Check spam or promotions folders"
+        check_2: "Confirm you entered the correct email"
+        check_3: "Request a new message below if needed"
+        form_title: "Send another confirmation email"
+        form_subtitle: "Need another confirmation email? Enter your address below."
+        submit: "Resend instructions"
+    passwords:
+      shared:
+        back_to_sign_in: "Back to sign in"
+      new:
+        sidebar_label: "Recovery"
+        title: "Forgot your password?"
+        sidebar_body: "We will email you a secure reset link so you can get back into your account quickly."
+        steps_title: "What happens next"
+        step_1: "Enter the email tied to your account"
+        step_2: "Open the reset link from your inbox"
+        step_3: "Choose a new password and sign back in"
+        form_title: "Reset access"
+        form_subtitle: "Enter your email and we will send you reset instructions."
+        submit: "Send reset instructions"
+      edit:
+        sidebar_label: "Security"
+        title: "Choose a new password"
+        sidebar_body: "Use a strong password you have not used before and keep it unique to this account."
+        tips_title: "Password tips"
+        tip_1: "Use a mix of words, numbers, and symbols"
+        tip_2: "Avoid reusing old passwords"
+        tip_3: "Store it in a trusted password manager"
+        form_title: "Reset your password"
+        form_subtitle: "Use a strong password you have not used before."
+        new_password_label: "New password"
+        submit: "Change my password"
+    sessions:
+      promo_headline: "Blog App"
+      promo_body: "Modern publishing, beautiful reading experience. Sign in to manage posts and preferences."
+      feature_1: "Fast editor with Autosave"
+      feature_2: "Built-in SEO and RSS"
+      feature_3: "Responsive, accessible UI"
+      title: "Sign in to your account"
+      subtitle: "Welcome back - enter your details below."
+      password_placeholder: "Enter your password"
+      remember_me: "Remember me"
+      forgot_password: "Forgot your password?"
+      submit: "Sign in"
+      no_account: "Don't have an account?"
+      create_one: "Create one"
+    registrations:
+      promo_headline: "Join Blog App"
+      promo_body: "Create an account to write posts, save drafts, and customize your profile."
+      feature_1: "Private drafts"
+      feature_2: "Built-in analytics"
+      feature_3: "Simple, beautiful reading"
+      title: "Create your account"
+      subtitle: "Start publishing in minutes."
+      name_placeholder: "Your full name"
+      password_placeholder: "Choose a password"
+      password_confirmation_placeholder: "Confirm password"
+      submit: "Create account"
+      have_account: "Already have an account?"
+      edit:
+        sidebar_label: "Account"
+        title: "Settings"
+        subtitle: "Update your profile, change your password, and manage the account details tied to your posts."
+        current_password_note: "Devise requires your current password to save account changes."
+        quick_links: "Quick links"
+        public_profile: "Public profile"
+        back_home: "Back home"
+        profile_title: "Profile"
+        profile_subtitle: "Keep your public author details current."
+        public_badge: "Public-facing"
+        pending_email_title: "Email update pending confirmation"
+        pending_email_body: "We are waiting for confirmation from %{email}."
+        upload_avatar: "Upload\navatar"
+        avatar_title: "Profile photo"
+        avatar_hint: "Use a square image for the cleanest result in author cards and profile views."
+        security_title: "Security"
+        security_subtitle: "Leave the password fields blank if you do not want to change your password."
+        current_password_hint: "Required for any email, password, or profile updates."
+        save_changes: "Save changes"
+    links:
+      sign_up: "Sign up"
+      sign_in: "Sign in"
+      forgot_password: "Forgot your password?"
+      didnt_receive_confirmation: "Didn't receive confirmation instructions?"
+
+  users:
+    profile:
+      own_badge: "Your profile"
+      member_since: "Member since %{date}"
+      published_count:
+        one: "%{count} post published in this blog"
+        other: "%{count} posts published in this blog"
+      manage_account: "Manage account"
+      recent_posts_title: "Recent posts"
+      recent_posts_subtitle: "A quick overview of this author's latest writing."
+      open_post: "Open post"
+      empty_title: "No published posts yet"
+      empty_body: "This author has not shared any posts with the blog yet."
+      no_posts_short: "No posts yet"
+      stats:
+        published: "Published posts"
+        verified: "Verified posts"
+        latest: "Latest post"
+    admin:
+      index:
+        title: "User management"
+        subtitle: "Ban or suspend accounts for moderation."
+        search_placeholder: "Search name or email"
+        columns:
+          name: "Name"
+          email: "Email"
+          role: "Role"
+          status: "Status"
+          actions: "Actions"
+        status:
+          active: "Active"
+          banned: "Banned"
+          suspended_until: "Suspended until %{time}"
+        actions_unavailable: "Protected account"
+      actions:
+        ban: "Ban"
+        unban: "Unban"
+        suspend: "Suspend"
+        unsuspend: "Unsuspend"
+        confirm_suspend: "Confirm"
+      confirm:
+        ban: "Are you sure you want to ban this account?"
+      modal:
+        title: "Suspend account"
+        ban_title: "Ban account"
+        ban_message: "This will immediately block this user from signing in until you unban them."
+        confirm_ban: "Confirm ban"
+        until: "Suspend until"
+        cancel: "Cancel"
+        close: "Close"
+      flash:
+        banned: "%{email} has been banned."
+        unbanned: "%{email} has been unbanned."
+        suspended: "%{email} has been suspended until %{time}."
+        unsuspended: "%{email} has been unsuspended."
+        invalid_suspend_date: "Please provide a valid future date and time for suspension."
+
+  post_revisions:
+    flash:
+      saved: "Revision draft saved."
+      submitted: "Revision submitted for admin review."
+      withdrawn: "Revision withdrawn back to draft."
+      start_first: "Start a revision draft first."
+    new:
+      title: "Create Revision"
+      subtitle: "Edit your verified post safely without changing the live page."
+    edit:
+      title: "Edit Revision"
+      subtitle: "Update your pending revision and submit it when ready."
+      pending_subtitle: "This revision is under review. Withdraw it to continue editing."
+      pending_notice: "This revision has been submitted and is awaiting admin review."
+    form:
+      live_post_notice: "Live post stays unchanged"
+      live_post_notice_detail: "Your edits will be visible only after admin approval."
+      feedback_title: "Latest admin feedback"
+      tags: "Tags"
+      tags_placeholder: "tag1, tag2, tag3"
+      no_tags: "No tags selected"
+      back_to_post: "Back to post"
+      save_draft: "Save draft"
+      submit_for_review: "Submit for review"
+      confirm_submit: "Submit this revision for admin review?"
+      statuses:
+        draft: "Draft"
+        pending_review: "Pending review"
+        approved: "Approved"
+        rejected: "Rejected"
+      withdraw: "Withdraw from review"
+      confirm_withdraw: "Withdraw this revision from review and return it to draft?"
+    status_panel:
+      title: "Revision Status"
+      current_status: "Current status: %{status}"
+      submitted_at: "Submitted at %{time}"
+      open_editor: "Open revision editor"
+      view_revision: "View revision"
+      rejected_title: "Revision needs updates"
+      rejected_detail: "Review feedback is below. Create an updated revision when you're ready."
+      reviewed_at: "Reviewed %{time}"
+      review_note_label: "Review feedback"
+      start_new_revision: "Create updated revision"
+      propose_edits: "Propose edits"
+
+  admin:
+    posts:
+      flash:
+        approved: "Revision approved and published to live post."
+        rejected: "Revision rejected."
+        deleted: "Revision deleted."
+      show:
+        subtitle: "Reviewing draft content from %{author}"
+        back_to_queue: "Back to moderation"
+        draft_badge: "Draft Preview"
+        live_post_title: "Current live post"
+        review_actions: "Review actions"
+        draft_notice: "This revision is still a draft. The author must submit it for review before it can be approved or rejected."
+        review_complete: "This revision has already been reviewed."
+      statuses:
+        draft: "Draft"
+        pending_review: "Pending review"
+        approved: "Approved"
+        rejected: "Rejected"
+      index:
+        title: "Post Moderation"
+        subtitle: "Review author revisions and approve changes to live posts."
+        search_placeholder: "Search by post title or author"
+        search: "Search"
+        empty: "No revisions found for this filter."
+        no_action: "No action available"
+        open_draft: "Open draft"
+        confirm_approve: "Approve and publish to live post?"
+        confirm_delete_revision: "Delete this revision? This cannot be undone."
+        open_live_post: "Open live post"
+        review: "Review"
+        approve: "Approve"
+        unverify: "Unverify"
+        reject: "Reject"
+        approve_note_placeholder: "Optional note"
+        reject_note_placeholder: "Required rejection note"
+        stats:
+          pending_posts: "New posts"
+          pending_revisions: "Pending revisions"
+          open: "Open drafts"
+          reviewed_today: "Reviewed today"
+        pending_posts:
+          title: "Post Management"
+          subtitle: "Manage published posts, including verification, feedback, and deletion."
+          no_feedback: "No feedback yet"
+          empty: "No posts found for this filter."
+          columns:
+            post: "Post"
+            author: "Author"
+            status: "Status"
+            submitted: "Submitted"
+            feedback: "Feedback"
+            actions: "Actions"
+        pending_revisions:
+          title: "Revision Reviews"
+          subtitle: "Review edits to verified posts before updating the live version."
+        scopes:
+          all: "All moderation"
+          posts: "Posts"
+          revisions: "Revisions"
+        filters:
+          pending: "Pending"
+          open: "Open Drafts"
+          reviewed: "Reviewed"
+        columns:
+          post: "Post"
+          author: "Author"
+          status: "Status"
+          submitted: "Submitted"
+          actions: "Actions"
+
+  errors:
+    not_authorized: "You are not authorized to perform this action."
+
+  activerecord:
+    attributes:
+      post:
+        statuses:
+          draft: "Draft"
+          published: "Published"

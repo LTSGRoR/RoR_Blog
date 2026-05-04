@@ -1,53 +1,30 @@
-<div class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">All Posts</h1>
-    <%= btn_link_to 'New Post', new_post_path, variant: :primary %>
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <h1 class="text-3xl font-bold text-slate-800"><%= t("posts.index.title") %></h1>
+    <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
   </div>
 
-  <div class="space-y-6">
-    <% @posts.each do |post| %>
-      <article class="bg-white shadow-sm rounded-lg p-6 flex items-start gap-4">
-        <div class="flex-shrink-0">
-          <% if post.user&.avatar&.attached? %>
-            <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name %>
-          <% else %>
-            <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || 'Default avatar' %>
-          <% end %>
-        </div>
-        <div class="flex-1 min-w-0 ml-4">
-          <h2 class="text-xl font-semibold text-slate-800">
-            <%= link_to post.title, post_path(post), class: 'hover:underline' %>
-            <% if post.verified? %>
-              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
-            <% else %>
-              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unverified</span>
-            <% end %>
-          </h2>
-          <div class="text-sm text-slate-500 mt-2">
-            by <%= post.user&.name || 'Unknown' %> · <%= post.created_at.strftime('%b %d, %Y') %>
-          </div>
-          <div class="mt-4 flex justify-around gap-4">
-            <%= btn_link_to 'Read more', post_path(post), variant: :ghost %>
-            <% if user_signed_in? && policy(post).update? %>
-              <span class="ml-4">
-                <%= btn_link_to 'Edit', edit_post_path(post), variant: :secondary %>
-              </span>
-              <span class="ml-4">
-                <%= btn_link_to 'Delete', post_path(post), method: :delete, variant: :danger, data: { confirm: 'Are you sure?' }, class: 'text-sm' %>
-              </span>
-            <% end %>
-            <% if current_user&.admin? %>
-              <span class="ml-4 flex items-center">
-                <% if post.verified? %>
-                  <%= btn_link_to 'Unverify', unverify_post_path(post), variant: :warning, method: :post, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
-                <% else %>
-                  <%= btn_link_to 'Verify', verify_post_path(post), variant: :success, method: :post, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
-                <% end %>
-              </span>
-            <% end %>
-          </div>
-        </div>
-      </article>
+  <%= render 'shared/search_form', search_path: (@search_path || posts_path) %>
+
+  <div id="posts-results">
+    <div class="space-y-6">
+      <% @posts.each do |post| %>
+        <%= render "index_post_card", post: post %>
+      <% end %>
+    </div>
+    <div class="mt-8">
+      <%= paginate @posts %>
+    </div>
+
+    <% if @posts.respond_to?(:total_count) %>
+      <% result_count = @posts.total_count %>
+    <% else %>
+      <% result_count = @posts.size %>
     <% end %>
+
+    <% if params[:q].present? && result_count.to_i == 0 %>
+      <div class="mt-4 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
+    <% end %>
+
   </div>
 </div>

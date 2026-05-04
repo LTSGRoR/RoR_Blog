@@ -1,0 +1,435 @@
+vi:
+  app_name: "Blog App"
+
+  time:
+    formats:
+      short: "%d %B %Y %H:%M"
+  date:
+    formats:
+      short: "%d %B %Y"
+    month_names:
+      - ~
+      - "Tháng 1"
+      - "Tháng 2"
+      - "Tháng 3"
+      - "Tháng 4"
+      - "Tháng 5"
+      - "Tháng 6"
+      - "Tháng 7"
+      - "Tháng 8"
+      - "Tháng 9"
+      - "Tháng 10"
+      - "Tháng 11"
+      - "Tháng 12"
+    abbr_month_names:
+      - ~
+      - "Thg 1"
+      - "Thg 2"
+      - "Thg 3"
+      - "Thg 4"
+      - "Thg 5"
+      - "Thg 6"
+      - "Thg 7"
+      - "Thg 8"
+      - "Thg 9"
+      - "Thg 10"
+      - "Thg 11"
+      - "Thg 12"
+
+  common:
+    unknown: "Không rõ"
+    default_avatar: "Ảnh đại diện mặc định"
+
+  locale_switcher:
+    label: "Ngôn ngữ"
+    en: "EN"
+    vi: "VI"
+    ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "Đã đổi ngôn ngữ sang %{locale_name}"
+    unsupported: "Ngôn ngữ không được hỗ trợ: %{locale_name}"
+
+  nav:
+    hello: "Xin chào, %{name}"
+    hello_prefix: "Xin chào," 
+    tagline: "Xuất bản, kiểm duyệt và quản lý bài viết của bạn."
+    profile_settings: "Cài đặt hồ sơ"
+    manage_posts: "Quản lý bài viết"
+    manage_users: "Quản lý người dùng"
+    sign_out: "Đăng xuất"
+    sign_in: "Đăng nhập"
+    sign_up: "Đăng ký"
+
+  posts:
+    index:
+      title: "Tất cả bài viết"
+      new_post: "Bài viết mới"
+      moderation_queue: "Hàng đợi kiểm duyệt"
+      no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+    mine:
+      title: "Quản lý bài viết của bạn"
+      subtitle: "Theo dõi bản nháp, phản hồi kiểm duyệt và bài viết đã xuất bản tại một nơi."
+      empty: "Bạn chưa tạo bài viết nào."
+      no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+      no_revision: "Không có bản chỉnh sửa đang hoạt động"
+      search_placeholder: "Tìm bài viết của bạn theo tiêu đề hoặc thẻ..."
+      search: "Tìm"
+      clear_search: "Xóa"
+      stats:
+        drafts: "Bản nháp"
+        needs_review: "Cần xem lại"
+        published: "Đã xuất bản"
+      list:
+        title: "Hàng đợi bài viết của bạn"
+        subtitle: "Mọi bài viết của bạn, tách biệt khỏi luồng bài viết công khai."
+      columns:
+        post: "Bài viết"
+        visibility: "Trạng thái bài viết"
+        revision: "Bản chỉnh sửa"
+        updated: "Cập nhật"
+        actions: "Thao tác"
+      badges:
+        draft: "Bản nháp"
+        awaiting_review: "Chờ duyệt"
+        published: "Đã xuất bản"
+      actions:
+        view: "Xem"
+    show:
+      by: "bởi"
+      reactions: "Cảm xúc"
+      comments: "Bình luận"
+      join_conversation: "để tham gia cuộc trò chuyện."
+      review_controls:
+        title: "Kiểm duyệt"
+        verified_description: "Bài viết này đã được xác minh. Thêm lý do bên dưới để gửi lại cho tác giả."
+        unverified_description: "Bài viết này đang chờ phê duyệt. Lưu phản hồi cho tác giả hoặc xác minh khi sẵn sàng."
+        verify: "Xác minh bài viết"
+        feedback_label: "Phản hồi cho tác giả"
+        feedback_placeholder: "Giải thích chính xác những gì tác giả cần sửa trước khi xác minh."
+        unverify_with_feedback: "Hủy xác minh kèm phản hồi"
+        save_feedback: "Lưu phản hồi"
+        author_only: "Chỉ tác giả bài viết mới thấy phản hồi này."
+      feedback:
+        title: "Phản hồi"
+        author_reply: "Phản hồi của tác giả"
+        updated_at: "Cập nhật %{time}"
+        reply_label: "Trả lời quản trị viên"
+        reply_placeholder: "Chia sẻ những thay đổi của bạn hoặc đặt câu hỏi làm rõ."
+        send_reply: "Gửi trả lời"
+    new:
+      title: "Bài viết mới"
+    edit:
+      title: "Chỉnh sửa bài viết"
+    form:
+      title_placeholder: "Nhập tiêu đề hấp dẫn..."
+      tags_placeholder: "Tìm kiếm thẻ"
+      remove_tag: "Xóa thẻ"
+      cancel: "Hủy"
+    actions:
+      back_to_posts: "Quay lại danh sách"
+      read_more: "Đọc thêm"
+      edit: "Chỉnh sửa"
+      edit_revision: "Chỉnh sửa"
+      delete: "Xóa"
+      confirm_delete: "Bạn có chắc chắn không?"
+    status:
+      verified: "Đã xác minh"
+      unverified: "Chưa xác minh"
+
+  comments:
+    form:
+      label: "Thêm bình luận"
+      submit: "Đăng bình luận"
+
+  search:
+    placeholder: "Tìm kiếm bài viết theo tiêu đề, nội dung, thẻ..."
+
+  pagination:
+    label: "Phân trang"
+    first_page: "Trang đầu"
+    previous_page: "Trang trước"
+    next_page: "Trang tiếp"
+    last_page: "Trang cuối"
+
+  pwa:
+    description: "Blog App."
+
+  auth:
+    email_placeholder: "you@example.com"
+    confirmations:
+      new:
+        sidebar_label: "Xác nhận"
+        title: "Gửi lại hướng dẫn xác nhận"
+        sidebar_body: "Nếu email xác nhận đã hết hạn hoặc chưa đến, chúng tôi có thể gửi lại vào hộp thư của bạn."
+        checks_title: "Trước khi tiếp tục"
+        check_1: "Kiểm tra thư rác hoặc tab quảng cáo"
+        check_2: "Xác nhận bạn đã nhập đúng địa chỉ email"
+        check_3: "Yêu cầu gửi lại bên dưới nếu cần"
+        form_title: "Gửi lại email xác nhận"
+        form_subtitle: "Cần email xác nhận mới? Nhập địa chỉ của bạn bên dưới."
+        submit: "Gửi lại hướng dẫn"
+    passwords:
+      shared:
+        back_to_sign_in: "Quay lại đăng nhập"
+      new:
+        sidebar_label: "Khôi phục"
+        title: "Quên mật khẩu?"
+        sidebar_body: "Chúng tôi sẽ gửi cho bạn một liên kết đặt lại an toàn để bạn có thể nhanh chóng truy cập lại tài khoản."
+        steps_title: "Tiếp theo sẽ diễn ra gì"
+        step_1: "Nhập email gắn với tài khoản của bạn"
+        step_2: "Mở liên kết đặt lại trong hộp thư"
+        step_3: "Chọn mật khẩu mới rồi đăng nhập lại"
+        form_title: "Khôi phục quyền truy cập"
+        form_subtitle: "Nhập email và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu."
+        submit: "Gửi hướng dẫn đặt lại"
+      edit:
+        sidebar_label: "Bảo mật"
+        title: "Chọn mật khẩu mới"
+        sidebar_body: "Hãy dùng một mật khẩu mạnh mà bạn chưa từng sử dụng trước đây và chỉ dùng cho tài khoản này."
+        tips_title: "Mẹo đặt mật khẩu"
+        tip_1: "Kết hợp chữ, số và ký hiệu"
+        tip_2: "Tránh dùng lại mật khẩu cũ"
+        tip_3: "Lưu trong trình quản lý mật khẩu đáng tin cậy"
+        form_title: "Đặt lại mật khẩu"
+        form_subtitle: "Hãy dùng một mật khẩu mạnh mà bạn chưa từng sử dụng trước đây."
+        new_password_label: "Mật khẩu mới"
+        submit: "Đổi mật khẩu"
+    sessions:
+      promo_headline: "Blog App"
+      promo_body: "Nền tảng xuất bản hiện đại, trải nghiệm đọc tuyệt vời. Đăng nhập để quản lý bài viết và cài đặt."
+      feature_1: "Trình soạn thảo nhanh với tự động lưu"
+      feature_2: "SEO và RSS tích hợp sẵn"
+      feature_3: "Giao diện đẹp, dễ tiếp cận"
+      title: "Đăng nhập vào tài khoản"
+      subtitle: "Chào mừng trở lại - nhập thông tin của bạn bên dưới."
+      password_placeholder: "Nhập mật khẩu"
+      remember_me: "Ghi nhớ đăng nhập"
+      forgot_password: "Quên mật khẩu?"
+      submit: "Đăng nhập"
+      no_account: "Chưa có tài khoản?"
+      create_one: "Tạo tài khoản"
+    registrations:
+      promo_headline: "Tham gia Blog App"
+      promo_body: "Tạo tài khoản để viết bài, lưu bản nháp và tùy chỉnh hồ sơ của bạn."
+      feature_1: "Bản nháp riêng tư"
+      feature_2: "Phân tích tích hợp sẵn"
+      feature_3: "Đọc đơn giản, đẹp mắt"
+      title: "Tạo tài khoản của bạn"
+      subtitle: "Bắt đầu xuất bản trong vài phút."
+      name_placeholder: "Họ và tên đầy đủ"
+      password_placeholder: "Chọn mật khẩu"
+      password_confirmation_placeholder: "Xác nhận mật khẩu"
+      submit: "Tạo tài khoản"
+      have_account: "Đã có tài khoản rồi?"
+      edit:
+        sidebar_label: "Tài khoản"
+        title: "Cài đặt"
+        subtitle: "Cập nhật hồ sơ, đổi mật khẩu và quản lý thông tin tài khoản gắn với các bài viết của bạn."
+        current_password_note: "Devise yêu cầu mật khẩu hiện tại để lưu các thay đổi của tài khoản."
+        quick_links: "Liên kết nhanh"
+        public_profile: "Hồ sơ công khai"
+        back_home: "Về trang chủ"
+        profile_title: "Hồ sơ"
+        profile_subtitle: "Giữ thông tin tác giả công khai của bạn luôn mới nhất."
+        public_badge: "Hiển thị công khai"
+        pending_email_title: "Thay đổi email đang chờ xác nhận"
+        pending_email_body: "Chúng tôi đang chờ xác nhận từ %{email}."
+        upload_avatar: "Tải ảnh\nđại diện"
+        avatar_title: "Ảnh hồ sơ"
+        avatar_hint: "Nên dùng ảnh vuông để hiển thị đẹp nhất trong thẻ tác giả và trang hồ sơ."
+        security_title: "Bảo mật"
+        security_subtitle: "Để trống các ô mật khẩu nếu bạn không muốn thay đổi mật khẩu."
+        current_password_hint: "Bắt buộc khi cập nhật email, mật khẩu hoặc hồ sơ."
+        save_changes: "Lưu thay đổi"
+    links:
+      sign_up: "Đăng ký"
+      sign_in: "Đăng nhập"
+      forgot_password: "Quên mật khẩu?"
+      didnt_receive_confirmation: "Không nhận được hướng dẫn xác nhận?"
+
+  users:
+    profile:
+      own_badge: "Hồ sơ của bạn"
+      member_since: "Tham gia từ %{date}"
+      published_count:
+        one: "Đã xuất bản %{count} bài viết trên blog này"
+        other: "Đã xuất bản %{count} bài viết trên blog này"
+      manage_account: "Quản lý tài khoản"
+      recent_posts_title: "Bài viết gần đây"
+      recent_posts_subtitle: "Tổng quan nhanh về những bài viết mới nhất của tác giả này."
+      open_post: "Mở bài viết"
+      empty_title: "Chưa có bài viết nào được xuất bản"
+      empty_body: "Tác giả này vẫn chưa chia sẻ bài viết nào trên blog."
+      no_posts_short: "Chưa có bài viết"
+      stats:
+        published: "Bài viết đã xuất bản"
+        verified: "Bài viết đã xác minh"
+        latest: "Bài viết mới nhất"
+    admin:
+      index:
+        title: "Quản lý người dùng"
+        subtitle: "Cấm hoặc tạm khóa tài khoản để kiểm duyệt."
+        search_placeholder: "Tìm theo tên hoặc email"
+        columns:
+          name: "Tên"
+          email: "Email"
+          role: "Vai trò"
+          status: "Trạng thái"
+          actions: "Hành động"
+        status:
+          active: "Đang hoạt động"
+          banned: "Đã cấm"
+          suspended_until: "Tạm khóa đến %{time}"
+        actions_unavailable: "Tài khoản được bảo vệ"
+      actions:
+        ban: "Cấm"
+        unban: "Bỏ cấm"
+        suspend: "Tạm khóa"
+        unsuspend: "Mở tạm khóa"
+        confirm_suspend: "Xác nhận"
+      confirm:
+        ban: "Bạn có chắc muốn cấm tài khoản này không?"
+      modal:
+        title: "Tạm khóa tài khoản"
+        ban_title: "Cấm tài khoản"
+        ban_message: "Hành động này sẽ chặn người dùng đăng nhập ngay lập tức cho đến khi được bỏ cấm."
+        confirm_ban: "Xác nhận cấm"
+        until: "Tạm khóa đến"
+        cancel: "Hủy"
+        close: "Đóng"
+      flash:
+        banned: "%{email} đã bị cấm."
+        unbanned: "%{email} đã được bỏ cấm."
+        suspended: "%{email} đã bị tạm khóa đến %{time}."
+        unsuspended: "%{email} đã được mở tạm khóa."
+        invalid_suspend_date: "Vui lòng nhập ngày giờ hợp lệ trong tương lai để tạm khóa."
+
+  errors:
+    not_authorized: "Bạn không có quyền thực hiện hành động này."
+
+  post_revisions:
+    flash:
+      saved: "Đã lưu bản nháp chỉnh sửa."
+      submitted: "Đã gửi bản chỉnh sửa để quản trị viên duyệt."
+      withdrawn: "Đã rút bản chỉnh sửa về trạng thái nháp."
+      start_first: "Hãy tạo bản nháp chỉnh sửa trước."
+    new:
+      title: "Tạo bản chỉnh sửa"
+      subtitle: "Chỉnh sửa bài đã xác minh mà không thay đổi trang bài viết đang hiển thị."
+    edit:
+      title: "Chỉnh sửa bản nháp"
+      subtitle: "Cập nhật bản chỉnh sửa và gửi khi đã sẵn sàng."
+      pending_subtitle: "Bản chỉnh sửa này đang chờ duyệt. Hãy rút về bản nháp nếu bạn muốn tiếp tục chỉnh sửa."
+      pending_notice: "Bản chỉnh sửa này đã được gửi và đang chờ quản trị viên duyệt."
+    form:
+      live_post_notice: "Bài viết đang hiển thị không đổi"
+      live_post_notice_detail: "Nội dung mới chỉ hiển thị sau khi được quản trị viên phê duyệt."
+      feedback_title: "Phản hồi mới nhất từ quản trị viên"
+      tags: "Thẻ"
+      tags_placeholder: "the1, the2, the3"
+      no_tags: "Chưa chọn thẻ nào"
+      back_to_post: "Quay lại bài viết"
+      save_draft: "Lưu bản nháp"
+      submit_for_review: "Gửi duyệt"
+      confirm_submit: "Gửi bản chỉnh sửa này để quản trị viên duyệt?"
+      statuses:
+        draft: "Bản nháp"
+        pending_review: "Chờ duyệt"
+        approved: "Đã duyệt"
+        rejected: "Đã từ chối"
+      withdraw: "Rút khỏi hàng duyệt"
+      confirm_withdraw: "Rút bản chỉnh sửa về trạng thái nháp?"
+    status_panel:
+      title: "Trạng thái chỉnh sửa"
+      current_status: "Trạng thái hiện tại: %{status}"
+      submitted_at: "Đã gửi lúc %{time}"
+      open_editor: "Mở trình chỉnh sửa"
+      view_revision: "Xem bản chỉnh sửa"
+      rejected_title: "Bản chỉnh sửa cần cập nhật"
+      rejected_detail: "Phản hồi duyệt ở bên dưới. Hãy tạo bản chỉnh sửa mới khi bạn sẵn sàng."
+      reviewed_at: "Đã duyệt %{time}"
+      review_note_label: "Phản hồi duyệt"
+      start_new_revision: "Tạo bản chỉnh sửa cập nhật"
+      propose_edits: "Đề xuất chỉnh sửa"
+
+  admin:
+    posts:
+      flash:
+        approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
+        rejected: "Đã từ chối bản chỉnh sửa."
+        deleted: "Đã xóa bản chỉnh sửa."
+      show:
+        subtitle: "Đang duyệt nội dung nháp từ %{author}"
+        back_to_queue: "Quay lại kiểm duyệt"
+        draft_badge: "Xem trước bản nháp"
+        live_post_title: "Bài viết đang hiển thị"
+        review_actions: "Hành động duyệt"
+        draft_notice: "Bản chỉnh sửa này vẫn là bản nháp. Tác giả phải gửi duyệt trước khi có thể phê duyệt hoặc từ chối."
+        review_complete: "Bản chỉnh sửa này đã được xử lý."
+      statuses:
+        draft: "Bản nháp"
+        pending_review: "Chờ duyệt"
+        approved: "Đã duyệt"
+        rejected: "Đã từ chối"
+      index:
+        title: "Kiểm duyệt bài viết"
+        subtitle: "Duyệt các bản chỉnh sửa từ tác giả trước khi cập nhật bài viết hiển thị."
+        search_placeholder: "Tìm theo tiêu đề hoặc tác giả"
+        search: "Tìm"
+        empty: "Không có bản chỉnh sửa phù hợp bộ lọc."
+        no_action: "Không có hành động"
+        open_draft: "Mở bản nháp"
+        confirm_approve: "Phê duyệt và đăng lên bài viết?"
+        confirm_delete_revision: "Xóa bản chỉnh sửa này? Hành động này không thể hoàn tác."
+        open_live_post: "Mở bài viết đang hiển thị"
+        review: "Duyệt"
+        approve: "Phê duyệt"
+        unverify: "Hủy xác minh"
+        reject: "Từ chối"
+        approve_note_placeholder: "Ghi chú (không bắt buộc)"
+        reject_note_placeholder: "Ghi chú từ chối (bắt buộc)"
+        stats:
+          pending_posts: "Bài viết mới"
+          pending_revisions: "Bản sửa chờ duyệt"
+          open: "Bản nháp mở"
+          reviewed_today: "Đã xử lý hôm nay"
+        pending_posts:
+          title: "Quản Lý Bài Viết"
+          subtitle: "Quản lý các bài viết đã xuất bản, bao gồm xác minh, phản hồi và xóa."
+          no_feedback: "Chưa có phản hồi"
+          empty: "Không có bài viết nào phù hợp bộ lọc."
+          columns:
+            post: "Bài viết"
+            author: "Tác giả"
+            status: "Trạng thái"
+            submitted: "Ngày gửi"
+            feedback: "Phản hồi"
+            actions: "Hành động"
+        pending_revisions:
+          title: "Duyệt Bản Chỉnh Sửa"
+          subtitle: "Duyệt các chỉnh sửa của bài viết đã xác minh trước khi cập nhật bản hiển thị."
+        scopes:
+          all: "Tất cả kiểm duyệt"
+          posts: "Bài viết"
+          revisions: "Bản chỉnh sửa"
+        filters:
+          pending: "Chờ duyệt"
+          open: "Bản nháp"
+          reviewed: "Đã xử lý"
+        columns:
+          post: "Bài viết"
+          author: "Tác giả"
+          status: "Trạng thái"
+          submitted: "Thời điểm gửi"
+          actions: "Hành động"
+
+  activerecord:
+    attributes:
+      post:
+        statuses:
+          draft: "Bản nháp"
+          published: "Đã xuất bản"

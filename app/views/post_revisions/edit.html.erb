@@ -1,0 +1,12 @@
+<section class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+  <h1 class="mb-2 text-3xl font-bold text-slate-900"><%= t("post_revisions.edit.title") %></h1>
+  <p class="mb-6 text-sm text-slate-600"><%= @revision.pending_review? ? t("post_revisions.edit.pending_subtitle") : t("post_revisions.edit.subtitle") %></p>
+
+  <% if @revision.pending_review? %>
+    <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <%= t("post_revisions.edit.pending_notice") %>
+    </div>
+  <% end %>
+
+  <%= render "form" %>
+</section>

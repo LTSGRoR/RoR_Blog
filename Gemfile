@@ -1,24 +1,30 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.2", ">= 8.0.2.1"
+gem "rails"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use PostgreSQL as the database for Active Record in development
-gem "pg", "~> 1.4"
+gem "pg"
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
+gem "puma"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
+# Internationalization helpers & locale data
+gem "rails-i18n"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
+# Search and pagination
+gem "searchkick"
+gem "elasticsearch", "~> 8.0" 
+gem "kaminari"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
 # Use Active Model has_secure_password for simple authentication
-gem "bcrypt", "~> 3.1.17"
+gem "bcrypt"
 
 # Authentication: Devise (Phase 1 migration from has_secure_password)
 gem "devise"
@@ -36,7 +42,8 @@ gem "solid_cable"
 
 # Background jobs: Sidekiq + Redis (Phase 1)
 gem "sidekiq"
-gem "redis", "~> 4.0"
+gem "sidekiq-cron"
+gem "redis"
 
 # Authorization
 gem "pundit"
@@ -51,9 +58,11 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants
-gem "image_processing", "~> 1.2"
+gem "image_processing"
 
 gem "dotenv-rails"
+gem "pry-rails"
+gem "pry-byebug"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

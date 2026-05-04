@@ -1,0 +1,435 @@
+ja:
+  app_name: "Blog App"
+
+  time:
+    formats:
+      short: "%Y年%-m月%-d日 %H:%M"
+  date:
+    formats:
+      short: "%Y年%-m月%-d日"
+    month_names:
+      - ~
+      - "1月"
+      - "2月"
+      - "3月"
+      - "4月"
+      - "5月"
+      - "6月"
+      - "7月"
+      - "8月"
+      - "9月"
+      - "10月"
+      - "11月"
+      - "12月"
+    abbr_month_names:
+      - ~
+      - "1月"
+      - "2月"
+      - "3月"
+      - "4月"
+      - "5月"
+      - "6月"
+      - "7月"
+      - "8月"
+      - "9月"
+      - "10月"
+      - "11月"
+      - "12月"
+
+  common:
+    unknown: "不明"
+    default_avatar: "デフォルトのアバター"
+
+  locale_switcher:
+    label: "言語"
+    en: "EN"
+    vi: "VI"
+    ja: "JP"
+  language_name:
+    en: "English"
+    vi: "Tiếng Việt"
+    ja: "日本語"
+  locale:
+    changed: "言語を%{locale_name}に変更しました"
+    unsupported: "サポートされていない言語: %{locale_name}"
+
+  nav:
+    hello: "%{name}さん、こんにちは"
+    hello_prefix: "こんにちは、"
+    tagline: "投稿の公開、レビュー、管理をまとめて行えます。"
+    profile_settings: "プロフィール設定"
+    manage_posts: "投稿管理"
+    manage_users: "ユーザー管理"
+    sign_out: "サインアウト"
+    sign_in: "サインイン"
+    sign_up: "新規登録"
+
+  posts:
+    index:
+      title: "すべての投稿"
+      new_post: "新しい投稿"
+      moderation_queue: "レビューキュー"
+      no_results: "\"%{query}\" に一致する投稿は見つかりませんでした。"
+    mine:
+      title: "投稿を管理"
+      subtitle: "下書き、レビュー対応、公開済み投稿を一か所で確認できます。"
+      empty: "まだ投稿がありません。"
+      no_results: "\"%{query}\" に一致する投稿はありません。"
+      no_revision: "進行中の修正はありません"
+      search_placeholder: "タイトルまたはタグで自分の投稿を検索..."
+      search: "検索"
+      clear_search: "クリア"
+      stats:
+        drafts: "下書き"
+        needs_review: "要対応"
+        published: "公開済み"
+      list:
+        title: "あなたの投稿キュー"
+        subtitle: "公開フィードとは分けて、自分の投稿だけを管理できます。"
+      columns:
+        post: "投稿"
+        visibility: "投稿状態"
+        revision: "修正"
+        updated: "更新日時"
+        actions: "操作"
+      badges:
+        draft: "下書き"
+        awaiting_review: "レビュー待ち"
+        published: "公開済み"
+      actions:
+        view: "表示"
+    show:
+      by: "投稿者"
+      reactions: "リアクション"
+      comments: "コメント"
+      join_conversation: "して会話に参加しましょう。"
+      review_controls:
+        title: "レビュー管理"
+        verified_description: "この投稿は現在確認済みです。差し戻す場合は、下に理由を入力してください。"
+        unverified_description: "この投稿は承認待ちです。著者へのフィードバックを保存するか、準備ができたら確認してください。"
+        verify: "投稿を確認する"
+        feedback_label: "著者へのフィードバック"
+        feedback_placeholder: "確認前に著者が修正すべき内容を具体的に説明してください。"
+        unverify_with_feedback: "フィードバック付きで確認解除"
+        save_feedback: "フィードバックを保存"
+        author_only: "このフィードバックは投稿の著者のみ閲覧できます。"
+      feedback:
+        title: "フィードバック"
+        author_reply: "著者からの返信"
+        updated_at: "%{time} 更新"
+        reply_label: "管理者への返信"
+        reply_placeholder: "変更内容を共有するか、確認事項を質問してください。"
+        send_reply: "返信を送信"
+    new:
+      title: "新しい投稿"
+    edit:
+      title: "投稿を編集"
+    form:
+      title_placeholder: "魅力的なタイトルを入力..."
+      tags_placeholder: "タグを検索"
+      remove_tag: "タグを削除"
+      cancel: "キャンセル"
+    actions:
+      back_to_posts: "投稿一覧に戻る"
+      read_more: "続きを読む"
+      edit: "編集"
+      edit_revision: "編集"
+      delete: "削除"
+      confirm_delete: "本当によろしいですか？"
+    status:
+      verified: "確認済み"
+      unverified: "未確認"
+
+  comments:
+    form:
+      label: "コメントを追加"
+      submit: "コメントを投稿"
+
+  search:
+    placeholder: "タイトル、本文、タグで投稿を検索..."
+
+  pagination:
+    label: "ページネーション"
+    first_page: "最初のページ"
+    previous_page: "前のページ"
+    next_page: "次のページ"
+    last_page: "最後のページ"
+
+  pwa:
+    description: "Blog App."
+
+  auth:
+    email_placeholder: "you@example.com"
+    confirmations:
+      new:
+        sidebar_label: "確認"
+        title: "確認メールを再送する"
+        sidebar_body: "確認メールの期限が切れた場合や届いていない場合は、受信箱へ再送できます。"
+        checks_title: "続行前に確認"
+        check_1: "迷惑メールやプロモーションタブを確認する"
+        check_2: "入力したメールアドレスが正しいか確認する"
+        check_3: "必要なら下のフォームから再送を依頼する"
+        form_title: "確認メールをもう一度送信"
+        form_subtitle: "新しい確認メールが必要ですか？ 下にメールアドレスを入力してください。"
+        submit: "確認メールを再送する"
+    passwords:
+      shared:
+        back_to_sign_in: "サインインに戻る"
+      new:
+        sidebar_label: "復旧"
+        title: "パスワードをお忘れですか？"
+        sidebar_body: "安全な再設定リンクをメールでお送りし、すぐにアカウントへ戻れるようにします。"
+        steps_title: "次の流れ"
+        step_1: "アカウントに登録したメールアドレスを入力する"
+        step_2: "受信箱の再設定リンクを開く"
+        step_3: "新しいパスワードを設定して再度サインインする"
+        form_title: "アクセスを回復する"
+        form_subtitle: "メールアドレスを入力すると、パスワード再設定手順を送信します。"
+        submit: "再設定手順を送信"
+      edit:
+        sidebar_label: "セキュリティ"
+        title: "新しいパスワードを設定"
+        sidebar_body: "これまで使っていない強力なパスワードを、このアカウント専用に設定してください。"
+        tips_title: "パスワードのヒント"
+        tip_1: "単語、数字、記号を組み合わせる"
+        tip_2: "古いパスワードを再利用しない"
+        tip_3: "信頼できるパスワードマネージャーに保存する"
+        form_title: "パスワードを再設定する"
+        form_subtitle: "これまで使っていない強力なパスワードを設定してください。"
+        new_password_label: "新しいパスワード"
+        submit: "パスワードを変更する"
+    sessions:
+      promo_headline: "Blog App"
+      promo_body: "モダンな発信と心地よい読書体験。投稿や設定を管理するためにサインインしてください。"
+      feature_1: "自動保存付きの高速エディター"
+      feature_2: "組み込み SEO と RSS"
+      feature_3: "レスポンシブで使いやすい UI"
+      title: "アカウントにサインイン"
+      subtitle: "おかえりなさい - 下のフォームに入力してください。"
+      password_placeholder: "パスワードを入力"
+      remember_me: "ログイン状態を保持"
+      forgot_password: "パスワードをお忘れですか？"
+      submit: "サインイン"
+      no_account: "アカウントをお持ちでないですか？"
+      create_one: "作成する"
+    registrations:
+      promo_headline: "Blog App に参加"
+      promo_body: "アカウントを作成して、投稿、下書き保存、プロフィール編集を始めましょう。"
+      feature_1: "非公開の下書き"
+      feature_2: "組み込み分析"
+      feature_3: "シンプルで読みやすい体験"
+      title: "アカウントを作成"
+      subtitle: "数分で開始できます。"
+      name_placeholder: "氏名"
+      password_placeholder: "パスワードを設定"
+      password_confirmation_placeholder: "パスワードを確認"
+      submit: "アカウントを作成"
+      have_account: "すでにアカウントをお持ちですか？"
+      edit:
+        sidebar_label: "アカウント"
+        title: "設定"
+        subtitle: "プロフィールの更新、パスワード変更、投稿に紐づくアカウント情報の管理を行います。"
+        current_password_note: "アカウント情報を保存するには現在のパスワードが必要です。"
+        quick_links: "クイックリンク"
+        public_profile: "公開プロフィール"
+        back_home: "ホームへ戻る"
+        profile_title: "プロフィール"
+        profile_subtitle: "公開される著者情報を最新の状態に保ちます。"
+        public_badge: "公開表示"
+        pending_email_title: "メールアドレス変更の確認待ち"
+        pending_email_body: "%{email} からの確認を待っています。"
+        upload_avatar: "アバターを\nアップロード"
+        avatar_title: "プロフィール画像"
+        avatar_hint: "著者カードやプロフィール画面では正方形の画像が最もきれいに表示されます。"
+        security_title: "セキュリティ"
+        security_subtitle: "パスワードを変更しない場合は、各入力欄を空のままにしてください。"
+        current_password_hint: "メールアドレス、パスワード、プロフィールの更新時に必要です。"
+        save_changes: "変更を保存"
+    links:
+      sign_up: "新規登録"
+      sign_in: "サインイン"
+      forgot_password: "パスワードをお忘れですか？"
+      didnt_receive_confirmation: "確認メールが届きませんか？"
+
+  users:
+    profile:
+      own_badge: "あなたのプロフィール"
+      member_since: "%{date} から利用中"
+      published_count:
+        one: "このブログで %{count} 件の投稿を公開しています"
+        other: "このブログで %{count} 件の投稿を公開しています"
+      manage_account: "アカウントを管理"
+      recent_posts_title: "最近の投稿"
+      recent_posts_subtitle: "この著者の最新記事をすばやく確認できます。"
+      open_post: "投稿を開く"
+      empty_title: "公開済みの投稿はまだありません"
+      empty_body: "この著者はまだブログに投稿を公開していません。"
+      no_posts_short: "投稿はまだありません"
+      stats:
+        published: "公開済み投稿"
+        verified: "確認済み投稿"
+        latest: "最新の投稿"
+    admin:
+      index:
+        title: "ユーザー管理"
+        subtitle: "モデレーションのためにアカウントをBANまたは一時停止します。"
+        search_placeholder: "名前またはメールアドレスで検索"
+        columns:
+          name: "名前"
+          email: "メール"
+          role: "権限"
+          status: "状態"
+          actions: "操作"
+        status:
+          active: "有効"
+          banned: "禁止"
+          suspended_until: "%{time} まで一時停止"
+        actions_unavailable: "保護されたアカウント"
+      actions:
+        ban: "禁止"
+        unban: "禁止解除"
+        suspend: "一時停止"
+        unsuspend: "一時停止解除"
+        confirm_suspend: "確定"
+      confirm:
+        ban: "このアカウントを禁止してもよろしいですか？"
+      modal:
+        title: "アカウントを一時停止"
+        ban_title: "アカウントを禁止"
+        ban_message: "この操作でユーザーは禁止解除されるまで即時サインインできなくなります。"
+        confirm_ban: "禁止を確定"
+        until: "一時停止期限"
+        cancel: "キャンセル"
+        close: "閉じる"
+      flash:
+        banned: "%{email} を禁止しました。"
+        unbanned: "%{email} の禁止を解除しました。"
+        suspended: "%{email} を %{time} まで一時停止しました。"
+        unsuspended: "%{email} の一時停止を解除しました。"
+        invalid_suspend_date: "有効な未来日時を指定してください。"
+
+  errors:
+    not_authorized: "この操作を実行する権限がありません。"
+
+  post_revisions:
+    flash:
+      saved: "修正ドラフトを保存しました。"
+      submitted: "管理者レビューに修正を提出しました。"
+      withdrawn: "修正をドラフトに戻しました。"
+      start_first: "先に修正ドラフトを作成してください。"
+    new:
+      title: "修正を作成"
+      subtitle: "公開中の投稿を変えずに、確認済み投稿を安全に編集できます。"
+    edit:
+      title: "修正を編集"
+      subtitle: "保留中の修正を更新し、準備ができたら提出します。"
+      pending_subtitle: "この修正はレビュー中です。編集を続けるにはドラフトへ戻してください。"
+      pending_notice: "この修正は提出済みで、管理者レビュー待ちです。"
+    form:
+      live_post_notice: "公開中の投稿は変更されません"
+      live_post_notice_detail: "編集内容は管理者の承認後にのみ反映されます。"
+      feedback_title: "直近の管理者フィードバック"
+      tags: "タグ"
+      tags_placeholder: "tag1, tag2, tag3"
+      no_tags: "タグはありません"
+      back_to_post: "投稿に戻る"
+      save_draft: "ドラフトを保存"
+      submit_for_review: "レビューに提出"
+      confirm_submit: "この修正を管理者レビューに提出しますか？"
+      statuses:
+        draft: "ドラフト"
+        pending_review: "レビュー待ち"
+        approved: "承認済み"
+        rejected: "却下済み"
+      withdraw: "レビューから取り下げる"
+      confirm_withdraw: "この修正をレビューから取り下げてドラフトに戻しますか？"
+    status_panel:
+      title: "修正ステータス"
+      current_status: "現在の状態: %{status}"
+      submitted_at: "%{time} に提出"
+      open_editor: "修正エディタを開く"
+      view_revision: "修正を確認する"
+      rejected_title: "修正に更新が必要です"
+      rejected_detail: "レビュー内容は以下です。準備ができたら修正版を作成してください。"
+      reviewed_at: "%{time} にレビュー済み"
+      review_note_label: "レビュー内容"
+      start_new_revision: "修正版を作成する"
+      propose_edits: "編集を提案する"
+
+  admin:
+    posts:
+      flash:
+        approved: "修正が承認され、公開投稿に反映されました。"
+        rejected: "修正を却下しました。"
+        deleted: "修正を削除しました。"
+      show:
+        subtitle: "%{author} の下書き内容をレビューしています"
+        back_to_queue: "モデレーションに戻る"
+        draft_badge: "下書きプレビュー"
+        live_post_title: "現在の公開投稿"
+        review_actions: "レビュー操作"
+        draft_notice: "この修正はまだ下書きです。承認または却下する前に、著者がレビューへ提出する必要があります。"
+        review_complete: "この修正はすでにレビュー済みです。"
+      statuses:
+        draft: "ドラフト"
+        pending_review: "レビュー待ち"
+        approved: "承認済み"
+        rejected: "却下"
+      index:
+        title: "投稿モデレーション"
+        subtitle: "著者の修正内容を確認し、公開投稿への反映を承認します。"
+        search_placeholder: "投稿タイトルまたは著者で検索"
+        search: "検索"
+        empty: "このフィルタに一致する修正はありません。"
+        no_action: "実行可能な操作はありません"
+        open_draft: "下書きを開く"
+        confirm_approve: "承認して公開投稿に反映しますか？"
+        confirm_delete_revision: "この修正を削除しますか？この操作は元に戻せません。"
+        open_live_post: "公開投稿を開く"
+        review: "レビュー"
+        approve: "承認"
+        unverify: "確認解除"
+        reject: "却下"
+        approve_note_placeholder: "メモ（任意）"
+        reject_note_placeholder: "却下理由（必須）"
+        stats:
+          pending_posts: "新規投稿"
+          pending_revisions: "修正レビュー待ち"
+          open: "編集中ドラフト"
+          reviewed_today: "本日のレビュー件数"
+        pending_posts:
+          title: "投稿管理"
+          subtitle: "公開済み投稿の確認、差し戻し、削除を管理します。"
+          no_feedback: "まだフィードバックはありません"
+          empty: "この条件に一致する投稿はありません。"
+          columns:
+            post: "投稿"
+            author: "著者"
+            status: "状態"
+            submitted: "投稿日"
+            feedback: "フィードバック"
+            actions: "操作"
+        pending_revisions:
+          title: "修正レビュー"
+          subtitle: "確認済み投稿への編集を、公開版へ反映する前にレビューします。"
+        scopes:
+          all: "すべてのモデレーション"
+          posts: "投稿"
+          revisions: "修正"
+        filters:
+          pending: "レビュー待ち"
+          open: "ドラフト"
+          reviewed: "レビュー済み"
+        columns:
+          post: "投稿"
+          author: "著者"
+          status: "状態"
+          submitted: "提出日時"
+          actions: "操作"
+
+  activerecord:
+    attributes:
+      post:
+        statuses:
+          draft: "下書き"
+          published: "公開済み"

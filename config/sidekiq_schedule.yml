@@ -1,0 +1,4 @@
+clear_expired_suspensions:
+  class: ClearExpiredSuspensionsWorker
+  queue: default
+  cron: "*/1 * * * *"

@@ -1,38 +1,118 @@
-<div class="w-full mx-auto py-10 px-4 sm:px-6 lg:px-8">
-  <article class="bg-white shadow-sm rounded-lg p-8">
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <%= turbo_stream_from @post %>
+
+  <article class="bg-white border border-slate-200 shadow-sm rounded-lg p-6 sm:p-8">
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-slate-800"><%= @post.title %></h1>
-      <div class="text-sm text-slate-500 mt-2">
-        by <%= @post.user&.name || 'Unknown' %> · <%= @post.created_at.strftime('%b %d, %Y') %>
-        <% if @post.verified? %>
-          <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
+
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+        <% if @post.user.present? %>
+          <%= link_to user_path(@post.user), class: "flex items-center gap-2 font-medium text-slate-700 transition hover:text-indigo-600" do %>
+            <% if @post.user.avatar.attached? %>
+              <%= image_tag @post.user.avatar.variant(resize_to_fill: [20, 20]), class: "h-5 w-5 rounded-full border border-slate-200 object-cover", alt: @post.user.name.presence || @post.user.email %>
+            <% else %>
+              <div class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700"><%= (@post.user.name.presence || @post.user.email).to_s.first(1).upcase %></div>
+            <% end %>
+            <%= @post.user.name.presence || @post.user.email %>
+          <% end %>
         <% else %>
-          <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unverified</span>
+          <span><%= t("common.unknown") %></span>
         <% end %>
+        <span class="text-slate-300">·</span>
+        <span><%= l(@post.created_at, format: :short) %></span>
       </div>
+
+      <% if @post.tags.any? %>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <% @post.tags.each do |tag| %>
+            <%= render "tag_chip", tag: tag %>
+          <% end %>
+        </div>
+      <% end %>
     </header>
 
-    <div class="prose max-w-none text-slate-800">
-      <%= @post.body %>
+    <div class="prose prose-slate max-w-none text-slate-800" data-controller="syntax-highlight">
+      <%= raw @post.body %>
     </div>
 
-    <footer class="mt-8">
-      <%= btn_link_to 'Back to posts', posts_path, variant: :ghost %>
-      <% if user_signed_in? && @post.user == current_user %>
-        <span class="ml-4">
-          <%= btn_link_to 'Edit', edit_post_path(@post), variant: :secondary, class: 'mr-3' %>
-          <%= btn_link_to 'Delete', post_path(@post), method: :delete, variant: :danger, data: { confirm: 'Are you sure?' } %>
-        </span>
-      <% end %>
-      <% if current_user&.admin? %>
-        <span class="ml-4">
-          <% if @post.verified? %>
-            <%= btn_link_to 'Unverify', unverify_post_path(@post), method: :post, variant: :warning, data: { confirm: 'Unverify this post?' }, class: 'mr-3' %>
-          <% else %>
-            <%= btn_link_to 'Verify', verify_post_path(@post), method: :post, variant: :success, data: { confirm: 'Verify this post?' }, class: 'mr-3' %>
+    <% if @active_revision.present? %>
+      <section class="mt-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-800"><%= t("post_revisions.status_panel.title") %></h2>
+        <p class="mt-2 text-sm text-indigo-900">
+          <%= t("post_revisions.status_panel.current_status", status: t("admin.posts.statuses.#{@active_revision.moderation_status}")) %>
+        </p>
+        <% if @active_revision.submitted_at.present? %>
+          <p class="mt-1 text-xs text-indigo-700"><%= t("post_revisions.status_panel.submitted_at", time: l(@active_revision.submitted_at, format: :short)) %></p>
+        <% end %>
+        <% if @active_revision.review_note.present? %>
+          <div class="mt-3 rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm text-slate-700"><%= @active_revision.review_note %></div>
+        <% end %>
+        <% if current_user == @post.user %>
+          <div class="mt-3">
+            <% label = @active_revision.pending_review? ? t("post_revisions.status_panel.view_revision") : t("post_revisions.status_panel.open_editor") %>
+            <%= btn_link_to label, edit_post_revision_path(@post), variant: :secondary %>
+          </div>
+        <% end %>
+      </section>
+    <% elsif @rejected_revision.present? %>
+      <section class="mt-6 rounded-xl border border-amber-200 bg-amber-50/80 p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-amber-800"><%= t("post_revisions.status_panel.rejected_title") %></h2>
+            <p class="mt-2 text-sm text-amber-950"><%= t("post_revisions.status_panel.rejected_detail") %></p>
+          </div>
+          <% if @rejected_revision.reviewed_at.present? %>
+            <p class="text-xs font-medium text-amber-700"><%= t("post_revisions.status_panel.reviewed_at", time: l(@rejected_revision.reviewed_at, format: :short)) %></p>
           <% end %>
-        </span>
-      <% end %>
+        </div>
+
+        <% if @rejected_revision.review_note.present? %>
+          <div class="mt-4 rounded-lg border border-amber-200 bg-white px-4 py-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><%= t("post_revisions.status_panel.review_note_label") %></p>
+            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700"><%= @rejected_revision.review_note %></p>
+          </div>
+        <% end %>
+
+        <% if current_user == @post.user %>
+          <div class="mt-4">
+            <%= btn_link_to t("post_revisions.status_panel.start_new_revision"), new_post_revision_path(@post), variant: :secondary %>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <% if @post.interactions_enabled? %>
+      <section class="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-600"><%= t("posts.show.reactions") %></p>
+        <div class="mt-3">
+          <%= render "reactions/bar", reactable: @post %>
+        </div>
+      </section>
+
+      <section class="mt-8 border-t border-slate-200 pt-6">
+        <h2 class="text-xl font-semibold text-slate-800"><%= t("posts.show.comments") %></h2>
+
+        <%= turbo_frame_tag dom_id(@post, :comments), class: "mt-4 block space-y-4" do %>
+          <%= render @comments %>
+        <% end %>
+
+        <div class="mt-5">
+          <%= paginate @comments %>
+        </div>
+
+        <% if user_signed_in? %>
+          <%= render "comments/form", post: @post, comment: @comment %>
+        <% else %>
+          <p class="mt-6 text-sm text-slate-600">
+            <%= link_to t("nav.sign_in"), new_user_session_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+            <%= t("posts.show.join_conversation") %>
+          </p>
+        <% end %>
+      </section>
+    <% end %>
+
+    <footer class="mt-8 border-t border-slate-200 pt-5">
+      <%= render "post_actions", post: @post, show_back: true %>
     </footer>
   </article>
 </div>

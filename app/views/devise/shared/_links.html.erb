@@ -1,17 +1,17 @@
-<div class="mt-4 text-sm">
+<div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
   <% if controller_name == 'sessions' %>
-    <%= link_to "Sign up", new_user_registration_path, class: "text-indigo-600 hover:text-indigo-500" %>
+    <%= link_to t("auth.links.sign_up"), new_user_registration_path, class: "text-indigo-600 hover:text-indigo-700 font-medium" %>
   <% end %>
 
   <% if devise_mapping.recoverable? && controller_name != 'passwords' %>
-    <%= link_to "Forgot your password?", new_user_password_path, class: "ml-4 text-sm text-gray-600 hover:text-gray-900" %>
+    <%= link_to t("auth.links.forgot_password"), new_user_password_path, class: "text-slate-500 hover:text-slate-700" %>
   <% end %>
 
   <% if devise_mapping.confirmable? && controller_name != 'confirmations' %>
-    <%= link_to "Didn't receive confirmation instructions?", new_user_confirmation_path, class: "ml-4 text-sm text-gray-600 hover:text-gray-900" %>
+    <%= link_to t("auth.links.didnt_receive_confirmation"), new_user_confirmation_path, class: "text-slate-500 hover:text-slate-700" %>
   <% end %>
 
   <% if controller_name == 'registrations' %>
-    <%= link_to "Sign in", new_user_session_path, class: "ml-4 text-sm text-gray-700 hover:text-gray-900" %>
+    <%= link_to t("auth.links.sign_in"), new_user_session_path, class: "text-slate-500 hover:text-slate-700" %>
   <% end %>
 </div>

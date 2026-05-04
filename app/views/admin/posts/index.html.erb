@@ -1,0 +1,199 @@
+<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 shadow-sm sm:p-8">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.posts.index.title") %></h1>
+        <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.posts.index.subtitle") %></p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-xl border border-sky-200 bg-sky-50 p-3 shadow-sm">
+        <p class="text-xs font-medium uppercase tracking-wide text-sky-700"><%= t("admin.posts.index.stats.pending_posts") %></p>
+        <p class="mt-1 text-2xl font-semibold text-sky-800"><%= @pending_post_count %></p>
+      </div>
+      <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 shadow-sm">
+        <p class="text-xs font-medium uppercase tracking-wide text-amber-700"><%= t("admin.posts.index.stats.pending_revisions") %></p>
+        <p class="mt-1 text-2xl font-semibold text-amber-800"><%= @pending_count %></p>
+      </div>
+      <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-3 shadow-sm">
+        <p class="text-xs font-medium uppercase tracking-wide text-indigo-700"><%= t("admin.posts.index.stats.open") %></p>
+        <p class="mt-1 text-2xl font-semibold text-indigo-800"><%= @draft_count %></p>
+      </div>
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm">
+        <p class="text-xs font-medium uppercase tracking-wide text-emerald-700"><%= t("admin.posts.index.stats.reviewed_today") %></p>
+        <p class="mt-1 text-2xl font-semibold text-emerald-800"><%= @reviewed_today_count %></p>
+      </div>
+    </div>
+
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <% { "all" => t("admin.posts.index.scopes.all"), "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
+        <%= link_to label, admin_posts_path(scope: value, filter: @filter, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+      <% end %>
+    </div>
+
+    <% if @scope != "posts" %>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+      <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
+        <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+      <% end %>
+      </div>
+    <% end %>
+
+    <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-wrap items-center gap-2" do |f| %>
+      <%= f.hidden_field :scope, value: @scope %>
+      <%= f.hidden_field :filter, value: @filter %>
+      <%= f.search_field :q, value: @query, placeholder: t("admin.posts.index.search_placeholder"), class: "w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      <%= f.submit t("admin.posts.index.search"), class: "rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+    <% end %>
+  </div>
+
+  <% if %w[all posts].include?(@scope) %>
+  <section class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-4 py-4 sm:px-6">
+      <h2 class="text-lg font-semibold text-slate-900"><%= t("admin.posts.index.pending_posts.title") %></h2>
+      <p class="mt-1 text-sm text-slate-600"><%= t("admin.posts.index.pending_posts.subtitle") %></p>
+    </div>
+
+    <div class="max-h-[50vh] overflow-auto">
+      <table class="w-full divide-y divide-slate-200 min-w-full table-auto">
+        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.post") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.author") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.status") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.submitted") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.feedback") %></th>
+            <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.actions") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          <% @pending_posts.each_with_index do |post, i| %>
+            <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-sky-50/40">
+              <td class="px-4 py-4 align-top">
+                <p class="text-sm font-semibold text-slate-900"><%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %></p>
+                <% if post.tags.any? %>
+                  <div class="mt-2 flex flex-wrap gap-1.5">
+                    <% post.tags.each do |tag| %>
+                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"><%= tag.name %></span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </td>
+              <td class="px-4 py-4 align-top text-sm text-slate-700">
+                <p><%= post.user&.name.presence || post.user&.email %></p>
+                <p class="text-xs text-slate-500"><%= post.user&.email %></p>
+              </td>
+              <td class="px-4 py-4 align-top text-sm">
+                <% if post.verified? %>
+                  <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"><%= t("posts.mine.badges.published") %></span>
+                <% else %>
+                  <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"><%= t("posts.mine.badges.awaiting_review") %></span>
+                <% end %>
+              </td>
+              <td class="px-4 py-4 align-top text-sm text-slate-600"><%= l(post.reviewed_at.presence || post.created_at, format: :short) %></td>
+              <td class="px-4 py-4 align-top text-sm text-slate-600">
+                <% if post.unverify_reason.present? %>
+                  <div class="max-w-xs whitespace-pre-wrap rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"><%= post.unverify_reason %></div>
+                <% else %>
+                  <span class="text-xs text-slate-500"><%= t("admin.posts.index.pending_posts.no_feedback") %></span>
+                <% end %>
+              </td>
+              <td class="px-4 py-4 text-right align-top">
+                <details class="inline-block text-left">
+                  <summary class="cursor-pointer list-none rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <%= t("admin.posts.index.review") %>
+                  </summary>
+
+                  <div class="mt-2 w-72 space-y-3 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+                    <% unless post.verified? %>
+                      <%= btn_button_to t("admin.posts.index.approve"), verify_post_path(post), method: :post, variant: :success, class: "w-full", data: { turbo_confirm: t("admin.posts.index.confirm_approve") }, form: { class: "w-full" } %>
+                    <% end %>
+
+                    <%= form_with url: unverify_post_path(post), method: :post, class: "space-y-2" do %>
+                      <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("admin.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700" %>
+                      <%= button_tag(post.verified? ? t("admin.posts.index.unverify") : t("admin.posts.index.reject"), type: :submit, class: "w-full rounded-md border border-rose-600 bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700") %>
+                    <% end %>
+
+                    <%= btn_button_to t("posts.actions.delete"), post_path(post), method: :delete, variant: :danger, class: "w-full", data: { turbo_confirm: t("posts.actions.confirm_delete") }, form: { class: "w-full" } %>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @pending_posts.empty? %>
+            <tr>
+              <td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500"><%= t("admin.posts.index.pending_posts.empty") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="mt-6">
+    <%= paginate @pending_posts, param_name: :posts_page %>
+  </div>
+  <% end %>
+
+  <% if %w[all revisions].include?(@scope) %>
+  <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-4 py-4 sm:px-6">
+      <h2 class="text-lg font-semibold text-slate-900"><%= t("admin.posts.index.pending_revisions.title") %></h2>
+      <p class="mt-1 text-sm text-slate-600"><%= t("admin.posts.index.pending_revisions.subtitle") %></p>
+    </div>
+
+    <div class="max-h-[70vh] overflow-auto">
+      <table class="w-full divide-y divide-slate-200 min-w-full table-auto">
+        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.post") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.author") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.status") %></th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.submitted") %></th>
+            <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.actions") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          <% @revisions.each_with_index do |revision, i| %>
+            <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-indigo-50/40">
+              <td class="px-4 py-4 align-top">
+                <p class="text-sm font-semibold text-slate-900"><%= link_to revision.title, admin_post_revision_path(revision), class: "hover:text-indigo-600" %></p>
+              </td>
+              <td class="px-4 py-4 align-top text-sm text-slate-700">
+                <p><%= revision.author.name.presence || revision.author.email %></p>
+                <p class="text-xs text-slate-500"><%= revision.author.email %></p>
+              </td>
+              <td class="px-4 py-4 align-top text-sm">
+                <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= revision.pending_review? ? 'bg-amber-100 text-amber-700' : (revision.draft? ? 'bg-indigo-100 text-indigo-700' : (revision.approved? ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) %>">
+                  <%= t("admin.posts.statuses.#{revision.moderation_status}") %>
+                </span>
+              </td>
+              <td class="px-4 py-4 align-top text-sm text-slate-600">
+                <%= revision.submitted_at.present? ? l(revision.submitted_at, format: :short) : "-" %>
+              </td>
+              <td class="px-4 py-4 text-right align-top">
+                <div class="flex flex-wrap justify-end gap-2">
+                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50") %>
+                  <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "inline-flex" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @revisions.empty? %>
+            <tr>
+              <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500"><%= t("admin.posts.index.empty") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <%= paginate @revisions, param_name: :revisions_page %>
+  </div>
+  <% end %>
+</section>

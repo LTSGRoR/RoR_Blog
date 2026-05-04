@@ -1,0 +1,30 @@
+vi:
+  devise:
+    confirmations:
+      confirmed: "Email của bạn đã được xác nhận thành công."
+      send_instructions: "Bạn sẽ nhận được email hướng dẫn cách xác nhận địa chỉ email trong vài phút."
+      send_paranoid_instructions: "Nếu email của bạn tồn tại trong cơ sở dữ liệu, bạn sẽ nhận được hướng dẫn xác nhận trong vài phút."
+    failure:
+      already_authenticated: "Bạn đã đăng nhập rồi."
+      banned: "Tài khoản của bạn đã bị cấm. Vui lòng liên hệ quản trị viên."
+      inactive: "Tài khoản của bạn chưa được kích hoạt."
+      invalid: "%{authentication_keys} hoặc mật khẩu không hợp lệ."
+      locked: "Tài khoản của bạn đã bị khóa."
+      last_attempt: "Bạn còn một lần thử trước khi tài khoản bị khóa."
+      not_found_in_database: "%{authentication_keys} hoặc mật khẩu không hợp lệ."
+      suspended: "Tài khoản của bạn đang bị tạm khóa. Vui lòng thử lại sau."
+      timeout: "Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại."
+      unauthenticated: "Bạn cần đăng nhập hoặc đăng ký trước khi tiếp tục."
+      unconfirmed: "Bạn cần xác nhận địa chỉ email trước khi tiếp tục."
+    registrations:
+      signed_up: "Chào mừng! Bạn đã đăng ký thành công."
+      updated: "Tài khoản của bạn đã được cập nhật thành công."
+    sessions:
+      signed_in: "Đăng nhập thành công."
+      signed_out: "Đăng xuất thành công."
+      already_signed_out: "Đăng xuất thành công."
+  errors:
+    messages:
+      not_saved:
+        one: "1 lỗi đã ngăn %{resource} được lưu:"
+        other: "%{count} lỗi đã ngăn %{resource} được lưu:"
