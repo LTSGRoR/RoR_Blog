@@ -15,19 +15,21 @@ export default class extends Controller {
       this.show(message).then((ok) => {
         if (!ok) return
         // proceed with original action
-        if (el.tagName === 'A' && el.href) {
+        if (el.tagName === 'A' && el.href && !el.dataset.turboMethod) {
           window.location.href = el.href
           return
         }
         const form = el.closest && el.closest('form')
         if (form) {
-          // remove data-confirm to avoid re-interception, then submit
+          // remove data-confirm to avoid re-interception, then submit via Turbo
           el.removeAttribute('data-confirm')
-          form.submit()
+          el.removeAttribute('data-turbo-confirm')
+          form.requestSubmit ? form.requestSubmit(el.type === 'submit' ? el : null) : form.submit()
           return
         }
-        // fallback: remove attribute and re-dispatch click
+        // fallback: remove attribute and re-dispatch click (handles data-turbo-method links)
         el.removeAttribute('data-confirm')
+        el.removeAttribute('data-turbo-confirm')
         el.click()
       })
     }
