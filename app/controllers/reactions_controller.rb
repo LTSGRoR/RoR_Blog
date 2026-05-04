@@ -41,9 +41,11 @@ class ReactionsController < ApplicationController
 
   private
 
+  REACTABLE_TYPES = { "Post" => Post, "Comment" => Comment }.freeze
+
   def set_reactable
-    klass = params[:reactable_type].to_s.safe_constantize
-    unless [ Post, Comment ].include?(klass)
+    klass = REACTABLE_TYPES[params[:reactable_type].to_s]
+    unless klass
       redirect_back fallback_location: posts_path, alert: "Invalid reaction target."
       return
     end

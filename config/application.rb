@@ -26,5 +26,12 @@ module BlogApp
 
     config.i18n.available_locales = %i[en vi ja]
     config.i18n.default_locale = :en
+
+    # Security response headers (OWASP Secure Headers Project)
+    config.action_dispatch.default_headers.merge!(
+      "Referrer-Policy"             => "strict-origin-when-cross-origin",
+      "Permissions-Policy"          => "camera=(), microphone=(), geolocation=()",
+      "Cross-Origin-Opener-Policy"  => "same-origin"
+    )
   end
 end

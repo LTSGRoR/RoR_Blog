@@ -9,7 +9,7 @@ class PostsController < ApplicationController
 
   def index
     load_public_posts
-    render :index
+    respond_with_posts
   end
 
   def mine

@@ -3,7 +3,7 @@
     <% initials = (comment.user.name.presence || comment.user.email).to_s.first(2).upcase %>
     <% if comment.user.avatar.attached? %>
       <% avatar_variant = comment.user.avatar.variant(resize_to_fill: [32, 32]).processed %>
-      <%= image_tag rails_representation_path(avatar_variant, only_path: true), class: "h-8 w-8 shrink-0 rounded-full border border-slate-200 object-cover", alt: initials %>
+      <%= image_tag rails_representation_path(avatar_variant, only_path: true), class: "h-8 w-8 shrink-0 rounded-full border border-slate-200 object-cover", alt: initials, width: 32, height: 32, loading: "lazy" %>
     <% else %>
       <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700" aria-hidden="true"><%= initials %></div>
     <% end %>

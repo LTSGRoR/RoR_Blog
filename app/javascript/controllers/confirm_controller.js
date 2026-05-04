@@ -5,7 +5,6 @@ export default class extends Controller {
 
   connect() {
     this.container = this.hasContainerTarget ? this.containerTarget : document.body
-    window.showCustomConfirm = (message, title = "") => this.show(message, title)
 
     // Delegate clicks for elements using `data-confirm` or `data-turbo-confirm` attributes
     this._clickHandler = (e) => {
@@ -16,19 +15,21 @@ export default class extends Controller {
       this.show(message).then((ok) => {
         if (!ok) return
         // proceed with original action
-        if (el.tagName === 'A' && el.href) {
+        if (el.tagName === 'A' && el.href && !el.dataset.turboMethod) {
           window.location.href = el.href
           return
         }
         const form = el.closest && el.closest('form')
         if (form) {
-          // remove data-confirm to avoid re-interception, then submit
+          // remove data-confirm to avoid re-interception, then submit via Turbo
           el.removeAttribute('data-confirm')
-          form.submit()
+          el.removeAttribute('data-turbo-confirm')
+          form.requestSubmit ? form.requestSubmit(el.type === 'submit' ? el : null) : form.submit()
           return
         }
-        // fallback: remove attribute and re-dispatch click
+        // fallback: remove attribute and re-dispatch click (handles data-turbo-method links)
         el.removeAttribute('data-confirm')
+        el.removeAttribute('data-turbo-confirm')
         el.click()
       })
     }
@@ -45,6 +46,8 @@ export default class extends Controller {
       const overlay = document.createElement('div')
       overlay.setAttribute('role', 'dialog')
       overlay.setAttribute('aria-modal', 'true')
+      overlay.setAttribute('aria-labelledby', 'confirm-dialog-title')
+      overlay.setAttribute('aria-describedby', 'confirm-dialog-message')
       overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4'
 
       const dialog = document.createElement('div')
@@ -55,9 +58,9 @@ export default class extends Controller {
             <svg class="h-8 w-8 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.721-1.36 3.486 0l5.454 9.691c.75 1.333-.213 2.99-1.742 2.99H4.545c-1.529 0-2.492-1.657-1.742-2.99L8.257 3.1zM9 7a1 1 0 112 0v3a1 1 0 11-2 0V7zm1 7a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z" clip-rule="evenodd" />
             </svg>
-            <h3 class="text-lg font-semibold text-slate-900">${this._escapeHtml(title || 'Are you sure?')}</h3>
+            <h3 id="confirm-dialog-title" class="text-lg font-semibold text-slate-900">${this._escapeHtml(title || 'Are you sure?')}</h3>
           </div>
-
+          ${message ? `<p id="confirm-dialog-message" class="text-sm text-slate-600">${this._escapeHtml(message)}</p>` : ''}
           <div class="mt-4 flex items-center justify-center gap-3">
             <button data-confirm-action="cancel" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">${this._escapeHtml(i18nOkCancel('cancel') || 'Cancel')}</button>
             <button data-confirm-action="ok" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">${this._escapeHtml(i18nOkCancel('ok') || 'OK')}</button>

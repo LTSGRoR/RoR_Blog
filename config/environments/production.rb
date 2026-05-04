@@ -1,7 +1,7 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  force_ssl = ActiveModel::Type::Boolean.new.cast(ENV.fetch("FORCE_SSL", false))
+  force_ssl = ActiveModel::Type::Boolean.new.cast(ENV.fetch("FORCE_SSL", true))
   app_host = ENV.fetch("APP_HOST", "localhost")
   app_protocol = ENV.fetch("APP_PROTOCOL", force_ssl ? "https" : "http")
 

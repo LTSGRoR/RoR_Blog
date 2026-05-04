@@ -1,3 +1,26 @@
+<% content_for :title, @post.title %>
+<% content_for :og_title, @post.title %>
+<% if @post.body.present? %>
+  <% content_for :og_description, truncate(@post.body.to_plain_text, length: 160) %>
+  <% content_for :meta_description, truncate(@post.body.to_plain_text, length: 160) %>
+<% end %>
+<% content_for :og_type, "article" %>
+<% content_for :head do %>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "<%= j @post.title %>",
+    "author": {
+      "@type": "Person",
+      "name": "<%= j(@post.user&.name.presence || @post.user&.email) %>"
+    },
+    "datePublished": "<%= @post.created_at.iso8601 %>",
+    "dateModified": "<%= @post.updated_at.iso8601 %>"
+  }
+  </script>
+<% end %>
+
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <%= turbo_stream_from @post %>
 
@@ -9,7 +32,7 @@
         <% if @post.user.present? %>
           <%= link_to user_path(@post.user), class: "flex items-center gap-2 font-medium text-slate-700 transition hover:text-indigo-600" do %>
             <% if @post.user.avatar.attached? %>
-              <%= image_tag @post.user.avatar.variant(resize_to_fill: [20, 20]), class: "h-5 w-5 rounded-full border border-slate-200 object-cover", alt: @post.user.name.presence || @post.user.email %>
+              <%= image_tag @post.user.avatar.variant(resize_to_fill: [20, 20]), class: "h-5 w-5 rounded-full border border-slate-200 object-cover", alt: @post.user.name.presence || @post.user.email, width: 20, height: 20 %>
             <% else %>
               <div class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700"><%= (@post.user.name.presence || @post.user.email).to_s.first(1).upcase %></div>
             <% end %>
@@ -32,7 +55,7 @@
     </header>
 
     <div class="prose prose-slate max-w-none text-slate-800" data-controller="syntax-highlight">
-      <%= raw @post.body %>
+      <%= @post.body %>
     </div>
 
     <% if @active_revision.present? %>

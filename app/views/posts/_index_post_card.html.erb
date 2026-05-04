@@ -1,9 +1,9 @@
 <article class="group bg-white border border-slate-200 shadow-sm rounded-xl p-6 flex items-start gap-4 transition hover:border-indigo-200 hover:shadow-md">
   <div class="flex-shrink-0">
     <% if post.user&.avatar&.attached? %>
-      <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name %>
+      <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name, width: 48, height: 48, loading: "lazy" %>
     <% else %>
-      <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || t("common.default_avatar") %>
+      <%= image_tag "default_avatar.svg", class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user&.name || t("common.default_avatar"), width: 48, height: 48 %>
     <% end %>
   </div>
   <div class="flex-1 min-w-0">

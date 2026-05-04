@@ -1,1 +1,11 @@
 # See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+
+User-agent: *
+Disallow: /sidekiq
+Disallow: /admin
+Disallow: /en/sidekiq
+Disallow: /en/admin
+Disallow: /vi/sidekiq
+Disallow: /vi/admin
+Disallow: /ja/sidekiq
+Disallow: /ja/admin
