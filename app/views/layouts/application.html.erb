@@ -1,10 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
+    <meta charset="UTF-8">
     <title><%= content_for(:title) || t("app_name") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="<%= content_for(:meta_description).presence || t('app_name') %>">
+
+    <%# Open Graph %>
+    <meta property="og:title" content="<%= content_for(:og_title).presence || content_for(:title).presence || t('app_name') %>">
+    <meta property="og:description" content="<%= content_for(:og_description).presence || content_for(:meta_description).presence || t('app_name') %>">
+    <meta property="og:type" content="<%= content_for(:og_type).presence || 'website' %>">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <% if content_for?(:og_image) %>
+      <meta property="og:image" content="<%= content_for(:og_image) %>">
+    <% end %>
+
+    <%# Twitter Card %>
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="<%= content_for(:og_title).presence || content_for(:title).presence || t('app_name') %>">
+    <meta name="twitter:description" content="<%= content_for(:og_description).presence || content_for(:meta_description).presence || t('app_name') %>">
+    <% if content_for?(:og_image) %>
+      <meta name="twitter:image" content="<%= content_for(:og_image) %>">
+    <% end %>
+
+    <%# Canonical URL %>
+    <link rel="canonical" href="<%= request.original_url.split('?').first %>">
+
+    <%# Hreflang alternates %>
+    <% I18n.available_locales.each do |loc| %>
+      <link rel="alternate" hreflang="<%= loc %>" href="<%= url_for(locale: loc, only_path: false) %>">
+    <% end %>
+    <link rel="alternate" hreflang="x-default" href="<%= url_for(locale: I18n.default_locale, only_path: false) %>">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -24,6 +53,9 @@
   </head>
 
   <body data-controller="syntax-highlight confirm">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md">
+      <%= t("accessibility.skip_to_main", default: "Skip to main content") %>
+    </a>
     <header class=" border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur" style="position: relative; top: 0; z-index: 50;">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 py-4 px-4 sm:px-6 lg:px-8">
         <%= link_to(root_path, class: "block") do %>
@@ -32,7 +64,7 @@
         <% end %>
         <nav class="flex flex-wrap items-center gap-3">
           <% if defined?(user_signed_in?) && user_signed_in? %>
-            <details class="relative z-50">
+            <details class="relative z-50" data-controller="dropdown">
               <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:bg-white">
                 <span class="hidden sm:inline text-slate-400"><%= t("nav.hello_prefix", default: "Hello,") %></span>
                 <span class="font-semibold text-slate-800"><%= current_user.name || current_user.email %></span>
@@ -130,7 +162,7 @@
       </div>
     </header>
 
-    <main class="py-6">
+    <main id="main-content" class="py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <%= turbo_stream_from "flash" %>
         <div id="flash_messages">

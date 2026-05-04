@@ -1,0 +1,3 @@
+Contact: mailto:tienpop5@gmail.com
+Preferred-Languages: en, vi, ja
+Policy: https://github.com/LTSGRoR/RoR_Blog/security/policy
