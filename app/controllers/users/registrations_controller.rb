@@ -22,8 +22,7 @@ module Users
     # Only require current_password when changing email or password.
     # For name/avatar-only updates, skip password verification entirely.
     def update_resource(resource, params)
-      changing_sensitive = params[:email].present? && params[:email] != resource.email ||
-                           params[:password].present?
+      changing_sensitive = params[:password].present?
 
       if changing_sensitive
         resource.update_with_password(params)
