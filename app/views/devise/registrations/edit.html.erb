@@ -31,10 +31,6 @@
               </div>
             </div>
           </div>
-
-          <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            <p class="font-medium"><%= t("auth.registrations.edit.current_password_note") %></p>
-          </div>
         </div>
       </div>
     </section>
@@ -72,17 +68,19 @@
 
               <div class="sm:col-span-2">
                 <%= f.label :avatar, class: "block text-xs font-medium text-slate-600" %>
-                <div class="mt-3 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
+                <div class="mt-3 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm"
+                     data-controller="avatar-preview">
                   <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <% if resource.avatar.attached? %>
-                      <%= image_tag resource.avatar.variant(resize_to_fill: [88, 88]), class: "h-[88px] w-[88px] rounded-full border border-slate-300 object-cover shadow-sm", alt: resource.name.presence || resource.email %>
+                      <%= image_tag resource.avatar.variant(resize_to_fill: [88, 88]), data: { "avatar-preview-target": "preview" }, class: "h-[88px] w-[88px] rounded-full border border-slate-300 object-cover shadow-sm", alt: resource.name.presence || resource.email %>
                     <% else %>
-                      <div class="flex h-[88px] w-[88px] items-center justify-center rounded-full border border-dashed border-slate-300 bg-slate-50 text-center text-xs text-slate-400"><%= simple_format(t("auth.registrations.edit.upload_avatar"), {}, wrapper_tag: "span") %></div>
+                      <img data-avatar-preview-target="preview" class="hidden h-[88px] w-[88px] rounded-full border border-slate-300 object-cover shadow-sm" alt="">
+                      <div data-avatar-preview-target="placeholder" class="flex h-[88px] w-[88px] items-center justify-center rounded-full border border-dashed border-slate-300 bg-slate-50 text-center text-xs text-slate-400"><%= simple_format(t("auth.registrations.edit.upload_avatar"), {}, wrapper_tag: "span") %></div>
                     <% end %>
                     <div class="flex-1">
                       <p class="text-sm font-medium text-slate-700"><%= t("auth.registrations.edit.avatar_title") %></p>
                       <p class="mt-1 text-sm text-slate-500"><%= t("auth.registrations.edit.avatar_hint") %></p>
-                      <%= f.file_field :avatar, accept: "image/*", class: "mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100" %>
+                      <%= f.file_field :avatar, accept: "image/*", data: { "avatar-preview-target": "input", action: "change->avatar-preview#change" }, class: "mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100" %>
                     </div>
                   </div>
                 </div>
@@ -109,6 +107,7 @@
                 <%= f.label :current_password, class: "block text-xs font-medium text-slate-600" %>
                 <%= f.password_field :current_password, autocomplete: "current-password", placeholder: "Enter your current password to save changes", class: "mt-1 block w-full rounded-lg border border-slate-200 bg-white px-4 py-3 placeholder-slate-400 shadow-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
                 <p class="mt-2 text-xs text-slate-500"><%= t("auth.registrations.edit.current_password_hint") %></p>
+                <p class="mt-1 text-xs text-slate-400"><%= t("auth.registrations.edit.current_password_security_only") %></p>
               </div>
             </div>
           </section>

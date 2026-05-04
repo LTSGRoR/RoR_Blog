@@ -272,7 +272,8 @@ en:
         avatar_hint: "Use a square image for the cleanest result in author cards and profile views."
         security_title: "Security"
         security_subtitle: "Leave the password fields blank if you do not want to change your password."
-        current_password_hint: "Required for any email, password, or profile updates."
+        current_password_hint: "Only required when changing your email or password."
+        current_password_security_only: "Name and avatar changes save without a password."
         save_changes: "Save changes"
     links:
       sign_up: "Sign up"
