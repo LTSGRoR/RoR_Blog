@@ -24,7 +24,7 @@ class UsersController < ApplicationController
     # compute counts efficiently from the filtered scope (before pagination)
     total = users_scope.count
     banned = users_scope.where.not(banned_at: nil).count
-    suspended = users_scope.where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current).count
+    suspended = users_scope.where(suspended_until: Time.current..).count
     active = total - banned - suspended
 
     @total_count = total
@@ -38,9 +38,14 @@ class UsersController < ApplicationController
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.replace(
-            "admin_users_list",
+            "users_table",
             partial: "users/users_table",
             locals: { users: @users }
+          ),
+          turbo_stream.replace(
+            "users_summary",
+            partial: "users/users_summary",
+            locals: { total_count: @total_count, active_count: @active_count, suspended_count: @suspended_count, banned_count: @banned_count }
           ),
           turbo_stream.replace(
             "flash_messages",
@@ -127,8 +132,6 @@ class UsersController < ApplicationController
 
     # Fallback to zone.parse for other formats
     zone.parse(raw)
-  rescue ArgumentError
-    nil
   end
 
   def broadcast_user_and_summary(user)
@@ -142,7 +145,7 @@ class UsersController < ApplicationController
 
       total = User.count
       banned = User.where.not(banned_at: nil).count
-      suspended = User.where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current).count
+      suspended = User.where(suspended_until: Time.current..).count
       active = total - banned - suspended
 
       Turbo::StreamsChannel.broadcast_replace_to "users",

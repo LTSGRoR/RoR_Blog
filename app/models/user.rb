@@ -29,9 +29,9 @@ class User < ApplicationRecord
     when "banned"
       where.not(banned_at: nil)
     when "suspended"
-      where("suspended_until IS NOT NULL AND suspended_until > ?", Time.current)
+      where(suspended_until: Time.current..)
     when "active"
-      where(banned_at: nil).where("suspended_until IS NULL OR suspended_until <= ?", Time.current)
+      where(banned_at: nil).where(suspended_until: [nil, ..Time.current])
     else
       all
     end
