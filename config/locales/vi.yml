@@ -243,7 +243,8 @@ vi:
         avatar_hint: "Nên dùng ảnh vuông để hiển thị đẹp nhất trong thẻ tác giả và trang hồ sơ."
         security_title: "Bảo mật"
         security_subtitle: "Để trống các ô mật khẩu nếu bạn không muốn thay đổi mật khẩu."
-        current_password_hint: "Bắt buộc khi cập nhật email, mật khẩu hoặc hồ sơ."
+        current_password_hint: "Chỉ bắt buộc khi thay đổi email hoặc mật khẩu."
+        current_password_security_only: "Thay đổi tên và ảnh đại diện lưu được mà không cần mật khẩu."
         save_changes: "Lưu thay đổi"
     links:
       sign_up: "Đăng ký"

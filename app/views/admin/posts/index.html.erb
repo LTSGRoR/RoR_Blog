@@ -86,9 +86,9 @@
               </td>
               <td class="px-4 py-4 align-top text-sm">
                 <% if post.verified? %>
-                  <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"><%= t("posts.mine.badges.published") %></span>
+                  <span class="inline-flex whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"><%= t("posts.mine.badges.published") %></span>
                 <% else %>
-                  <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"><%= t("posts.mine.badges.awaiting_review") %></span>
+                  <span class="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"><%= t("posts.mine.badges.awaiting_review") %></span>
                 <% end %>
               </td>
               <td class="px-4 py-4 align-top text-sm text-slate-600"><%= l(post.reviewed_at.presence || post.created_at, format: :short) %></td>
@@ -101,7 +101,7 @@
               </td>
               <td class="px-4 py-4 text-right align-top">
                 <details class="inline-block text-left">
-                  <summary class="cursor-pointer list-none rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  <summary class="cursor-pointer list-none whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                     <%= t("admin.posts.index.review") %>
                   </summary>
 
@@ -166,7 +166,7 @@
                 <p class="text-xs text-slate-500"><%= revision.author.email %></p>
               </td>
               <td class="px-4 py-4 align-top text-sm">
-                <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= revision.pending_review? ? 'bg-amber-100 text-amber-700' : (revision.draft? ? 'bg-indigo-100 text-indigo-700' : (revision.approved? ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) %>">
+                <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold <%= revision.pending_review? ? 'bg-amber-100 text-amber-700' : (revision.draft? ? 'bg-indigo-100 text-indigo-700' : (revision.approved? ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) %>">
                   <%= t("admin.posts.statuses.#{revision.moderation_status}") %>
                 </span>
               </td>
@@ -175,7 +175,7 @@
               </td>
               <td class="px-4 py-4 text-right align-top">
                 <div class="flex flex-wrap justify-end gap-2">
-                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50") %>
+                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "inline-flex items-center whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50") %>
                   <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "inline-flex" } %>
                 </div>
               </td>

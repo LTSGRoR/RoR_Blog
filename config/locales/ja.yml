@@ -243,7 +243,8 @@ ja:
         avatar_hint: "著者カードやプロフィール画面では正方形の画像が最もきれいに表示されます。"
         security_title: "セキュリティ"
         security_subtitle: "パスワードを変更しない場合は、各入力欄を空のままにしてください。"
-        current_password_hint: "メールアドレス、パスワード、プロフィールの更新時に必要です。"
+        current_password_hint: "メールアドレスまたはパスワードを変更する場合のみ必要です。"
+        current_password_security_only: "名前とアバターの変更はパスワードなしで保存できます。"
         save_changes: "変更を保存"
     links:
       sign_up: "新規登録"
