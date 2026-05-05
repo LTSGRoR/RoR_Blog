@@ -138,20 +138,24 @@ class UsersController < ApplicationController
     begin
       order_ids = User.order(created_at: :desc).pluck(:id)
 
-      Turbo::StreamsChannel.broadcast_replace_to "users",
-        target: "user_#{user.id}",
-        partial: "users/user_row",
-        locals: { user: user, i: order_ids.index(user.id) }
-
       total = User.count
       banned = User.where.not(banned_at: nil).count
       suspended = User.where(suspended_until: Time.current..).count
       active = total - banned - suspended
 
-      Turbo::StreamsChannel.broadcast_replace_to "users",
-        target: "users_summary",
-        partial: "users/users_summary",
-        locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+      I18n.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          Turbo::StreamsChannel.broadcast_replace_to ["users", locale],
+            target: "user_#{user.id}",
+            partial: "users/user_row",
+            locals: { user: user, i: order_ids.index(user.id) }
+
+          Turbo::StreamsChannel.broadcast_replace_to ["users", locale],
+            target: "users_summary",
+            partial: "users/users_summary",
+            locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+        end
+      end
     rescue => e
       Rails.logger.error "UsersController#broadcast_user_and_summary: broadcast failed for user=#{user.id} — #{e.message}"
     end

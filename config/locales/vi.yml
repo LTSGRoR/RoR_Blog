@@ -274,6 +274,7 @@ vi:
       index:
         title: "Quản lý người dùng"
         subtitle: "Cấm hoặc tạm khóa tài khoản để kiểm duyệt."
+        total: "Tổng số"
         search_placeholder: "Tìm theo tên hoặc email"
         columns:
           name: "Tên"
@@ -290,7 +291,7 @@ vi:
         ban: "Cấm"
         unban: "Bỏ cấm"
         suspend: "Tạm khóa"
-        unsuspend: "Mở tạm khóa"
+        unsuspend: "Mở khóa"
         confirm_suspend: "Xác nhận"
       confirm:
         ban: "Bạn có chắc muốn cấm tài khoản này không?"

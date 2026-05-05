@@ -274,6 +274,7 @@ ja:
       index:
         title: "ユーザー管理"
         subtitle: "モデレーションのためにアカウントをBANまたは一時停止します。"
+        total: "合計"
         search_placeholder: "名前またはメールアドレスで検索"
         columns:
           name: "名前"

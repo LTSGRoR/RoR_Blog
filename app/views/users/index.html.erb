@@ -1,5 +1,5 @@
 <% content_for :title, t("users.admin.title", default: "Manage Users") %>
-<%= turbo_stream_from "users" %>
+<%= turbo_stream_from ["users", I18n.locale] %>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-controller="suspend-form" data-action="keydown.esc@window->suspend-form#close">
   <%= render partial: "users/users_summary", locals: { total_count: (@total_count || @users.size), active_count: (@active_count || @users.count { |u| !u.banned? && !u.suspended? }), suspended_count: (@suspended_count || @users.count(&:suspended?)), banned_count: (@banned_count || @users.count(&:banned?)) } %>

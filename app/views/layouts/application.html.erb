@@ -96,7 +96,7 @@
                        data-action="mouseenter->hover-menu#stayOpen mouseleave->hover-menu#hide"
                        class="hidden absolute left-full top-0 z-[110] ml-1 w-28 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                     <% I18n.available_locales.each do |locale| %>
-                      <%= button_to set_locale_path, method: :post, params: { chosen_locale: locale }, form: { class: 'm-0' }, class: "block px-2 py-2 text-sm text-center w-full #{I18n.locale == locale ? 'text-indigo-700 font-medium bg-indigo-50' : 'text-slate-700 hover:bg-slate-50'}" do %>
+                      <%= button_to set_locale_path(locale: nil), method: :post, params: { chosen_locale: locale }, form: { class: 'm-0', data: { turbo: false } }, class: "block px-2 py-2 text-sm text-center w-full #{I18n.locale == locale ? 'text-indigo-700 font-medium bg-indigo-50' : 'text-slate-700 hover:bg-slate-50'}" do %>
                         <%= t("locale_switcher.#{locale}") %>
                       <% end %>
                     <% end %>
