@@ -4,8 +4,7 @@ class ClearExpiredSuspensionsJob < ApplicationJob
   def perform
     now = Time.current
 
-    ids = User.where.not(suspended_until: nil)
-              .where("suspended_until <= ?", now)
+    ids = User.where(suspended_until: ..now)
               .pluck(:id)
     return if ids.empty?
 

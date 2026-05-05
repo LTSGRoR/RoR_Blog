@@ -20,7 +20,7 @@ class Admin::PostsController < ApplicationController
     @pending_post_count = pending_posts_scope.count
     @draft_count = PostRevision.draft.count
     @reviewed_today_count = PostRevision.where(moderation_status: [PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected]])
-                                     .where("reviewed_at >= ?", Time.current.beginning_of_day)
+                                     .where(reviewed_at: Time.current.beginning_of_day..)
                                      .count
 
     @pending_posts = if @query.present?
