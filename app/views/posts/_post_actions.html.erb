@@ -3,7 +3,7 @@
 
 <div class="flex flex-wrap items-center gap-3">
   <% if show_back %>
-    <%= btn_link_to t("posts.actions.back_to_posts"), posts_path, variant: :ghost %>
+    <%= btn_link_to t("posts.actions.back_to_posts"), safe_back_path(posts_path), variant: :ghost %>
   <% end %>
 
   <% if show_read_more %>

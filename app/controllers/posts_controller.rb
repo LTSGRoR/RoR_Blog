@@ -74,7 +74,7 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_url, notice: "Post was successfully destroyed."
+    redirect_back fallback_location: mine_posts_path, notice: "Post was successfully destroyed."
   end
 
   def verify

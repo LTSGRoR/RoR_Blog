@@ -145,6 +145,12 @@ ja:
       label: "コメントを追加"
       submit: "コメントを投稿"
 
+  dialogs:
+    confirm:
+      title: "本当によろしいですか？"
+      ok: "確認する"
+      cancel: "キャンセル"
+
   search:
     placeholder: "タイトル、本文、タグで投稿を検索..."
 

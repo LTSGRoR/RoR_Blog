@@ -1,7 +1,7 @@
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
   <div class="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 shadow-sm sm:p-8">
-    <div class="flex flex-wrap items-start justify-between gap-4">
-      <div>
+    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="min-w-0">
         <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.posts.index.title") %></h1>
         <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.posts.index.subtitle") %></p>
       </div>
@@ -40,11 +40,11 @@
       </div>
     <% end %>
 
-    <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-wrap items-center gap-2" do |f| %>
+    <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center" do |f| %>
       <%= f.hidden_field :scope, value: @scope %>
       <%= f.hidden_field :filter, value: @filter %>
-      <%= f.search_field :q, value: @query, placeholder: t("admin.posts.index.search_placeholder"), class: "w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
-      <%= f.submit t("admin.posts.index.search"), class: "rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+      <%= f.search_field :q, value: @query, placeholder: t("admin.posts.index.search_placeholder"), class: "w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:max-w-md sm:flex-1" %>
+      <%= f.submit t("admin.posts.index.search"), class: "w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 sm:w-auto" %>
     <% end %>
   </div>
 
@@ -55,8 +55,8 @@
       <p class="mt-1 text-sm text-slate-600"><%= t("admin.posts.index.pending_posts.subtitle") %></p>
     </div>
 
-    <div class="max-h-[50vh] overflow-auto">
-      <table class="w-full divide-y divide-slate-200 min-w-full table-auto">
+    <div class="max-h-[50vh] overflow-auto overscroll-x-contain">
+      <table class="min-w-[1080px] w-full divide-y divide-slate-200 table-auto">
         <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.pending_posts.columns.post") %></th>
@@ -70,8 +70,8 @@
         <tbody class="divide-y divide-slate-100 bg-white">
           <% @pending_posts.each_with_index do |post, i| %>
             <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-sky-50/40">
-              <td class="px-4 py-4 align-top">
-                <p class="text-sm font-semibold text-slate-900"><%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %></p>
+              <td class="min-w-[240px] px-4 py-4 align-top">
+                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %></p>
                 <% if post.tags.any? %>
                   <div class="mt-2 flex flex-wrap gap-1.5">
                     <% post.tags.each do |tag| %>
@@ -80,26 +80,26 @@
                   </div>
                 <% end %>
               </td>
-              <td class="px-4 py-4 align-top text-sm text-slate-700">
+              <td class="min-w-[220px] px-4 py-4 align-top text-sm text-slate-700">
                 <p><%= post.user&.name.presence || post.user&.email %></p>
                 <p class="text-xs text-slate-500"><%= post.user&.email %></p>
               </td>
-              <td class="px-4 py-4 align-top text-sm">
+              <td class="min-w-[120px] px-4 py-4 align-top text-sm">
                 <% if post.verified? %>
                   <span class="inline-flex whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"><%= t("posts.mine.badges.published") %></span>
                 <% else %>
                   <span class="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"><%= t("posts.mine.badges.awaiting_review") %></span>
                 <% end %>
               </td>
-              <td class="px-4 py-4 align-top text-sm text-slate-600"><%= l(post.reviewed_at.presence || post.created_at, format: :short) %></td>
-              <td class="px-4 py-4 align-top text-sm text-slate-600">
+              <td class="min-w-[150px] px-4 py-4 align-top text-sm text-slate-600 whitespace-nowrap"><%= l(post.reviewed_at.presence || post.created_at, format: :short) %></td>
+              <td class="min-w-[220px] px-4 py-4 align-top text-sm text-slate-600">
                 <% if post.unverify_reason.present? %>
                   <div class="max-w-xs whitespace-pre-wrap rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"><%= post.unverify_reason %></div>
                 <% else %>
                   <span class="text-xs text-slate-500"><%= t("admin.posts.index.pending_posts.no_feedback") %></span>
                 <% end %>
               </td>
-              <td class="px-4 py-4 text-right align-top">
+              <td class="min-w-[180px] px-4 py-4 text-right align-top">
                 <details class="inline-block text-left">
                   <summary class="cursor-pointer list-none whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                     <%= t("admin.posts.index.review") %>
@@ -144,8 +144,8 @@
       <p class="mt-1 text-sm text-slate-600"><%= t("admin.posts.index.pending_revisions.subtitle") %></p>
     </div>
 
-    <div class="max-h-[70vh] overflow-auto">
-      <table class="w-full divide-y divide-slate-200 min-w-full table-auto">
+    <div class="max-h-[70vh] overflow-auto overscroll-x-contain">
+      <table class="min-w-[860px] w-full divide-y divide-slate-200 table-auto">
         <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.posts.index.columns.post") %></th>
@@ -158,23 +158,23 @@
         <tbody class="divide-y divide-slate-100 bg-white">
           <% @revisions.each_with_index do |revision, i| %>
             <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-indigo-50/40">
-              <td class="px-4 py-4 align-top">
-                <p class="text-sm font-semibold text-slate-900"><%= link_to revision.title, admin_post_revision_path(revision), class: "hover:text-indigo-600" %></p>
+              <td class="min-w-[240px] px-4 py-4 align-top">
+                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to revision.title, admin_post_revision_path(revision), class: "hover:text-indigo-600" %></p>
               </td>
-              <td class="px-4 py-4 align-top text-sm text-slate-700">
+              <td class="min-w-[220px] px-4 py-4 align-top text-sm text-slate-700">
                 <p><%= revision.author.name.presence || revision.author.email %></p>
                 <p class="text-xs text-slate-500"><%= revision.author.email %></p>
               </td>
-              <td class="px-4 py-4 align-top text-sm">
+              <td class="min-w-[120px] px-4 py-4 align-top text-sm">
                 <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold <%= revision.pending_review? ? 'bg-amber-100 text-amber-700' : (revision.draft? ? 'bg-indigo-100 text-indigo-700' : (revision.approved? ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')) %>">
                   <%= t("admin.posts.statuses.#{revision.moderation_status}") %>
                 </span>
               </td>
-              <td class="px-4 py-4 align-top text-sm text-slate-600">
+              <td class="min-w-[150px] px-4 py-4 align-top text-sm text-slate-600 whitespace-nowrap">
                 <%= revision.submitted_at.present? ? l(revision.submitted_at, format: :short) : "-" %>
               </td>
-              <td class="px-4 py-4 text-right align-top">
-                <div class="flex flex-wrap justify-end gap-2">
+              <td class="min-w-[220px] px-4 py-4 text-right align-top">
+                <div class="flex flex-nowrap items-center justify-end gap-2 whitespace-nowrap">
                   <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "inline-flex items-center whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50") %>
                   <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "inline-flex" } %>
                 </div>

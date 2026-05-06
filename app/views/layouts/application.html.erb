@@ -52,7 +52,11 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="syntax-highlight confirm">
+  <body
+    data-controller="syntax-highlight confirm"
+    data-confirm-title="<%= t('dialogs.confirm.title') %>"
+    data-confirm-ok="<%= t('dialogs.confirm.ok') %>"
+    data-confirm-cancel="<%= t('dialogs.confirm.cancel') %>">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md">
       <%= t("accessibility.skip_to_main", default: "Skip to main content") %>
     </a>

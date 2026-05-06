@@ -36,6 +36,33 @@ module ApplicationHelper
 		end
 	end
 
+	def safe_back_path(fallback, blocked_patterns: [])
+		referer = request.referer
+		return fallback if referer.blank?
+
+		uri = URI.parse(referer)
+		return fallback if uri.host.present? && uri.host != request.host
+
+		path = uri.path.presence || "/"
+		return fallback if path == request.path
+
+		blocked = [
+			%r{/users/sign_in\z},
+			%r{/users/sign_up\z},
+			%r{/users/password(?:/new|/edit)?\z},
+			%r{/users/confirmation(?:/new)?\z},
+			%r{/users/sign_out\z}
+		] + blocked_patterns
+
+		return fallback if blocked.any? { |pattern| pattern.match?(path) }
+
+		query = uri.query.present? ? "?#{uri.query}" : ""
+		fragment = uri.fragment.present? ? "##{uri.fragment}" : ""
+		"#{path}#{query}#{fragment}"
+	rescue URI::InvalidURIError
+		fallback
+	end
+
 	private
 
 	def btn_classes(variant)
