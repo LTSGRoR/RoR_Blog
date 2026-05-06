@@ -85,7 +85,7 @@ class Post < ApplicationRecord
 
   def editable_by?(user)
     return false if user&.admin?
-    !verified? && user == self.user
+    user == self.user && (draft? || !verified?)
   end
 
   def search_data
