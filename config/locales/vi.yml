@@ -145,6 +145,12 @@ vi:
       label: "Thêm bình luận"
       submit: "Đăng bình luận"
 
+  dialogs:
+    confirm:
+      title: "Bạn có chắc chắn không?"
+      ok: "Xác nhận"
+      cancel: "Hủy"
+
   search:
     placeholder: "Tìm kiếm bài viết theo tiêu đề, nội dung, thẻ..."
 

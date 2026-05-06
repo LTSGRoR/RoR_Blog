@@ -5,6 +5,11 @@ export default class extends Controller {
 
   connect() {
     this.container = this.hasContainerTarget ? this.containerTarget : document.body
+    this.translations = {
+      title: document.body.dataset.confirmTitle || "Are you sure?",
+      ok: document.body.dataset.confirmOk || "OK",
+      cancel: document.body.dataset.confirmCancel || "Cancel",
+    }
 
     // Delegate clicks for elements using `data-confirm` or `data-turbo-confirm` attributes
     this._clickHandler = (e) => {
@@ -58,12 +63,12 @@ export default class extends Controller {
             <svg class="h-8 w-8 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.721-1.36 3.486 0l5.454 9.691c.75 1.333-.213 2.99-1.742 2.99H4.545c-1.529 0-2.492-1.657-1.742-2.99L8.257 3.1zM9 7a1 1 0 112 0v3a1 1 0 11-2 0V7zm1 7a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z" clip-rule="evenodd" />
             </svg>
-            <h3 id="confirm-dialog-title" class="text-lg font-semibold text-slate-900">${this._escapeHtml(title || 'Are you sure?')}</h3>
+            <h3 id="confirm-dialog-title" class="text-lg font-semibold text-slate-900">${this._escapeHtml(title || this.translations.title)}</h3>
           </div>
           ${message ? `<p id="confirm-dialog-message" class="text-sm text-slate-600">${this._escapeHtml(message)}</p>` : ''}
           <div class="mt-4 flex items-center justify-center gap-3">
-            <button data-confirm-action="cancel" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">${this._escapeHtml(i18nOkCancel('cancel') || 'Cancel')}</button>
-            <button data-confirm-action="ok" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">${this._escapeHtml(i18nOkCancel('ok') || 'OK')}</button>
+            <button data-confirm-action="cancel" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">${this._escapeHtml(this.translations.cancel)}</button>
+            <button data-confirm-action="ok" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">${this._escapeHtml(this.translations.ok)}</button>
           </div>
         </div>
       `
@@ -114,10 +119,4 @@ export default class extends Controller {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')
   }
-}
-
-function i18nOkCancel(key) {
-  // Simple client-side fallback; replace with i18n if available
-  const map = { ok: 'OK', cancel: 'Cancel' }
-  return map[key]
 }

@@ -5,15 +5,15 @@
   <%= render partial: "users/users_summary", locals: { total_count: (@total_count || @users.size), active_count: (@active_count || @users.count { |u| !u.banned? && !u.suspended? }), suspended_count: (@suspended_count || @users.count(&:suspended?)), banned_count: (@banned_count || @users.count(&:banned?)) } %>
 
   <div class="mb-6">
-    <%= form_with url: users_path, method: :get, data: { controller: "admin-user-search", turbo_frame: "users_list" }, html: { class: "flex gap-3 items-center mb-4 mt-4" } do |f| %>
-      <div class="flex-1 min-w-0">
+    <%= form_with url: users_path, method: :get, data: { controller: "admin-user-search", turbo_frame: "users_list" }, html: { class: "mb-4 mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center" } do |f| %>
+      <div class="min-w-0 flex-1">
         <%= f.search_field :q, value: params[:q], placeholder: t("users.admin.index.search_placeholder"), class: "h-10 block w-full rounded-lg border border-slate-200 bg-white px-4 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm", data: { action: "input->admin-user-search#search" } %>
       </div>
-      <div>
-        <%= select_tag :role, options_for_select([["Any",""],["Admin","admin"],["Author","author"]], params[:role]), include_blank: false, class: "h-10 rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm", data: { action: "change->admin-user-search#search" } %>
+      <div class="w-full sm:w-auto">
+        <%= select_tag :role, options_for_select([["Any",""],["Admin","admin"],["Author","author"]], params[:role]), include_blank: false, class: "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:w-auto", data: { action: "change->admin-user-search#search" } %>
       </div>
-      <div>
-        <%= select_tag :status, options_for_select([["Any",""],["Active","active"],["Banned","banned"],["Suspended","suspended"]], params[:status]), include_blank: false, class: "h-10 rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm", data: { action: "change->admin-user-search#search" } %>
+      <div class="w-full sm:w-auto">
+        <%= select_tag :status, options_for_select([["Any",""],["Active","active"],["Banned","banned"],["Suspended","suspended"]], params[:status]), include_blank: false, class: "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:w-auto", data: { action: "change->admin-user-search#search" } %>
       </div>
     <% end %>
   </div>

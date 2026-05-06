@@ -91,27 +91,29 @@
     </div>
   <% end %>
 
-  <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
-    <%= btn_link_to t("post_revisions.form.back_to_post"), post_path(@post), variant: :ghost %>
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+    <%= btn_link_to t("post_revisions.form.back_to_post"), post_path(@post), variant: :ghost, class: "w-full sm:w-auto" %>
     <% if @revision.persisted? && @revision.pending_review? && policy(@revision).withdraw? %>
       <%= btn_button_to t("post_revisions.form.withdraw"), withdraw_post_revision_path(@post), method: :post, variant: :danger, data: { turbo_confirm: t("post_revisions.form.confirm_withdraw") } %>
     <% end %>
 
     <% if @revision.persisted? %>
       <% badge_classes = @revision.draft? ? "bg-slate-100 text-slate-600" : @revision.pending_review? ? "bg-yellow-100 text-yellow-700" : @revision.approved? ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" %>
-      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %>">
+      <span class="inline-flex items-center self-start rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %> sm:self-auto">
         <%= t("post_revisions.form.statuses.#{@revision.moderation_status}") %>
       </span>
     <% end %>
 
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
       <% unless readonly_revision %>
         <input type="hidden" name="commit_action" id="commit_action_input" value="save_draft" />
 
         <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary,
+            class: "w-full sm:w-auto",
             onclick: "document.getElementById('commit_action_input').value='save_draft'" %>
 
         <%= btn_submit f, t("post_revisions.form.submit_for_review"), variant: :primary,
+            class: "w-full sm:w-auto",
             onclick: "document.getElementById('commit_action_input').value='submit_for_review'",
             data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
       <% end %>
