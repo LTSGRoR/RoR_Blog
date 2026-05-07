@@ -23,6 +23,10 @@ gem "kaminari"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# AI & Vector Database
+gem "ruby_llm"
+gem "pgvector"
+
 # Use Active Model has_secure_password for simple authentication
 gem "bcrypt"
 

@@ -49,6 +49,7 @@ Rails.application.routes.draw do
         member do
           post :approve
           post :reject
+          post :generate_feedback_suggestions
         end
       end
     end

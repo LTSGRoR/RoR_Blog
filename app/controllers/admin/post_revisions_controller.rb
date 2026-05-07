@@ -30,6 +30,22 @@ class Admin::PostRevisionsController < ApplicationController
     redirect_back fallback_location: admin_posts_path(scope: "revisions"), alert: e.record.errors.full_messages.to_sentence
   end
 
+  def generate_feedback_suggestions
+    authorize @revision, :show?
+    
+    unless @revision.rejected?
+      return render json: { error: "Only rejected revisions can have suggestions" }, status: :unprocessable_entity
+    end
+
+    # Generate suggestions synchronously
+    result = PostRevisionFeedbackService.generate_suggestions!(@revision)
+
+    render json: result.merge(revision_id: @revision.id), status: :ok
+  rescue => e
+    Rails.logger.error("Error generating feedback suggestions: #{e.message}")
+    render json: { error: "Failed to generate suggestions", message: e.message }, status: :internal_server_error
+  end
+
   private
 
   def set_revision

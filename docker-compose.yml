@@ -26,10 +26,16 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       ELASTICSEARCH_URL: http://elasticsearch:9200
       REDIS_URL: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
     depends_on:
-      - ror_blog_db
-      - redis
-      - elasticsearch
+      ror_blog_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      ollama:
+        condition: service_started
     volumes:
       - .:/rails
 
@@ -57,15 +63,21 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       ELASTICSEARCH_URL: http://elasticsearch:9200
       REDIS_URL: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
     depends_on:
-      - ror_blog_db
-      - redis
-      - elasticsearch
+      ror_blog_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      ollama:
+        condition: service_started
     volumes:
       - .:/rails
 
   ror_blog_db:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -75,12 +87,22 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-ror_blog_development}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
@@ -105,6 +127,22 @@ services:
       timeout: 10s
       retries: 5
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   pgdata:
   esdata:
+  ollama_data:

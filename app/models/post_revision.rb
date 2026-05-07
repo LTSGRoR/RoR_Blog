@@ -17,9 +17,24 @@ class PostRevision < ApplicationRecord
   validates :title, presence: true
   validate :author_owns_post
 
+  # Callbacks for AI features
+  after_commit :queue_embedding_job, on: :update, if: :just_rejected?
+
   scope :current_state, -> { where(moderation_status: [ moderation_statuses[:draft], moderation_statuses[:pending_review] ]) }
   scope :open_for_edit, -> { where(moderation_status: moderation_statuses[:draft]) }
   scope :queue, -> { pending_review.includes(:post, :author).order(submitted_at: :asc, created_at: :asc) }
+  
+  # Find similar rejected revisions by vector similarity
+  scope :similar_by_feedback, ->(revision, limit: 5) {
+    return none if revision.embedding.blank?
+    
+    where(moderation_status: moderation_statuses[:rejected])
+      .where("review_note IS NOT NULL")
+      .where.not(id: revision.id)
+      .select("*, embedding <=> ? as similarity", revision.embedding)
+      .order("similarity ASC")
+      .limit(limit)
+  }
 
   def editable_by?(user)
     user.present? && user == author && draft?
@@ -73,5 +88,15 @@ class PostRevision < ApplicationRecord
     return if author == post&.user
 
     errors.add(:author, "must be the post owner")
+  end
+
+  def just_rejected?
+    moderation_status == 'rejected' && saved_change_to_moderation_status?
+  end
+
+  def queue_embedding_job
+    return unless AIServices[:embeddings_enabled]
+    
+    PostRevisionEmbeddingJob.perform_async(id)
   end
 end

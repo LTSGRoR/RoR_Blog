@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_07_100100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -75,23 +76,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
     t.index ["tag_id"], name: "index_post_revision_taggings_on_tag_id"
   end
 
-  create_table "post_revisions", force: :cascade do |t|
-    t.bigint "post_id", null: false
-    t.bigint "author_id", null: false
-    t.bigint "reviewer_id"
-    t.integer "moderation_status", default: 0, null: false
-    t.string "title", null: false
-    t.text "review_note"
-    t.datetime "submitted_at"
-    t.datetime "reviewed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["author_id"], name: "index_post_revisions_on_author_id"
-    t.index ["moderation_status"], name: "index_post_revisions_on_moderation_status"
-    t.index ["post_id", "moderation_status"], name: "index_post_revisions_on_post_id_and_open_status", unique: true, where: "(moderation_status = ANY (ARRAY[0, 1]))"
-    t.index ["post_id"], name: "index_post_revisions_on_post_id"
-    t.index ["reviewer_id"], name: "index_post_revisions_on_reviewer_id"
-  end
+# Could not dump table "post_revisions" because of following StandardError
+#   Unknown type 'vector(768)' for column 'embedding'
+
 
   create_table "posts", force: :cascade do |t|
     t.string "title", null: false
