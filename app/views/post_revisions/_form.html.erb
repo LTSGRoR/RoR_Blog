@@ -99,7 +99,7 @@
 
     <% if @revision.persisted? %>
       <% badge_classes = @revision.draft? ? "bg-slate-100 text-slate-600" : @revision.pending_review? ? "bg-yellow-100 text-yellow-700" : @revision.approved? ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" %>
-      <span class="inline-flex items-center self-start rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %> sm:self-auto">
+      <span class="inline-flex items-center self-start whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %> sm:self-auto">
         <%= t("post_revisions.form.statuses.#{@revision.moderation_status}") %>
       </span>
     <% end %>

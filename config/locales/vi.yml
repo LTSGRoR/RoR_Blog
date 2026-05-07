@@ -408,6 +408,9 @@ vi:
           title: "Quản Lý Bài Viết"
           subtitle: "Quản lý các bài viết đã xuất bản, bao gồm xác minh, phản hồi và xóa."
           no_feedback: "Chưa có phản hồi"
+          conversation: "Trao đổi"
+          admin_feedback: "Phản hồi quản trị viên"
+          author_replied: "Tác giả đã phản hồi"
           empty: "Không có bài viết nào phù hợp bộ lọc."
           columns:
             post: "Bài viết"

@@ -434,6 +434,9 @@ en:
           title: "Post Management"
           subtitle: "Manage published posts, including verification, feedback, and deletion."
           no_feedback: "No feedback yet"
+          conversation: "Conversation"
+          admin_feedback: "Admin feedback"
+          author_replied: "Author replied"
           empty: "No posts found for this filter."
           columns:
             post: "Post"

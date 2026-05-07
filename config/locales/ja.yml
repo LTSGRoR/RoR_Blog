@@ -408,6 +408,9 @@ ja:
           title: "投稿管理"
           subtitle: "公開済み投稿の確認、差し戻し、削除を管理します。"
           no_feedback: "まだフィードバックはありません"
+          conversation: "やり取り"
+          admin_feedback: "管理者フィードバック"
+          author_replied: "著者が返信済み"
           empty: "この条件に一致する投稿はありません。"
           columns:
             post: "投稿"
