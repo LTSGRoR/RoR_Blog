@@ -1,14 +1,13 @@
-require 'rubyllm'
+require 'ruby_llm'
 
 # Agent to generate feedback suggestions using Ollama/Gemma via RubyLLM
 class FeedbackSuggestionAgent
   def initialize
-    @llm = RubyLLM::Client.new(
-      provider: :ollama,
-      base_url: AIServices[:ollama_base_url],
-      model: AIServices[:llm_model],
-      timeout: AIServices[:suggestion_timeout]
-    )
+    RubyLLM.configure do |config|
+      config.ollama_api_base = "#{AIServices[:ollama_base_url].to_s.sub(%r{/*$}, "")}/v1"
+      config.default_model = AIServices[:llm_model]
+      config.request_timeout = AIServices[:suggestion_timeout]
+    end
   end
 
   # Generate feedback suggestions based on similar rejected revisions
@@ -120,12 +119,14 @@ class FeedbackSuggestionAgent
     
     Rails.logger.info("Calling LLM for feedback suggestions...")
     
-    response = @llm.chat([
-      { role: 'user', content: prompt }
-    ])
-    
+    response = RubyLLM.chat(
+      model: AIServices[:llm_model],
+      provider: :ollama,
+      assume_model_exists: true
+    ).ask(prompt)
+
     # Parse response into suggestions
-    suggestions_text = response.content || response
+    suggestions_text = response.content.to_s
     parse_suggestions(suggestions_text)
   rescue => e
     Rails.logger.error("LLM call failed: #{e.message}")

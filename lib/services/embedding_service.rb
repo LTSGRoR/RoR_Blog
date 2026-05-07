@@ -1,16 +1,16 @@
-require 'rubyllm'
+require 'ruby_llm'
 
 # Service to generate embeddings using Ollama via RubyLLM
 class EmbeddingService
   include Singleton
 
   def initialize
-    @llm = RubyLLM::Client.new(
-      provider: :ollama,
-      base_url: AIServices[:ollama_base_url],
-      model: AIServices[:embedding_model],
-      timeout: AIServices[:embedding_timeout]
-    )
+    RubyLLM.configure do |config|
+      config.ollama_api_base = "#{AIServices[:ollama_base_url].to_s.sub(%r{/*$}, "")}/v1"
+      config.default_embedding_model = AIServices[:embedding_model]
+      config.request_timeout = AIServices[:embedding_timeout]
+    end
+
     @cache = {}
   end
 
@@ -28,10 +28,16 @@ class EmbeddingService
     begin
       Rails.logger.info("Generating embedding for text: #{text[0..50]}...")
       
-      embedding = @llm.embed(text)
-      
-      @cache[cache_key] = embedding
-      embedding
+      embedding = RubyLLM.embed(
+        text,
+        model: AIServices[:embedding_model],
+        provider: :ollama,
+        assume_model_exists: true
+      )
+
+      vector = embedding.vectors
+      @cache[cache_key] = vector
+      vector
     rescue => e
       Rails.logger.error("Embedding generation failed: #{e.message}")
       raise StandardError, "Failed to generate embedding: #{e.message}"

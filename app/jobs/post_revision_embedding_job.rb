@@ -1,4 +1,6 @@
 # Job to generate embeddings for post revisions asynchronously
+require Rails.root.join("lib/services/embedding_service")
+
 class PostRevisionEmbeddingJob
   include Sidekiq::Worker
   sidekiq_options retry: 5
@@ -25,9 +27,9 @@ class PostRevisionEmbeddingJob
       embedding_service = EmbeddingService.instance
       embedding = embedding_service.generate_embedding(text_to_embed)
       
-      # Save embedding
+      # Persist vector in pgvector-compatible text format.
       post_revision.update!(
-        embedding: embedding,
+        embedding: Pgvector.encode(embedding),
         embedding_generated_at: Time.current,
         suggestions_error: false
       )
