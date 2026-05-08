@@ -12,19 +12,12 @@ class FeedbackSuggestionGenerationJob
     Rails.logger.info("Generating suggestions for PostRevision #{post_revision_id}")
 
     begin
-      # Check if embedding exists (required for similarity search)
       return log_and_cache_error(post_revision, "Embedding not yet generated") if post_revision.embedding.blank?
-
-      # Find similar rejected revisions
       similar_revisions = PostRevision.similar_by_feedback(post_revision, limit: 5)
-      
       return log_and_cache_error(post_revision, "No similar rejections found") if similar_revisions.blank?
-
-      # Generate suggestions using agent
       agent = FeedbackSuggestionAgent.new
       suggestions = agent.generate_suggestions(post_revision, similar_revisions)
 
-      # Cache suggestions
       post_revision.update!(
         feedback_suggestions: {
           suggestions: suggestions,
@@ -40,7 +33,7 @@ class FeedbackSuggestionGenerationJob
     rescue => e
       Rails.logger.error("Failed to generate suggestions for PostRevision #{post_revision_id}: #{e.message}")
       log_and_cache_error(post_revision, e.message)
-      raise # Sidekiq will retry
+      raise
     end
   end
 

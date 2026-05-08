@@ -1,4 +1,3 @@
-# Job to generate embeddings for post revisions asynchronously
 require Rails.root.join("lib/services/embedding_service")
 
 class PostRevisionEmbeddingJob
@@ -10,24 +9,15 @@ class PostRevisionEmbeddingJob
 
     post_revision = PostRevision.find_by(id: post_revision_id)
     return unless post_revision
-
-    # Skip if embedding already generated
     return if post_revision.embedding_generated_at.present?
-
-    # Skip if revision is not rejected (we only embed rejected for feedback patterns)
     return unless post_revision.rejected?
 
     Rails.logger.info("Generating embedding for PostRevision #{post_revision_id}")
 
     begin
-      # Prepare text for embedding: title + body excerpt
       text_to_embed = prepare_embedding_text(post_revision)
-      
-      # Generate embedding
       embedding_service = EmbeddingService.instance
       embedding = embedding_service.generate_embedding(text_to_embed)
-      
-      # Persist vector in pgvector-compatible text format.
       post_revision.update!(
         embedding: Pgvector.encode(embedding),
         embedding_generated_at: Time.current,
@@ -38,7 +28,7 @@ class PostRevisionEmbeddingJob
     rescue => e
       Rails.logger.error("Failed to generate embedding for PostRevision #{post_revision_id}: #{e.message}")
       post_revision.update(suggestions_error: true)
-      raise # Sidekiq will retry
+      raise
     end
   end
 
@@ -46,7 +36,7 @@ class PostRevisionEmbeddingJob
 
   def prepare_embedding_text(revision)
     title = revision.title.to_s
-    body = revision.body.to_plain_text[0..500] # First 500 chars of body
+    body = revision.body.to_plain_text[0..500]
     tags = revision.tags.pluck(:name).join(', ')
     
     "Title: #{title}\n\nContent: #{body}\n\nTags: #{tags}"

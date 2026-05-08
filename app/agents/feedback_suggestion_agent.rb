@@ -10,24 +10,11 @@ class FeedbackSuggestionAgent
     end
   end
 
-  # Generate feedback suggestions based on similar rejected revisions
-  # Args:
-  #   revision: PostRevision being rejected
-  #   similar_revisions: Array of similar rejected PostRevisions with feedback
-  #   current_admin: User performing the moderation
-  # Returns: Array of suggestion strings
   def generate_suggestions(revision, similar_revisions = [], current_admin = nil)
     return [] if similar_revisions.blank?
-
-    # Extract feedback patterns from similar revisions
     feedback_patterns = extract_feedback_patterns(similar_revisions)
-    
-    # Build context for the LLM
     context = build_context(revision, feedback_patterns, similar_revisions)
-    
-    # Generate suggestions using the LLM
     suggestions = call_llm_for_suggestions(context, revision)
-    
     suggestions
   rescue => e
     Rails.logger.error("FeedbackSuggestionAgent error: #{e.message}")
@@ -41,24 +28,16 @@ class FeedbackSuggestionAgent
     
     similar_revisions.each do |rev|
       next if rev.review_note.blank?
-      
-      # Extract key themes from feedback
-      # Simple pattern extraction: look for common feedback keywords
       feedback_text = rev.review_note.downcase
-      
       themes = extract_themes(feedback_text)
       themes.each do |theme|
         patterns[theme] = (patterns[theme] || 0) + 1
       end
     end
-    
-    # Sort by frequency and return top patterns
     patterns.sort_by { |_, count| -count }.to_h.take(5)
   end
 
   def extract_themes(text)
-    # Simple theme extraction based on keywords
-    # In production, could use NLP or ML model
     themes = []
     
     theme_keywords = {
