@@ -30,8 +30,8 @@ threads threads_count, threads_count
 # Bind externally by default for container and EC2 deployments.
 app_port = ENV.fetch("PORT", 3000)
 app_host = ENV.fetch(
-	"BIND",
-	ENV.fetch("RAILS_ENV", "development") == "production" ? "0.0.0.0" : "127.0.0.1"
+  "BIND",
+  ENV.fetch("RAILS_ENV", "development") == "production" ? "0.0.0.0" : "127.0.0.1"
 )
 bind "tcp://#{app_host}:#{app_port}"
 

@@ -11,8 +11,8 @@ Sidekiq.configure_server do |config|
 end
 
 # Load timezone aliases for server-side normalization
-TIMEZONE_ALIASES = if File.exist?(Rails.root.join('config', 'timezone_aliases.yml'))
-  YAML.safe_load(File.read(Rails.root.join('config', 'timezone_aliases.yml'))) || {}
+TIMEZONE_ALIASES = if File.exist?(Rails.root.join("config", "timezone_aliases.yml"))
+  YAML.safe_load(File.read(Rails.root.join("config", "timezone_aliases.yml"))) || {}
 else
   {}
 end

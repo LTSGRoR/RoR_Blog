@@ -18,7 +18,7 @@ gem "rails-i18n"
 gem "stimulus-rails"
 # Search and pagination
 gem "searchkick"
-gem "elasticsearch", "~> 8.0" 
+gem "elasticsearch", "~> 8.0"
 gem "kaminari"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
@@ -78,7 +78,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-    # Development-only mailer preview
+  # Development-only mailer preview
   gem "letter_opener"
 end
 

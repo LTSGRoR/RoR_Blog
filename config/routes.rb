@@ -7,15 +7,15 @@ Rails.application.routes.draw do
     # Can be used by load balancers and uptime monitors to verify that the app is live.
     get "up" => "rails/health#show", as: :rails_health_check
 
-    # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-    # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-    # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
+  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
   root "posts#index"
-  resources :tags, only: [:index, :create]
-  resources :reactions, only: [:create]
-  resources :users, only: [:show, :index] do
+  resources :tags, only: [ :index, :create ]
+  resources :reactions, only: [ :create ]
+  resources :users, only: [ :show, :index ] do
     member do
       post :ban
       post :unban
@@ -30,8 +30,8 @@ Rails.application.routes.draw do
         get :mine
       end
 
-      resources :comments, only: [:create]
-      resource :revision, controller: :post_revisions, only: [:new, :create, :edit, :update] do
+      resources :comments, only: [ :create ]
+      resource :revision, controller: :post_revisions, only: [ :new, :create, :edit, :update ] do
         post :submit
         post :withdraw
       end
@@ -44,8 +44,8 @@ Rails.application.routes.draw do
     end
 
     namespace :admin do
-      resources :posts, only: [:index]
-      resources :post_revisions, only: [:show, :destroy] do
+      resources :posts, only: [ :index ]
+      resources :post_revisions, only: [ :show, :destroy ] do
         member do
           post :approve
           post :reject
@@ -62,5 +62,5 @@ Rails.application.routes.draw do
       end
     end
   end
-  post '/set_locale', to: 'locales#create', as: :set_locale
+  post "/set_locale", to: "locales#create", as: :set_locale
 end

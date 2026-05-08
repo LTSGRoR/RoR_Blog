@@ -19,7 +19,7 @@ class Admin::PostsController < ApplicationController
     @pending_count = PostRevision.pending_review.count
     @pending_post_count = pending_posts_scope.count
     @draft_count = PostRevision.draft.count
-    @reviewed_today_count = PostRevision.where(moderation_status: [PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected]])
+    @reviewed_today_count = PostRevision.where(moderation_status: [ PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected] ])
                                      .where(reviewed_at: Time.current.beginning_of_day..)
                                      .count
 
@@ -41,7 +41,7 @@ class Admin::PostsController < ApplicationController
     when "open"
       PostRevision.open_for_edit
     when "reviewed"
-      PostRevision.where(moderation_status: [PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected]])
+      PostRevision.where(moderation_status: [ PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected] ])
                   .where.not(reviewed_at: nil)
                   .order(reviewed_at: :desc)
     else

@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!, only: [:index, :ban, :unban, :suspend, :unsuspend]
+  before_action :authenticate_user!, only: [ :index, :ban, :unban, :suspend, :unsuspend ]
   before_action :set_profile_user, only: :show
-  before_action :set_managed_user, only: [:ban, :unban, :suspend, :unsuspend]
+  before_action :set_managed_user, only: [ :ban, :unban, :suspend, :unsuspend ]
 
   def show
     @posts = @user.posts.published.order(created_at: :desc).limit(3)

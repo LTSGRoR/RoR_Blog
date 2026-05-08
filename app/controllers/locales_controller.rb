@@ -1,5 +1,5 @@
 class LocalesController < ApplicationController
-  skip_before_action :set_locale, only: [:create]
+  skip_before_action :set_locale, only: [ :create ]
 
   def create
     raw    = params[:chosen_locale] || params[:locale]
@@ -12,12 +12,12 @@ class LocalesController < ApplicationController
       current_user.update(locale: locale) if current_user
 
       locale_label = t("language_name.#{locale}", default: t("locale_switcher.#{locale}", default: locale.to_s.upcase))
-      flash[:notice] = t('locale.changed', locale_name: locale_label)
+      flash[:notice] = t("locale.changed", locale_name: locale_label)
 
       redirect_back_with_locale(locale)
     else
       I18n.locale = I18n.default_locale
-      flash[:alert] = t('locale.unsupported', locale_name: raw)
+      flash[:alert] = t("locale.unsupported", locale_name: raw)
       redirect_back fallback_location: root_path(locale: I18n.default_locale)
     end
   end

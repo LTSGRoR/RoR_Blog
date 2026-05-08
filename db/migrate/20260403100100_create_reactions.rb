@@ -9,7 +9,7 @@ class CreateReactions < ActiveRecord::Migration[8.0]
     end
 
     add_index :reactions,
-              [:user_id, :reactable_type, :reactable_id, :emoji_type],
+              [ :user_id, :reactable_type, :reactable_id, :emoji_type ],
               unique: true,
               name: "index_reactions_unique_per_user_target_emoji"
   end

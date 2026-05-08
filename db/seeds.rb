@@ -15,7 +15,7 @@ authors = [
   { name: "Bob Marley",    email: "bob@department.com" },
   { name: "Clara Osei",    email: "clara@department.com" },
   { name: "David Kim",     email: "david@department.com" },
-  { name: "Eva Rodriguez", email: "eva@department.com" },
+  { name: "Eva Rodriguez", email: "eva@department.com" }
 ].map do |attrs|
   u = User.find_or_initialize_by(email: attrs[:email])
   u.assign_attributes(attrs.merge(password: "password123", role: :author))
@@ -24,7 +24,7 @@ authors = [
   u
 end
 
-all_users = [admin] + authors
+all_users = [ admin ] + authors
 puts "  #{User.count} users"
 
 # ── Tags ────────────────────────────────────────────────────────────────────
@@ -352,7 +352,7 @@ predictions = svc.predict(x)</code></pre>
       <h2>When to Use Python Instead</h2>
       <p>For serious ML work — training large models, GPU acceleration, the full PyTorch/TensorFlow ecosystem — Python is the better choice. Use Ruby to serve predictions via an API, not to train models.</p>
     HTML
-  },
+  }
 ]
 
 posts_data.each_with_index do |data, i|
@@ -376,4 +376,3 @@ end
 
 puts "  #{Post.count} posts"
 puts "Done! ✓"
-

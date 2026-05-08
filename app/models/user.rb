@@ -31,7 +31,7 @@ class User < ApplicationRecord
     when "suspended"
       where(suspended_until: Time.current..)
     when "active"
-      where(banned_at: nil).where(suspended_until: [nil, ..Time.current])
+      where(banned_at: nil).where(suspended_until: [ nil, ..Time.current ])
     else
       all
     end

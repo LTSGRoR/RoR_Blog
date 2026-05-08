@@ -1,11 +1,11 @@
 class TagsController < ApplicationController
-  before_action :authenticate_user!, only: [:create]
+  before_action :authenticate_user!, only: [ :create ]
 
   def index
     q = params[:q].to_s.strip
     tags = if q.present?
       begin
-        Tag.search(q, fields: [{ name: :word_start }], limit: 20, load: false)
+        Tag.search(q, fields: [ { name: :word_start } ], limit: 20, load: false)
            .map { |t| { id: t.id, name: t.name } }
       rescue StandardError => e
         Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
@@ -20,7 +20,7 @@ class TagsController < ApplicationController
 
   def create
     name = params[:name].to_s.strip
-    return render json: { error: 'name required' }, status: :unprocessable_entity if name.blank?
+    return render json: { error: "name required" }, status: :unprocessable_entity if name.blank?
 
     tag = Tag.find_or_create_by(name: name.downcase)
     render json: { id: tag.id, name: tag.name }, status: :created

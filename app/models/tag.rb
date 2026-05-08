@@ -1,5 +1,5 @@
 class Tag < ApplicationRecord
-  searchkick word_start: [:name], callbacks: :async
+  searchkick word_start: [ :name ], callbacks: :async
 
   has_many :taggings, dependent: :destroy
   has_many :posts, through: :taggings
