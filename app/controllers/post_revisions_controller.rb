@@ -22,6 +22,7 @@ class PostRevisionsController < ApplicationController
 
     if @revision.save
       if submit_for_review_request?
+        enqueue_ai_review_for(@revision)
         redirect_to @post, notice: t("post_revisions.flash.submitted")
       else
         redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
@@ -52,6 +53,7 @@ class PostRevisionsController < ApplicationController
 
     if @revision.save
       if submit_for_review_request?
+        enqueue_ai_review_for(@revision)
         redirect_to @post, notice: t("post_revisions.flash.submitted")
       else
         redirect_to edit_post_revision_path(@post), notice: t("post_revisions.flash.saved")
@@ -68,6 +70,7 @@ class PostRevisionsController < ApplicationController
   def submit
     authorize @revision, :submit?
     @revision.submit!
+    enqueue_ai_review_for(@revision)
     redirect_to @post, notice: t("post_revisions.flash.submitted")
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
     redirect_to edit_post_revision_path(@post), alert: e.message
@@ -137,5 +140,17 @@ class PostRevisionsController < ApplicationController
 
   def latest_rejected_revision
     @latest_rejected_revision ||= @post.post_revisions.rejected.where(author_id: current_user.id).order(reviewed_at: :desc, updated_at: :desc).first
+  end
+
+  def enqueue_ai_review_for(revision)
+    return unless ai_auto_review_enabled?
+    return unless revision.pending_review?
+
+    revision.queue_ai_review!
+    ModeratePostRevisionJob.perform_later(revision.id)
+  end
+
+  def ai_auto_review_enabled?
+    AiModeration::Configuration.current.fetch(:auto_review_enabled)
   end
 end

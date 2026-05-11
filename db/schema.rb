@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_11_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "moderation_settings", force: :cascade do |t|
+    t.string "provider", default: "ollama", null: false
+    t.string "ai_model", default: "gemma4:latest", null: false
+    t.float "auto_approve_threshold", default: 0.9, null: false
+    t.integer "request_timeout_seconds", default: 30, null: false
+    t.integer "max_retries", default: 3, null: false
+    t.boolean "auto_review_enabled", default: true, null: false
+    t.text "new_post_instruction", null: false
+    t.text "revision_instruction", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "post_revision_taggings", force: :cascade do |t|
     t.bigint "post_revision_id", null: false
     t.bigint "tag_id", null: false
@@ -86,6 +99,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
     t.datetime "reviewed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "embedding_generated_at"
+    t.jsonb "feedback_suggestions"
+    t.datetime "suggestions_generated_at"
+    t.boolean "suggestions_error", default: false
+    t.integer "ai_review_status", default: 0, null: false
+    t.float "ai_confidence"
+    t.float "ai_risk_score"
+    t.string "ai_provider"
+    t.string "ai_model_name"
+    t.integer "ai_attempts_count", default: 0, null: false
+    t.text "ai_last_error"
+    t.datetime "ai_reviewed_at"
+    t.jsonb "ai_decision_payload", default: {}, null: false
+    t.index ["ai_review_status"], name: "index_post_revisions_on_ai_review_status"
     t.index ["author_id"], name: "index_post_revisions_on_author_id"
     t.index ["moderation_status"], name: "index_post_revisions_on_moderation_status"
     t.index ["post_id", "moderation_status"], name: "index_post_revisions_on_post_id_and_open_status", unique: true, where: "(moderation_status = ANY (ARRAY[0, 1]))"
@@ -107,6 +134,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_170000) do
     t.bigint "reviewed_by_id"
     t.text "author_feedback_reply"
     t.datetime "author_replied_at"
+    t.integer "ai_review_status", default: 0, null: false
+    t.float "ai_confidence"
+    t.float "ai_risk_score"
+    t.string "ai_provider"
+    t.string "ai_model_name"
+    t.integer "ai_attempts_count", default: 0, null: false
+    t.text "ai_last_error"
+    t.datetime "ai_reviewed_at"
+    t.jsonb "ai_decision_payload", default: {}, null: false
+    t.index ["ai_review_status"], name: "index_posts_on_ai_review_status"
     t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
     t.index ["status"], name: "index_posts_on_status"
     t.index ["user_id"], name: "index_posts_on_user_id"

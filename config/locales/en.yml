@@ -89,6 +89,7 @@ en:
     profile_settings: "Profile Settings"
     manage_posts: "Manage posts"
     manage_users: "Manage users"
+    ai_moderation: "AI moderation"
     sign_out: "Sign out"
     sign_in: "Sign in"
     sign_up: "Sign up"
@@ -390,6 +391,22 @@ en:
       propose_edits: "Propose edits"
 
   admin:
+    moderation_settings:
+      flash:
+        updated: "AI moderation settings were successfully updated."
+      edit:
+        title: "AI Moderation Settings"
+        subtitle: "Configure RubyLLM moderation defaults, prompts, and safety thresholds."
+        save: "Save settings"
+      fields:
+        provider: "Provider"
+        ai_model: "Model"
+        auto_approve_threshold: "Auto-approve threshold"
+        request_timeout_seconds: "Request timeout (seconds)"
+        max_retries: "Retry attempts"
+        auto_review_enabled: "Enable automatic AI review"
+        new_post_instruction: "Instruction for new posts"
+        revision_instruction: "Instruction for revisions"
     posts:
       flash:
         approved: "Revision approved and published to live post."
@@ -442,6 +459,7 @@ en:
             post: "Post"
             author: "Author"
             status: "Status"
+            ai_review: "AI Review"
             submitted: "Submitted"
             feedback: "Feedback"
             actions: "Actions"
@@ -460,8 +478,15 @@ en:
           post: "Post"
           author: "Author"
           status: "Status"
+          ai_review: "AI Review"
           submitted: "Submitted"
           actions: "Actions"
+        ai_statuses:
+          pending: "Pending"
+          in_progress: "In progress"
+          auto_approved: "Auto approved"
+          needs_admin_review: "Needs admin review"
+          failed: "Failed"
 
   errors:
     not_authorized: "You are not authorized to perform this action."

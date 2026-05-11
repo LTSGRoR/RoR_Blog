@@ -60,6 +60,7 @@ ja:
     profile_settings: "プロフィール設定"
     manage_posts: "投稿管理"
     manage_users: "ユーザー管理"
+    ai_moderation: "AIモデレーション"
     sign_out: "サインアウト"
     sign_in: "サインイン"
     sign_up: "新規登録"
@@ -364,6 +365,22 @@ ja:
       propose_edits: "編集を提案する"
 
   admin:
+    moderation_settings:
+      flash:
+        updated: "AIモデレーション設定を更新しました。"
+      edit:
+        title: "AIモデレーション設定"
+        subtitle: "RubyLLM の既定設定、プロンプト、安全しきい値を管理します。"
+        save: "設定を保存"
+      fields:
+        provider: "プロバイダー"
+        ai_model: "モデル"
+        auto_approve_threshold: "自動承認しきい値"
+        request_timeout_seconds: "タイムアウト（秒）"
+        max_retries: "再試行回数"
+        auto_review_enabled: "AI自動レビューを有効化"
+        new_post_instruction: "新規投稿向け指示"
+        revision_instruction: "修正向け指示"
     posts:
       flash:
         approved: "修正が承認され、公開投稿に反映されました。"
@@ -416,6 +433,7 @@ ja:
             post: "投稿"
             author: "著者"
             status: "状態"
+            ai_review: "AIレビュー"
             submitted: "投稿日"
             feedback: "フィードバック"
             actions: "操作"
@@ -434,8 +452,15 @@ ja:
           post: "投稿"
           author: "著者"
           status: "状態"
+          ai_review: "AIレビュー"
           submitted: "提出日時"
           actions: "操作"
+        ai_statuses:
+          pending: "保留"
+          in_progress: "処理中"
+          auto_approved: "自動承認"
+          needs_admin_review: "管理者レビューが必要"
+          failed: "失敗"
 
   activerecord:
     attributes:

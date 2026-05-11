@@ -60,6 +60,7 @@ vi:
     profile_settings: "Cài đặt hồ sơ"
     manage_posts: "Quản lý bài viết"
     manage_users: "Quản lý người dùng"
+    ai_moderation: "Kiểm duyệt AI"
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"
     sign_up: "Đăng ký"
@@ -364,6 +365,22 @@ vi:
       propose_edits: "Đề xuất chỉnh sửa"
 
   admin:
+    moderation_settings:
+      flash:
+        updated: "Đã cập nhật cài đặt kiểm duyệt AI."
+      edit:
+        title: "Cài đặt kiểm duyệt AI"
+        subtitle: "Cấu hình RubyLLM, prompt kiểm duyệt và ngưỡng an toàn."
+        save: "Lưu cài đặt"
+      fields:
+        provider: "Nhà cung cấp"
+        ai_model: "Mô hình"
+        auto_approve_threshold: "Ngưỡng tự duyệt"
+        request_timeout_seconds: "Thời gian chờ (giây)"
+        max_retries: "Số lần thử lại"
+        auto_review_enabled: "Bật tự động kiểm duyệt bằng AI"
+        new_post_instruction: "Hướng dẫn cho bài viết mới"
+        revision_instruction: "Hướng dẫn cho bản chỉnh sửa"
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
@@ -416,6 +433,7 @@ vi:
             post: "Bài viết"
             author: "Tác giả"
             status: "Trạng thái"
+            ai_review: "Duyệt AI"
             submitted: "Ngày gửi"
             feedback: "Phản hồi"
             actions: "Hành động"
@@ -434,8 +452,15 @@ vi:
           post: "Bài viết"
           author: "Tác giả"
           status: "Trạng thái"
+          ai_review: "Duyệt AI"
           submitted: "Thời điểm gửi"
           actions: "Hành động"
+        ai_statuses:
+          pending: "Đang chờ"
+          in_progress: "Đang xử lý"
+          auto_approved: "Tự duyệt"
+          needs_admin_review: "Cần quản trị viên duyệt"
+          failed: "Thất bại"
 
   activerecord:
     attributes:

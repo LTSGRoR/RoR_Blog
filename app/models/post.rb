@@ -9,6 +9,13 @@ class Post < ApplicationRecord
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
   enum :status, { draft: 0, published: 1 }
+  enum :ai_review_status, {
+    pending: 0,
+    in_progress: 1,
+    auto_approved: 2,
+    needs_admin_review: 3,
+    failed: 4
+  }, prefix: :ai_review
   validates :title, presence: true
   validate :moderation_feedback_consistency
   has_rich_text :body
@@ -101,6 +108,51 @@ class Post < ApplicationRecord
 
   def tag_list
     tags.pluck(:name).join(", ")
+  end
+
+  def queue_ai_review!
+    update!(
+      ai_review_status: :pending,
+      ai_attempts_count: 0,
+      ai_last_error: nil,
+      ai_decision_payload: {},
+      ai_confidence: nil,
+      ai_risk_score: nil,
+      ai_provider: nil,
+      ai_model_name: nil,
+      ai_reviewed_at: nil
+    )
+  end
+
+  def mark_ai_in_progress!
+    update!(
+      ai_review_status: :in_progress,
+      ai_attempts_count: ai_attempts_count + 1,
+      ai_last_error: nil
+    )
+  end
+
+  def record_ai_decision!(decision:, config:)
+    update!(
+      ai_confidence: decision.confidence,
+      ai_risk_score: decision.risk_score,
+      ai_provider: config.fetch(:provider),
+      ai_model_name: config.fetch(:model_name),
+      ai_decision_payload: decision.payload,
+      ai_reviewed_at: Time.current
+    )
+  end
+
+  def mark_ai_auto_approved!
+    update!(ai_review_status: :auto_approved, ai_last_error: nil)
+  end
+
+  def mark_ai_needs_admin_review!(reason:)
+    update!(ai_review_status: :needs_admin_review, ai_last_error: reason.to_s.presence)
+  end
+
+  def mark_ai_failed!(reason:)
+    update!(ai_review_status: :failed, ai_last_error: reason.to_s)
   end
 
   private

@@ -45,6 +45,7 @@ Rails.application.routes.draw do
 
     namespace :admin do
       resources :posts, only: [ :index ]
+      resource :moderation_setting, only: [ :edit, :update ]
       resources :post_revisions, only: [ :show, :destroy ] do
         member do
           post :approve

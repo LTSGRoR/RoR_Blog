@@ -52,6 +52,7 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
+      enqueue_ai_review_for(@post)
       redirect_to @post, notice: "Post was successfully updated."
     else
       flash.now[:alert] = @post.errors.full_messages.to_sentence
@@ -65,6 +66,7 @@ class PostsController < ApplicationController
     @post.verified = false
     authorize @post
     if @post.save
+      enqueue_ai_review_for(@post)
       redirect_to @post, notice: "Post was successfully created."
     else
       flash.now[:alert] = @post.errors.full_messages.to_sentence
@@ -223,5 +225,18 @@ class PostsController < ApplicationController
     unless current_user == @post.user
       redirect_to @post, alert: "Only the post author can reply to feedback."
     end
+  end
+
+  def enqueue_ai_review_for(post)
+    return unless ai_auto_review_enabled?
+    return unless post.published?
+    return if post.verified?
+
+    post.queue_ai_review!
+    ModeratePostJob.perform_later(post.id)
+  end
+
+  def ai_auto_review_enabled?
+    AiModeration::Configuration.current.fetch(:auto_review_enabled)
   end
 end
