@@ -89,15 +89,27 @@ vi:
         subtitle: "Mọi bài viết của bạn, tách biệt khỏi luồng bài viết công khai."
       columns:
         post: "Bài viết"
-        visibility: "Trạng thái bài viết"
+        visibility: "Trạng thái"
+        feedback: "Phản hồi"
         revision: "Bản chỉnh sửa"
         updated: "Cập nhật"
         actions: "Thao tác"
+      filters:
+        all: "Tất cả"
+        draft: "Bản nháp"
+        awaiting: "Chờ duyệt"
+        published: "Đã xuất bản"
       badges:
         draft: "Bản nháp"
         awaiting_review: "Chờ duyệt"
         published: "Đã xuất bản"
+      feedback:
+        conversation: "Trao đổi"
+        admin_feedback: "Phản hồi quản trị"
+        author_replied: "Tác giả đã phản hồi"
+        none: "Chưa có phản hồi"
       actions:
+        review: "Xem"
         view: "Xem"
     show:
       by: "bởi"

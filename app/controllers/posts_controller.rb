@@ -14,19 +14,31 @@ class PostsController < ApplicationController
 
   def mine
     @query = params[:q].to_s.strip
-    @posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
+    @filter = params[:filter].presence_in(%w[all draft awaiting published]) || "all"
+    base_posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
 
     if @query.present?
       lowered_query = "%#{@query.downcase}%"
-      @posts = @posts.left_outer_joins(:tags).where(
+      base_posts = base_posts.left_outer_joins(:tags).where(
         "LOWER(posts.title) LIKE :query OR LOWER(tags.name) LIKE :query",
         query: lowered_query
       ).distinct
     end
 
-    @draft_posts_count = @posts.where(status: Post.statuses[:draft]).count
-    @needs_review_posts_count = @posts.where(status: Post.statuses[:published], verified: false).count
-    @published_posts_count = @posts.where(status: Post.statuses[:published], verified: true).count
+    @draft_posts_count = base_posts.where(status: Post.statuses[:draft]).count
+    @needs_review_posts_count = base_posts.where(status: Post.statuses[:published], verified: false).count
+    @published_posts_count = base_posts.where(status: Post.statuses[:published], verified: true).count
+
+    @posts = case @filter
+             when "draft"
+               base_posts.where(status: Post.statuses[:draft])
+             when "awaiting"
+               base_posts.where(status: Post.statuses[:published], verified: false)
+             when "published"
+               base_posts.where(status: Post.statuses[:published], verified: true)
+             else
+               base_posts
+             end
 
     @posts = @posts.page(params[:page]).per(10)
   end

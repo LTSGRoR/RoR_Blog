@@ -118,15 +118,27 @@ en:
         subtitle: "Everything you own, separate from the public feed."
       columns:
         post: "Post"
-        visibility: "Post Status"
+        visibility: "Status"
+        feedback: "Feedback"
         revision: "Revision"
         updated: "Updated"
         actions: "Actions"
+      filters:
+        all: "All Posts"
+        draft: "Draft"
+        awaiting: "Awaiting Review"
+        published: "Published"
       badges:
         draft: "Draft"
         awaiting_review: "Awaiting Review"
         published: "Published"
+      feedback:
+        conversation: "Conversation"
+        admin_feedback: "Admin Feedback"
+        author_replied: "Author Replied"
+        none: "No feedback yet"
       actions:
+        review: "Review"
         view: "View"
     show:
       by: "by"

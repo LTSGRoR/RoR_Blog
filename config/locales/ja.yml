@@ -89,15 +89,27 @@ ja:
         subtitle: "公開フィードとは分けて、自分の投稿だけを管理できます。"
       columns:
         post: "投稿"
-        visibility: "投稿状態"
+        visibility: "状態"
+        feedback: "フィードバック"
         revision: "修正"
         updated: "更新日時"
         actions: "操作"
+      filters:
+        all: "すべて"
+        draft: "下書き"
+        awaiting: "レビュー待ち"
+        published: "公開済み"
       badges:
         draft: "下書き"
         awaiting_review: "レビュー待ち"
         published: "公開済み"
+      feedback:
+        conversation: "やり取り"
+        admin_feedback: "管理者フィードバック"
+        author_replied: "著者が返信済み"
+        none: "フィードバックはまだありません"
       actions:
+        review: "確認"
         view: "表示"
     show:
       by: "投稿者"
