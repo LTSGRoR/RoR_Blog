@@ -288,9 +288,9 @@
                 <%= revision.submitted_at.present? ? l(revision.submitted_at, format: :short) : "-" %>
               </td>
               <td class="min-w-[220px] px-4 py-4 text-right align-top">
-                <div class="flex flex-nowrap items-center justify-end gap-2 whitespace-nowrap">
-                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "inline-flex items-center whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50") %>
-                  <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "inline-flex" } %>
+                <div class="grid grid-cols-2 gap-2">
+                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "group inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-1") %>
+                  <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "w-full justify-center px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "w-full" } %>
                 </div>
               </td>
             </tr>

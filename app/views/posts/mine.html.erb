@@ -65,9 +65,8 @@
             <% revision = post.active_revision %>
             <% has_feedback_modal = post.unverify_reason.present? || post.author_feedback_reply.present? %>
             <% can_delete_post = policy(post).destroy? %>
-            <% action_count = 2 + (has_feedback_modal ? 1 : 0) + (can_delete_post ? 1 : 0) %>
-            <% action_layout = action_count > 2 ? "grid grid-cols-2 gap-2" : "flex flex-nowrap items-center justify-end gap-2 whitespace-nowrap" %>
-            <% action_button_class = action_count > 2 ? "w-full justify-center" : nil %>
+            <% action_layout = "grid grid-cols-2 gap-2" %>
+            <% action_button_class = "w-full justify-center" %>
             <% base_action_class = "group inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1" %>
             <% view_action_class = "#{base_action_class} border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:ring-slate-300 #{action_button_class}" %>
             <% edit_action_class = "#{base_action_class} border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300 #{action_button_class}" %>

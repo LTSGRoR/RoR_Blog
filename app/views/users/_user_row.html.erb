@@ -40,10 +40,10 @@
   </td>
   <td class="min-w-[220px] px-4 py-4 text-right">
     <% unless user.admin? %>
-      <% action_button_base = "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1" %>
-      <div class="flex flex-nowrap items-center justify-end gap-2 whitespace-nowrap">
+      <% action_button_base = "group inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1" %>
+      <div class="grid grid-cols-2 gap-2">
         <% if user.banned? %>
-          <%= button_to unban_user_path(user), method: :post, class: "#{action_button_base} border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300" do %>
+          <%= button_to unban_user_path(user), method: :post, class: "#{action_button_base} border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300", form: { class: "w-full" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-emerald-500 transition group-hover:text-emerald-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
             <span><%= t("users.admin.actions.unban") %></span>
           <% end %>
@@ -60,7 +60,7 @@
         <% end %>
 
         <% if user.suspended? %>
-          <%= button_to unsuspend_user_path(user), method: :post, class: "#{action_button_base} border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 focus:ring-sky-300" do %>
+          <%= button_to unsuspend_user_path(user), method: :post, class: "#{action_button_base} border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 focus:ring-sky-300", form: { class: "w-full" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-sky-500 transition group-hover:text-sky-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a1 1 0 011 1v1.07A7.001 7.001 0 0117 11a7 7 0 11-14 0 7.001 7.001 0 016-6.93V3a1 1 0 011-1zm-3 9a3 3 0 106 0 3 3 0 00-6 0z" /></svg>
             <span><%= t("users.admin.actions.unsuspend") %></span>
           <% end %>
