@@ -37,7 +37,7 @@ class PostsController < ApplicationController
     when "published"
                base_posts.where(status: Post.statuses[:published], verified: true)
     else
-               base_posts
+        base_posts
     end
 
     @posts = @posts.page(params[:page]).per(10)

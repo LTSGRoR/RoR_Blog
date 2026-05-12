@@ -29,17 +29,32 @@
     </div>
 
     <div class="mt-5 flex flex-wrap items-center gap-2">
-      <% { "all" => t("admin.posts.index.scopes.all"), "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
-        <%= link_to label, admin_posts_path(scope: value, filter: @filter, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+      <% { "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
+        <%= link_to label, admin_posts_path(scope: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
       <% end %>
     </div>
 
-    <% if @scope != "posts" %>
-      <div class="mt-4 flex flex-wrap items-center gap-2">
-      <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
-        <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+    <% if @scope == "posts" || @scope == "revisions" %>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <% if @scope == "posts" %>
+        <% {
+          "all_posts" => t("admin.posts.index.filters.all_posts"),
+          "awaiting_review" => t("admin.posts.index.filters.awaiting_review"),
+          "rejected" => t("admin.posts.index.filters.rejected"),
+          "ai_needs_admin_review" => t("admin.posts.index.filters.ai_needs_admin_review"),
+          "ai_auto_approved" => t("admin.posts.index.filters.ai_auto_approved"),
+          "ai_failed" => t("admin.posts.index.filters.ai_failed"),
+          "ai_in_progress" => t("admin.posts.index.filters.ai_in_progress"),
+          "ai_pending" => t("admin.posts.index.filters.ai_pending")
+        }.each do |value, label| %>
+          <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+        <% end %>
+      <% elsif @scope == "revisions" %>
+        <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
+          <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+        <% end %>
       <% end %>
-      </div>
+    </div>
     <% end %>
 
     <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center" do |f| %>
