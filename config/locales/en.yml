@@ -412,6 +412,9 @@ en:
         save: "Save settings"
       fields:
         provider: "Provider"
+        api_key: "API key"
+        api_key_placeholder: "Leave blank to keep current key"
+        api_key_help: "Stored encrypted. Leave blank to keep the existing key."
         ai_model: "Model"
         auto_approve_threshold: "Auto-approve threshold"
         request_timeout_seconds: "Request timeout (seconds)"
@@ -419,6 +422,11 @@ en:
         auto_review_enabled: "Enable automatic AI review"
         new_post_instruction: "Instruction for new posts"
         revision_instruction: "Instruction for revisions"
+      providers:
+        ollama: "Ollama"
+        openai: "OpenAI"
+        gemini: "Gemini"
+        claude: "Claude"
     posts:
       flash:
         approved: "Revision approved and published to live post."
@@ -499,6 +507,14 @@ en:
           auto_approved: "Auto approved"
           needs_admin_review: "Needs admin review"
           failed: "Failed"
+        ai_assessment: "AI assessment"
+        ai_reason: "AI reason"
+        ai_reason_not_available: "No reason was returned by the model for this decision."
+        ai_confidence: "Confidence %{value}"
+        ai_risk: "Risk %{value}"
+        ai_provider: "Provider"
+        ai_model: "Model"
+        ai_reviewed_at: "Reviewed"
 
   errors:
     not_authorized: "You are not authorized to perform this action."

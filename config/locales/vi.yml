@@ -386,6 +386,9 @@ vi:
         save: "Lưu cài đặt"
       fields:
         provider: "Nhà cung cấp"
+        api_key: "Khóa API"
+        api_key_placeholder: "Để trống để giữ khóa hiện tại"
+        api_key_help: "Được lưu ở dạng mã hóa. Để trống để giữ khóa hiện có."
         ai_model: "Mô hình"
         auto_approve_threshold: "Ngưỡng tự duyệt"
         request_timeout_seconds: "Thời gian chờ (giây)"
@@ -393,6 +396,11 @@ vi:
         auto_review_enabled: "Bật tự động kiểm duyệt bằng AI"
         new_post_instruction: "Hướng dẫn cho bài viết mới"
         revision_instruction: "Hướng dẫn cho bản chỉnh sửa"
+      providers:
+        ollama: "Ollama"
+        openai: "OpenAI"
+        gemini: "Gemini"
+        claude: "Claude"
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
@@ -473,6 +481,14 @@ vi:
           auto_approved: "Tự duyệt"
           needs_admin_review: "Cần quản trị viên duyệt"
           failed: "Thất bại"
+        ai_assessment: "Đánh giá AI"
+        ai_reason: "Lý do AI"
+        ai_reason_not_available: "Mô hình không trả về lý do cho quyết định này."
+        ai_confidence: "Độ tin cậy %{value}"
+        ai_risk: "Rủi ro %{value}"
+        ai_provider: "Nhà cung cấp"
+        ai_model: "Mô hình"
+        ai_reviewed_at: "Thời điểm duyệt"
 
   activerecord:
     attributes:

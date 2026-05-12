@@ -63,6 +63,24 @@ module ApplicationHelper
     fallback
   end
 
+  def ai_review_reason_for(record)
+    return nil unless record
+
+    persisted_reason = record.respond_to?(:ai_last_error) ? record.ai_last_error.to_s.strip : nil
+    return persisted_reason if persisted_reason.present?
+
+    payload = record.respond_to?(:ai_decision_payload) ? record.ai_decision_payload : nil
+    return nil unless payload.is_a?(Hash)
+
+    payload["reason"].presence || payload[:reason].presence
+  end
+
+  def ai_review_percentage(value)
+    return nil if value.nil?
+
+    number_to_percentage(value.to_f * 100, precision: 0)
+  end
+
   private
 
   def btn_classes(variant)

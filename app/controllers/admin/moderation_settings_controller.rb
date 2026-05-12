@@ -24,8 +24,9 @@ class Admin::ModerationSettingsController < ApplicationController
   end
 
   def setting_params
-    params.require(:moderation_setting).permit(
+    permitted_params = params.require(:moderation_setting).permit(
       :provider,
+      :api_key,
       :ai_model,
       :auto_approve_threshold,
       :request_timeout_seconds,
@@ -34,5 +35,9 @@ class Admin::ModerationSettingsController < ApplicationController
       :new_post_instruction,
       :revision_instruction
     )
+
+    # Keep the currently stored encrypted key when the input is left blank.
+    permitted_params.delete(:api_key) if permitted_params[:api_key].blank?
+    permitted_params
   end
 end

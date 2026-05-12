@@ -12,6 +12,7 @@ module AiModeration
     end
 
     def review(instruction:, content_payload:)
+      validate_provider_configuration!
       configure_ruby_llm!
 
       prompt = <<~PROMPT
@@ -25,7 +26,8 @@ module AiModeration
         #{content_payload.to_json}
       PROMPT
 
-      chat = RubyLLM.chat(model: @config.fetch(:model_name), provider: @config.fetch(:provider).to_sym)
+      provider = provider_for_ruby_llm(@config.fetch(:provider))
+      chat = RubyLLM.chat(model: @config.fetch(:model_name), provider: provider)
       response = chat.ask(prompt)
       response_text = extract_text(response)
 
@@ -47,6 +49,41 @@ module AiModeration
 
       RubyLLM.configure do |llm_config|
         llm_config.ollama_api_base = @config.fetch(:ollama_api_base)
+
+        provider = @config.fetch(:provider)
+        api_key = @config[:api_key]
+        next if api_key.blank?
+
+        case provider
+        when ModerationSetting::PROVIDERS[:openai]
+          llm_config.openai_api_key = api_key if llm_config.respond_to?(:openai_api_key=)
+        when ModerationSetting::PROVIDERS[:gemini]
+          if llm_config.respond_to?(:gemini_api_key=)
+            llm_config.gemini_api_key = api_key
+          elsif llm_config.respond_to?(:google_api_key=)
+            llm_config.google_api_key = api_key
+          end
+        when ModerationSetting::PROVIDERS[:claude]
+          llm_config.anthropic_api_key = api_key if llm_config.respond_to?(:anthropic_api_key=)
+        end
+      end
+    end
+
+    def validate_provider_configuration!
+      provider = @config.fetch(:provider)
+      supported = ModerationSetting::PROVIDERS.values
+      raise ArgumentError, "Unsupported AI provider: #{provider}" unless supported.include?(provider)
+
+      return if provider == ModerationSetting::PROVIDERS[:ollama]
+      raise ArgumentError, "API key is missing for provider: #{provider}" if @config[:api_key].blank?
+    end
+
+    def provider_for_ruby_llm(provider)
+      case provider
+      when ModerationSetting::PROVIDERS[:claude]
+        :anthropic
+      else
+        provider.to_sym
       end
     end
 

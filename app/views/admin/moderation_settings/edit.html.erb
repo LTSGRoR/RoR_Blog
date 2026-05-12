@@ -3,11 +3,24 @@
     <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.moderation_settings.edit.title") %></h1>
     <p class="mt-2 max-w-3xl text-sm text-slate-600"><%= t("admin.moderation_settings.edit.subtitle") %></p>
 
-    <%= form_with model: @setting, url: admin_moderation_setting_path, method: :patch, class: "mt-6 space-y-6" do |f| %>
+    <%= form_with model: @setting, url: admin_moderation_setting_path, method: :patch, class: "mt-6 space-y-6", data: { controller: "provider-settings" } do |f| %>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <%= f.label :provider, t("admin.moderation_settings.fields.provider"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.text_field :provider, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
+          <%= f.select :provider,
+                       ModerationSetting::PROVIDERS.values.map { |provider| [t("admin.moderation_settings.providers.#{provider}"), provider] },
+                       {},
+                       class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700",
+                       data: { action: "change->provider-settings#providerChanged", provider_settings_target: "providerSelect" } %>
+        </div>
+        <div data-provider-settings-target="apiKeyWrapper" class="hidden">
+          <%= f.label :api_key, t("admin.moderation_settings.fields.api_key"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+          <%= f.password_field :api_key,
+                               autocomplete: "new-password",
+                               placeholder: t("admin.moderation_settings.fields.api_key_placeholder"),
+                               class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700",
+                               data: { provider_settings_target: "apiKeyInput" } %>
+          <p class="mt-1 text-xs text-slate-500"><%= t("admin.moderation_settings.fields.api_key_help") %></p>
         </div>
         <div>
           <%= f.label :ai_model, t("admin.moderation_settings.fields.ai_model"), class: "mb-1 block text-sm font-semibold text-slate-700" %>

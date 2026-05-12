@@ -517,6 +517,7 @@ DEPENDENCIES
   kamal
   kaminari
   letter_opener
+  minitest (~> 5.0)
   pg
   propshaft
   pry-byebug

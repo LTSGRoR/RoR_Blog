@@ -1,4 +1,11 @@
 class ModerationSetting < ApplicationRecord
+  PROVIDERS = {
+    ollama: "ollama",
+    openai: "openai",
+    gemini: "gemini",
+    claude: "claude"
+  }.freeze
+
   DEFAULT_NEW_POST_INSTRUCTION = <<~TEXT.squish.freeze
     You are a moderation assistant for a public blog. Review a newly created post and decide whether it can be auto-approved.
     Prioritize safety, legality, hate/harassment prevention, and spam detection. Return strict JSON.
@@ -12,8 +19,12 @@ class ModerationSetting < ApplicationRecord
   before_save :track_model_change
   after_commit :pull_new_model, if: :model_changed_and_saved?
 
+  encrypts :api_key
+
   validates :provider, presence: true
+  validates :provider, inclusion: { in: PROVIDERS.values }
   validates :ai_model, presence: true
+  validates :api_key, presence: true, if: :provider_requires_api_key?
   validates :request_timeout_seconds, numericality: { greater_than: 0 }
   validates :max_retries, numericality: { greater_than: 0 }
   validates :auto_approve_threshold, numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 1.0 }
@@ -41,11 +52,15 @@ class ModerationSetting < ApplicationRecord
   end
 
   def model_changed_and_saved?
-    @old_model.present? && @old_model != @new_model && @new_model.present?
+    @old_model.present? && @old_model != @new_model && @new_model.present? && provider == PROVIDERS[:ollama]
   end
 
   def pull_new_model
     PullOllamaModelJob.perform_later(@new_model)
     Rails.logger.info("Queued model pull for: #{@new_model}")
+  end
+
+  def provider_requires_api_key?
+    provider.present? && provider != PROVIDERS[:ollama]
   end
 end

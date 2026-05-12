@@ -386,6 +386,9 @@ ja:
         save: "設定を保存"
       fields:
         provider: "プロバイダー"
+        api_key: "APIキー"
+        api_key_placeholder: "空欄のまま保存すると現在のキーを保持します"
+        api_key_help: "暗号化して保存されます。空欄のまま保存すると既存のキーを保持します。"
         ai_model: "モデル"
         auto_approve_threshold: "自動承認しきい値"
         request_timeout_seconds: "タイムアウト（秒）"
@@ -393,6 +396,11 @@ ja:
         auto_review_enabled: "AI自動レビューを有効化"
         new_post_instruction: "新規投稿向け指示"
         revision_instruction: "修正向け指示"
+      providers:
+        ollama: "Ollama"
+        openai: "OpenAI"
+        gemini: "Gemini"
+        claude: "Claude"
     posts:
       flash:
         approved: "修正が承認され、公開投稿に反映されました。"
@@ -473,6 +481,14 @@ ja:
           auto_approved: "自動承認"
           needs_admin_review: "管理者レビューが必要"
           failed: "失敗"
+        ai_assessment: "AI判定"
+        ai_reason: "AI理由"
+        ai_reason_not_available: "この判定に対する理由はモデルから返されませんでした。"
+        ai_confidence: "信頼度 %{value}"
+        ai_risk: "リスク %{value}"
+        ai_provider: "プロバイダー"
+        ai_model: "モデル"
+        ai_reviewed_at: "判定時刻"
 
   activerecord:
     attributes:
