@@ -69,6 +69,9 @@ module ApplicationHelper
     persisted_reason = record.respond_to?(:ai_last_error) ? record.ai_last_error.to_s.strip : nil
     return persisted_reason if persisted_reason.present?
 
+    ai_status = record.respond_to?(:ai_review_status) ? record.ai_review_status.to_s : nil
+    return nil if %w[pending in_progress].include?(ai_status)
+
     payload = record.respond_to?(:ai_decision_payload) ? record.ai_decision_payload : nil
     return nil unless payload.is_a?(Hash)
 

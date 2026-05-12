@@ -103,6 +103,7 @@ vi:
         draft: "Bản nháp"
         awaiting_review: "Chờ duyệt"
         published: "Đã xuất bản"
+        rejected: "Bị từ chối"
       feedback:
         conversation: "Trao đổi"
         admin_feedback: "Phản hồi quản trị"
@@ -116,6 +117,9 @@ vi:
       reactions: "Cảm xúc"
       comments: "Bình luận"
       join_conversation: "để tham gia cuộc trò chuyện."
+      ai_review:
+        title: "Duyệt AI"
+        waiting: "AI đang duyệt bài viết này. Khung này sẽ tự động cập nhật."
       review_controls:
         title: "Kiểm duyệt"
         verified_description: "Bài viết này đã được xác minh. Thêm lý do bên dưới để gửi lại cho tác giả."

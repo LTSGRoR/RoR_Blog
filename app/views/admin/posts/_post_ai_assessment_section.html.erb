@@ -1,0 +1,42 @@
+<% ai_reason = ai_review_reason_for(post) %>
+<div id="<%= dom_id(post, :admin_ai_assessment) %>">
+  <% if ai_reason.present? || post.ai_confidence.present? || post.ai_risk_score.present? || post.ai_model_name.present? || post.ai_provider.present? || post.ai_reviewed_at.present? %>
+    <section class="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-left">
+      <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-600"><%= t("admin.posts.index.ai_assessment") %></p>
+      <% if ai_reason.present? %>
+        <p class="whitespace-pre-wrap text-xs leading-5 text-slate-700"><%= ai_reason %></p>
+      <% else %>
+        <p class="text-xs text-slate-500"><%= t("admin.posts.index.ai_reason_not_available") %></p>
+      <% end %>
+
+      <% if post.ai_confidence.present? || post.ai_risk_score.present? %>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <% if post.ai_confidence.present? %>
+            <span class="inline-flex whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+              <%= t("admin.posts.index.ai_confidence", value: ai_review_percentage(post.ai_confidence)) %>
+            </span>
+          <% end %>
+          <% if post.ai_risk_score.present? %>
+            <span class="inline-flex whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+              <%= t("admin.posts.index.ai_risk", value: ai_review_percentage(post.ai_risk_score)) %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if post.ai_provider.present? || post.ai_model_name.present? || post.ai_reviewed_at.present? %>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+          <% if post.ai_provider.present? %>
+            <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_provider") %>:</span> <%= post.ai_provider %></span>
+          <% end %>
+          <% if post.ai_model_name.present? %>
+            <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_model") %>:</span> <%= post.ai_model_name %></span>
+          <% end %>
+          <% if post.ai_reviewed_at.present? %>
+            <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_reviewed_at") %>:</span> <%= l(post.ai_reviewed_at, format: :short) %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+</div>

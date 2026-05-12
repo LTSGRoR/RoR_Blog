@@ -132,6 +132,7 @@ en:
         draft: "Draft"
         awaiting_review: "Awaiting Review"
         published: "Published"
+        rejected: "Rejected"
       feedback:
         conversation: "Conversation"
         admin_feedback: "Admin Feedback"
@@ -145,6 +146,9 @@ en:
       reactions: "Reactions"
       comments: "Comments"
       join_conversation: "to join the conversation."
+      ai_review:
+        title: "AI review"
+        waiting: "AI is reviewing this post. This panel updates automatically."
       review_controls:
         title: "Review Controls"
         verified_description: "This post is currently verified. Add a reason below to send it back to the author."

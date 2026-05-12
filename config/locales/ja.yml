@@ -103,6 +103,7 @@ ja:
         draft: "下書き"
         awaiting_review: "レビュー待ち"
         published: "公開済み"
+        rejected: "差し戻し"
       feedback:
         conversation: "やり取り"
         admin_feedback: "管理者フィードバック"
@@ -116,6 +117,9 @@ ja:
       reactions: "リアクション"
       comments: "コメント"
       join_conversation: "して会話に参加しましょう。"
+      ai_review:
+        title: "AIレビュー"
+        waiting: "AIがこの投稿をレビュー中です。このパネルは自動で更新されます。"
       review_controls:
         title: "レビュー管理"
         verified_description: "この投稿は現在確認済みです。差し戻す場合は、下に理由を入力してください。"

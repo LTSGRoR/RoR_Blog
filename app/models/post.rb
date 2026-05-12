@@ -1,6 +1,8 @@
 class Post < ApplicationRecord
   searchkick word_middle: [ :title, :tags ], callbacks: :async
 
+  after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
+
   belongs_to :user
   belongs_to :reviewed_by, class_name: "User", optional: true
   has_many :post_revisions, dependent: :destroy
@@ -156,6 +158,68 @@ class Post < ApplicationRecord
   end
 
   private
+
+  def ai_review_realtime_update?
+    saved_change_to_ai_review_status? ||
+      saved_change_to_ai_last_error? ||
+      saved_change_to_ai_confidence? ||
+      saved_change_to_ai_risk_score? ||
+      saved_change_to_ai_reviewed_at? ||
+      saved_change_to_ai_model_name? ||
+      saved_change_to_ai_provider? ||
+      saved_change_to_verified?
+  end
+
+  def broadcast_ai_review_updates
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      self,
+      target: ActionView::RecordIdentifier.dom_id(self, :ai_review_panel),
+      partial: "posts/ai_review_panel",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "posts_mine_user_#{user_id}",
+      target: ActionView::RecordIdentifier.dom_id(self, :mine_visibility),
+      partial: "posts/mine_visibility_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "posts_mine_user_#{user_id}",
+      target: ActionView::RecordIdentifier.dom_id(self, :mine_updated),
+      partial: "posts/mine_updated_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_status),
+      partial: "admin/posts/post_status_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_ai_review),
+      partial: "admin/posts/post_ai_review_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_submitted),
+      partial: "admin/posts/post_submitted_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_ai_assessment),
+      partial: "admin/posts/post_ai_assessment_section",
+      locals: { post: self }
+    )
+  end
 
   def moderation_feedback_consistency
     if published? && reviewed_at.present? && !verified? && unverify_reason.blank?

@@ -30,15 +30,15 @@ class PostsController < ApplicationController
     @published_posts_count = base_posts.where(status: Post.statuses[:published], verified: true).count
 
     @posts = case @filter
-             when "draft"
+    when "draft"
                base_posts.where(status: Post.statuses[:draft])
-             when "awaiting"
+    when "awaiting"
                base_posts.where(status: Post.statuses[:published], verified: false)
-             when "published"
+    when "published"
                base_posts.where(status: Post.statuses[:published], verified: true)
-             else
+    else
                base_posts
-             end
+    end
 
     @posts = @posts.page(params[:page]).per(10)
   end
