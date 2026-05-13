@@ -503,7 +503,7 @@ ja:
         rerun_ai_review: "AIレビューを再実行"
       flash:
         rerun_enqueued: "AIレビューの再実行をキューに追加しました。"
-        rerun_not_allowed: "AIレビューを再実行できるのは、公開済みで保留または失敗状態の投稿のみです。"
+        rerun_not_allowed: "AIレビューを再実行できるのは、公開済み・未承認・失敗状態の投稿のみです。"
 
   activerecord:
     attributes:

@@ -530,7 +530,7 @@ en:
         ai_reviewed_at: "Reviewed"
       flash:
         rerun_enqueued: "AI review rerun has been queued."
-        rerun_not_allowed: "AI review can only be rerun for pending or failed published posts."
+        rerun_not_allowed: "AI review can only be rerun for failed, published, unverified posts."
 
   errors:
     not_authorized: "You are not authorized to perform this action."

@@ -503,7 +503,7 @@ vi:
         rerun_ai_review: "Chạy lại duyệt AI"
       flash:
         rerun_enqueued: "Đã đưa yêu cầu chạy lại duyệt AI vào hàng đợi."
-        rerun_not_allowed: "Chỉ có thể chạy lại duyệt AI cho bài viết đã xuất bản đang ở trạng thái chờ hoặc thất bại."
+        rerun_not_allowed: "Chỉ có thể chạy lại duyệt AI cho bài viết đã xuất bản, chưa được xác minh và ở trạng thái thất bại."
 
   activerecord:
     attributes:

@@ -102,7 +102,7 @@ class Admin::PostsController < ApplicationController
   end
 
   def rerunnable_ai_review?(post)
-    post.published? && !post.verified? && (post.ai_review_failed? || post.ai_review_pending?)
+    post.published? && !post.verified? && post.ai_review_failed?
   end
 
   def permitted_scope
