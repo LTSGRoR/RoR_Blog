@@ -31,12 +31,13 @@ class AiModeration::ConfigurationTest < ActiveSupport::TestCase
   test "db moderation settings override env moderation settings" do
     setting = ModerationSetting.current
     setting.update!(
-      provider: "ollama",
-      ai_model: "qwen3:1.7b",
+      provider: "mistral",
+      ai_model: "mistral-small-latest",
       auto_approve_threshold: 0.85,
       request_timeout_seconds: 20,
       max_retries: 2,
-      auto_review_enabled: false
+      auto_review_enabled: false,
+      api_key: "test-api-key"
     )
 
     config = with_env(
@@ -50,8 +51,8 @@ class AiModeration::ConfigurationTest < ActiveSupport::TestCase
       AiModeration::Configuration.current
     end
 
-    assert_equal "ollama", config[:provider]
-    assert_equal "qwen3:1.7b", config[:model_name]
+    assert_equal "mistral", config[:provider]
+    assert_equal "mistral-small-latest", config[:model_name]
     assert_equal 0.85, config[:auto_approve_threshold]
     assert_equal 20, config[:request_timeout_seconds]
     assert_equal 2, config[:max_retries]
@@ -68,6 +69,19 @@ class AiModeration::ConfigurationTest < ActiveSupport::TestCase
     end
 
     assert_equal "env-openai-key", config[:api_key]
+  end
+
+  test "mistral uses provider-specific env api key when stored key is blank" do
+    setting = ModerationSetting.current
+    setting.update!(provider: "mistral", api_key: "stored-mistral-key")
+    setting.update_columns(api_key: nil)
+
+    config = with_env("MISTRAL_API_KEY" => "env-mistral-key") do
+      AiModeration::Configuration.current
+    end
+
+    assert_equal "mistral", config[:provider]
+    assert_equal "env-mistral-key", config[:api_key]
   end
 
   private

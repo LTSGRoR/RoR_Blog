@@ -1,6 +1,16 @@
 class ModeratePostJob < ApplicationJob
   queue_as :default
 
+  TRANSIENT_ERROR_CLASSES = %w[
+    Timeout::Error
+    Net::OpenTimeout
+    Net::ReadTimeout
+    Errno::ECONNRESET
+    Errno::ETIMEDOUT
+    Faraday::TimeoutError
+    Faraday::ConnectionFailed
+  ].freeze
+
   def perform(post_id)
     log_event("start", post_id: post_id)
 
@@ -57,15 +67,16 @@ class ModeratePostJob < ApplicationJob
       post.mark_ai_needs_admin_review!(reason: decision.reason)
       log_event("needs_admin_review", post_id: post.id, reason: decision.reason)
     else
-      handle_failure!(post: post, config: config, reason: decision.reason)
+      handle_failure!(post: post, config: config, decision: decision)
     end
   rescue StandardError => e
     log_event("error", post_id: post_id, error_class: e.class.name, error_message: e.message)
-    post&.mark_ai_failed!(reason: e.message)
-    raise e if retryable?(config)
 
-    post&.mark_ai_needs_admin_review!(reason: e.message)
-    log_event("fallback_after_retries", post_id: post_id, reason: e.message)
+    unless post&.ai_review_failed?
+      post&.mark_ai_failed!(reason: e.message)
+    end
+
+    raise e if retryable?(config) && transient_error?(e.class.name, e.message)
   end
 
   private
@@ -75,13 +86,26 @@ class ModeratePostJob < ApplicationJob
     executions < max_retries
   end
 
-  def handle_failure!(post:, config:, reason:)
-    post.mark_ai_failed!(reason: reason)
-    log_event("decision_failed", post_id: post.id, reason: reason)
-    raise StandardError, reason if retryable?(config)
+  def handle_failure!(post:, config:, decision:)
+    reason = decision.reason
+    error_class = decision.payload.is_a?(Hash) ? decision.payload["error_class"] : nil
 
-    post.mark_ai_needs_admin_review!(reason: reason)
-    log_event("fallback_after_retries", post_id: post.id, reason: reason)
+    post.mark_ai_failed!(reason: reason)
+    log_event("decision_failed", post_id: post.id, reason: reason, error_class: error_class)
+
+    if retryable?(config) && transient_error?(error_class, reason)
+      raise StandardError, reason
+    end
+  end
+
+  def transient_error?(error_class_name, message)
+    error_class = error_class_name.to_s
+    msg = message.to_s
+
+    return true if TRANSIENT_ERROR_CLASSES.include?(error_class)
+
+    # Match transient infrastructure errors that could be retried
+    msg.match?(/timeout|temporarily unavailable|connection reset|broken pipe|retry|temporarily|transient/i)
   end
 
   def log_event(event, payload = {})

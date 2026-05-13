@@ -19,7 +19,6 @@ services:
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
-      OLLAMA_API_BASE: ${OLLAMA_API_BASE:-http://ollama:11434/v1}
       AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-gemma4:latest}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
@@ -35,8 +34,6 @@ services:
         condition: service_started
       elasticsearch:
         condition: service_started
-      ollama:
-        condition: service_healthy
     volumes:
       - .:/rails
 
@@ -57,7 +54,6 @@ services:
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
-      OLLAMA_API_BASE: ${OLLAMA_API_BASE:-http://ollama:11434/v1}
       AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-gemma4:latest}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
@@ -73,8 +69,6 @@ services:
         condition: service_started
       elasticsearch:
         condition: service_started
-      ollama:
-        condition: service_healthy
     volumes:
       - .:/rails
 
@@ -119,22 +113,6 @@ services:
       timeout: 10s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    restart: unless-stopped
-    entrypoint: ["/bin/sh", "/workspace/script/ollama-start.sh"]
-    ports:
-      - "11434:11434"
-    healthcheck:
-      test: ["CMD-SHELL", "ollama list >/dev/null || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-    volumes:
-      - .:/workspace
-      - ollama_data:/root/.ollama
-
 volumes:
   pgdata:
   esdata:
-  ollama_data:

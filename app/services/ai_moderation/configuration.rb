@@ -12,7 +12,8 @@ module AiModeration
     PROVIDER_API_KEY_ENV = {
       "openai" => "OPENAI_API_KEY",
       "gemini" => "GEMINI_API_KEY",
-      "claude" => "ANTHROPIC_API_KEY"
+      "claude" => "ANTHROPIC_API_KEY",
+      "mistral" => "MISTRAL_API_KEY"
     }.freeze
 
     class << self
@@ -29,8 +30,7 @@ module AiModeration
           auto_review_enabled: parse_boolean(setting_or_env(setting.auto_review_enabled, :auto_review_enabled)),
           new_post_instruction: setting.new_post_instruction,
           revision_instruction: setting.revision_instruction,
-          api_key: provider_api_key(provider: provider, setting: setting),
-          ollama_api_base: ENV.fetch("OLLAMA_API_BASE", "http://127.0.0.1:11434/v1")
+          api_key: provider_api_key(provider: provider, setting: setting)
         }
       end
 
@@ -47,8 +47,6 @@ module AiModeration
       end
 
       def provider_api_key(provider:, setting:)
-        return nil if provider == ModerationSetting::PROVIDERS[:ollama]
-
         return setting.api_key if setting.api_key.present?
 
         env_key = PROVIDER_API_KEY_ENV[provider]

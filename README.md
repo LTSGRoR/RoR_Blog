@@ -6,7 +6,7 @@ A Rails 8 community blog application with:
 - Authorization with Pundit.
 - Full-text search with Searchkick + Elasticsearch.
 - Background processing with Sidekiq + Redis.
-- AI-assisted post moderation via RubyLLM providers (default: Ollama).
+- AI-assisted post moderation via RubyLLM providers (Mistral, OpenAI, Gemini, Claude).
 - Hotwire/Turbo UI updates and Tailwind CSS styling.
 
 ## Tech Stack
@@ -17,7 +17,6 @@ A Rails 8 community blog application with:
 - Redis
 - Sidekiq + sidekiq-cron
 - Elasticsearch `8.x`
-- Ollama (for local AI moderation by default)
 
 ## Supported Locales
 
@@ -34,7 +33,6 @@ This app routes localized pages under `/:locale` and currently supports:
 	 - PostgreSQL
 	 - Redis
 	 - Elasticsearch 8
-	 - Ollama (optional if you disable auto-review)
 2. Install gems:
 
 ```bash
@@ -43,14 +41,24 @@ bundle install
 
 3. Configure environment values (shell export or `.env` via dotenv):
 
+Generate Active Record encryption keys once with:
+
+```bash
+bin/rails db:encryption:init
+```
+
 ```bash
 export DB_HOST=localhost
 export DB_USERNAME=postgres
 export DB_PASSWORD=postgres
 export REDIS_URL=redis://localhost:6379/0
 export ELASTICSEARCH_URL=http://localhost:9200
-export OLLAMA_API_BASE=http://localhost:11434/v1
-export AI_MODERATION_MODEL=gemma4:latest
+export AI_MODERATION_PROVIDER=mistral
+export AI_MODERATION_MODEL=mistral-small-latest
+export MISTRAL_API_KEY=your_mistral_api_key
+export ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=your_primary_key
+export ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=your_deterministic_key
+export ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=your_key_derivation_salt
 ```
 
 4. Prepare database:
@@ -75,7 +83,7 @@ App default URL: `http://localhost:3000`
 
 ## Quick Start (Docker Compose)
 
-Start all services (app, sidekiq, postgres, redis, elasticsearch, ollama):
+Start all services (app, sidekiq, postgres, redis, elasticsearch):
 
 ```bash
 docker compose up --build
@@ -96,8 +104,9 @@ By default, app ports are exposed on `80` and `3000`.
 - `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`
 - `REDIS_URL` (default: `redis://redis:6379/0` in compose)
 - `ELASTICSEARCH_URL` (default compose: `http://elasticsearch:9200`)
-- `OLLAMA_API_BASE` (default compose: `http://ollama:11434/v1`)
-- `AI_MODERATION_MODEL` (default: `gemma4:latest`)
+- `AI_MODERATION_PROVIDER` (supported: mistral, openai, gemini, claude)
+- `AI_MODERATION_MODEL` (e.g., mistral-small-latest)
+- `MISTRAL_API_KEY` (required if using Mistral provider)
 - `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USERNAME`, `SMTP_PASSWORD`
 - `FORCE_SSL` (production, default true)
 
@@ -116,9 +125,8 @@ AI moderation is driven by background jobs and configurable moderation settings.
 
 - New post moderation job: `ModeratePostJob`
 - Provider integration: `AiModeration::Client`
-- Default local provider flow: Ollama via OpenAI-compatible endpoint (`/v1`)
-
-If Ollama is used, ensure the configured model exists. In Docker Compose, the Ollama service is included and reachable via `http://ollama:11434/v1`.
+- Supported providers: Mistral, OpenAI, Gemini, Claude (via RubyLLM)
+- Configuration: Set `AI_MODERATION_PROVIDER`, `AI_MODERATION_MODEL`, and provider-specific API keys
 
 ## Search
 

@@ -401,7 +401,6 @@ vi:
         new_post_instruction: "Hướng dẫn cho bài viết mới"
         revision_instruction: "Hướng dẫn cho bản chỉnh sửa"
       providers:
-        ollama: "Ollama"
         openai: "OpenAI"
         gemini: "Gemini"
         claude: "Claude"
@@ -501,6 +500,10 @@ vi:
         ai_provider: "Nhà cung cấp"
         ai_model: "Mô hình"
         ai_reviewed_at: "Thời điểm duyệt"
+        rerun_ai_review: "Chạy lại duyệt AI"
+      flash:
+        rerun_enqueued: "Đã đưa yêu cầu chạy lại duyệt AI vào hàng đợi."
+        rerun_not_allowed: "Chỉ có thể chạy lại duyệt AI cho bài viết đã xuất bản đang ở trạng thái chờ hoặc thất bại."
 
   activerecord:
     attributes:

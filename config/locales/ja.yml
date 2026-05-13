@@ -401,7 +401,6 @@ ja:
         new_post_instruction: "新規投稿向け指示"
         revision_instruction: "修正向け指示"
       providers:
-        ollama: "Ollama"
         openai: "OpenAI"
         gemini: "Gemini"
         claude: "Claude"
@@ -501,6 +500,10 @@ ja:
         ai_provider: "プロバイダー"
         ai_model: "モデル"
         ai_reviewed_at: "判定時刻"
+        rerun_ai_review: "AIレビューを再実行"
+      flash:
+        rerun_enqueued: "AIレビューの再実行をキューに追加しました。"
+        rerun_not_allowed: "AIレビューを再実行できるのは、公開済みで保留または失敗状態の投稿のみです。"
 
   activerecord:
     attributes:

@@ -1,9 +1,9 @@
 class ModerationSetting < ApplicationRecord
   PROVIDERS = {
-    ollama: "ollama",
     openai: "openai",
     gemini: "gemini",
-    claude: "claude"
+    claude: "claude",
+    mistral: "mistral"
   }.freeze
 
   DEFAULT_NEW_POST_INSTRUCTION = <<~TEXT.squish.freeze
@@ -17,7 +17,6 @@ class ModerationSetting < ApplicationRecord
   TEXT
 
   before_save :track_model_change
-  after_commit :pull_new_model, if: :model_changed_and_saved?
 
   encrypts :api_key
 
@@ -33,12 +32,13 @@ class ModerationSetting < ApplicationRecord
 
   def self.current
     first_or_create!(
-      provider: "ollama",
-      ai_model: "gemma4:latest",
+      provider: "mistral",
+      ai_model: "mistral-small-latest",
       auto_approve_threshold: 0.9,
       request_timeout_seconds: 30,
       max_retries: 3,
       auto_review_enabled: true,
+      api_key: "default",
       new_post_instruction: DEFAULT_NEW_POST_INSTRUCTION,
       revision_instruction: DEFAULT_REVISION_INSTRUCTION
     )
@@ -51,16 +51,7 @@ class ModerationSetting < ApplicationRecord
     @new_model = ai_model
   end
 
-  def model_changed_and_saved?
-    @old_model.present? && @old_model != @new_model && @new_model.present? && provider == PROVIDERS[:ollama]
-  end
-
-  def pull_new_model
-    PullOllamaModelJob.perform_later(@new_model)
-    Rails.logger.info("Queued model pull for: #{@new_model}")
-  end
-
   def provider_requires_api_key?
-    provider.present? && provider != PROVIDERS[:ollama]
+    provider.present?
   end
 end

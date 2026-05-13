@@ -48,7 +48,9 @@ module AiModeration
       return unless defined?(RubyLLM) && RubyLLM.respond_to?(:configure)
 
       RubyLLM.configure do |llm_config|
-        llm_config.ollama_api_base = @config.fetch(:ollama_api_base)
+        if llm_config.respond_to?(:request_timeout=)
+          llm_config.request_timeout = @config.fetch(:request_timeout_seconds).to_i
+        end
 
         provider = @config.fetch(:provider)
         api_key = @config[:api_key]
@@ -65,6 +67,8 @@ module AiModeration
           end
         when ModerationSetting::PROVIDERS[:claude]
           llm_config.anthropic_api_key = api_key if llm_config.respond_to?(:anthropic_api_key=)
+        when ModerationSetting::PROVIDERS[:mistral]
+          llm_config.mistral_api_key = api_key if llm_config.respond_to?(:mistral_api_key=)
         end
       end
     end
@@ -74,7 +78,6 @@ module AiModeration
       supported = ModerationSetting::PROVIDERS.values
       raise ArgumentError, "Unsupported AI provider: #{provider}" unless supported.include?(provider)
 
-      return if provider == ModerationSetting::PROVIDERS[:ollama]
       raise ArgumentError, "API key is missing for provider: #{provider}" if @config[:api_key].blank?
     end
 

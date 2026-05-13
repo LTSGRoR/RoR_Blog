@@ -15,12 +15,13 @@ class Admin::ModerationSettingsControllerTest < ActionDispatch::IntegrationTest
 
     patch admin_moderation_setting_path(locale: :en), params: {
       moderation_setting: {
-        provider: "ollama",
-        ai_model: "gemma4:latest",
+        provider: "mistral",
+        ai_model: "mistral-small-latest",
         auto_approve_threshold: 0.85,
         request_timeout_seconds: 20,
         max_retries: 3,
         auto_review_enabled: true,
+        api_key: "test-mistral-key",
         new_post_instruction: "Check new post",
         revision_instruction: "Check revision"
       }
@@ -33,7 +34,7 @@ class Admin::ModerationSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Check new post", setting.new_post_instruction
   end
 
-  test "admin can switch to non-ollama provider with api key" do
+  test "admin can switch to different ai provider with api key" do
     admin = User.create!(
       name: "Admin",
       email: "admin-#{SecureRandom.hex(4)}@example.com",
@@ -66,7 +67,7 @@ class Admin::ModerationSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "sk-test-openai", setting.api_key
   end
 
-  test "admin cannot switch to non-ollama provider without api key" do
+  test "admin can switch provider and retain existing api key" do
     admin = User.create!(
       name: "Admin",
       email: "admin-#{SecureRandom.hex(4)}@example.com",
@@ -78,6 +79,11 @@ class Admin::ModerationSettingsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in admin
 
+    # First set up with mistral
+    setting = ModerationSetting.current
+    setting.update!(provider: "mistral", api_key: "existing-mistral-key")
+
+    # Now switch provider while leaving api_key blank (should keep existing key)
     patch admin_moderation_setting_path(locale: :en), params: {
       moderation_setting: {
         provider: "openai",
@@ -92,8 +98,13 @@ class Admin::ModerationSettingsControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :unprocessable_entity
-    assert_match(/api key.*blank/i, response.body)
+    assert_redirected_to edit_admin_moderation_setting_path(locale: :en)
+
+    setting.reload
+    # Provider should be updated
+    assert_equal "openai", setting.provider
+    # API key should remain unchanged (controller deletes blank api_key param)
+    assert_equal "existing-mistral-key", setting.api_key
   end
 
   test "non admin cannot update moderation settings" do

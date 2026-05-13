@@ -31,4 +31,15 @@ end %>
       <% end %>
     </div>
   <% end %>
+
+  <% if post.published? && !post.verified? && (post.ai_review_failed? || post.ai_review_pending?) %>
+    <div class="mt-3">
+      <%= btn_button_to t("admin.posts.index.rerun_ai_review"),
+                        rerun_ai_review_admin_post_path(post, locale: I18n.locale),
+                        variant: :secondary,
+                        method: :post,
+                        form: { class: "inline-block" },
+                        class: "h-8 px-3 text-xs" %>
+    </div>
+  <% end %>
 </td>

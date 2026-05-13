@@ -427,10 +427,10 @@ en:
         new_post_instruction: "Instruction for new posts"
         revision_instruction: "Instruction for revisions"
       providers:
-        ollama: "Ollama"
         openai: "OpenAI"
         gemini: "Gemini"
         claude: "Claude"
+        mistral: "Mistral"
     posts:
       flash:
         approved: "Revision approved and published to live post."
@@ -452,6 +452,7 @@ en:
       index:
         title: "Post Moderation"
         subtitle: "Review author revisions and approve changes to live posts."
+        rerun_ai_review: "Rerun AI review"
         search_placeholder: "Search by post title or author"
         search: "Search"
         empty: "No revisions found for this filter."
@@ -527,6 +528,9 @@ en:
         ai_provider: "Provider"
         ai_model: "Model"
         ai_reviewed_at: "Reviewed"
+      flash:
+        rerun_enqueued: "AI review rerun has been queued."
+        rerun_not_allowed: "AI review can only be rerun for pending or failed published posts."
 
   errors:
     not_authorized: "You are not authorized to perform this action."

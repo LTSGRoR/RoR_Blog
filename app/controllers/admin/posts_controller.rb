@@ -1,5 +1,6 @@
 class Admin::PostsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_post, only: :rerun_ai_review
 
   def index
     authorize Post, :moderation_index?
@@ -80,7 +81,29 @@ class Admin::PostsController < ApplicationController
     @revisions = @revisions.order(updated_at: :desc).page(params[:revisions_page]).per(10)
   end
 
+  def rerun_ai_review
+    authorize Post, :moderation_index?
+
+    unless rerunnable_ai_review?(@post)
+      redirect_back fallback_location: admin_posts_path(locale: I18n.locale), alert: t("admin.posts.flash.rerun_not_allowed")
+      return
+    end
+
+    @post.queue_ai_review!
+    ModeratePostJob.perform_later(@post.id)
+
+    redirect_back fallback_location: admin_posts_path(locale: I18n.locale), notice: t("admin.posts.flash.rerun_enqueued")
+  end
+
   private
+
+  def set_post
+    @post = Post.find(params[:id])
+  end
+
+  def rerunnable_ai_review?(post)
+    post.published? && !post.verified? && (post.ai_review_failed? || post.ai_review_pending?)
+  end
 
   def permitted_scope
     %w[all posts revisions].include?(params[:scope]) ? params[:scope] : "posts"
