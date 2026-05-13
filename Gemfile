@@ -18,7 +18,7 @@ gem "rails-i18n"
 gem "stimulus-rails"
 # Search and pagination
 gem "searchkick"
-gem "elasticsearch", "~> 8.0"
+gem "elasticsearch", "~> 9.4"
 gem "kaminari"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
