@@ -3,7 +3,15 @@
 
 <div class="flex flex-wrap items-center gap-3">
   <% if show_back %>
-    <%= btn_link_to t("posts.actions.back_to_posts"), safe_back_path(posts_path), variant: :ghost %>
+    <% back_fallback = user_signed_in? && current_user == post.user ? mine_posts_path : posts_path %>
+    <% back_path = safe_back_path(
+      back_fallback,
+      blocked_patterns: [
+        %r{/posts/\d+/edit\z},
+        %r{/posts/\d+/revision/(?:new|edit)\z}
+      ]
+    ) %>
+    <%= btn_link_to t("posts.actions.back_to_posts"), back_path, variant: :ghost %>
   <% end %>
 
   <% if show_read_more %>

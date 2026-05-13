@@ -19,6 +19,7 @@ services:
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
+      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-gemma4:latest}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_DOMAIN: ${SMTP_DOMAIN:-localhost}
@@ -27,9 +28,12 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       REDIS_URL: redis://redis:6379/0
     depends_on:
-      - ror_blog_db
-      - redis
-      - elasticsearch
+      ror_blog_db:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
     volumes:
       - .:/rails
 
@@ -50,6 +54,7 @@ services:
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
+      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-gemma4:latest}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_DOMAIN: ${SMTP_DOMAIN:-localhost}
@@ -58,9 +63,12 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       REDIS_URL: redis://redis:6379/0
     depends_on:
-      - ror_blog_db
-      - redis
-      - elasticsearch
+      ror_blog_db:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
     volumes:
       - .:/rails
 

@@ -60,6 +60,7 @@ vi:
     profile_settings: "Cài đặt hồ sơ"
     manage_posts: "Quản lý bài viết"
     manage_users: "Quản lý người dùng"
+    ai_moderation: "Kiểm duyệt AI"
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"
     sign_up: "Đăng ký"
@@ -88,21 +89,37 @@ vi:
         subtitle: "Mọi bài viết của bạn, tách biệt khỏi luồng bài viết công khai."
       columns:
         post: "Bài viết"
-        visibility: "Trạng thái bài viết"
+        visibility: "Trạng thái"
+        feedback: "Phản hồi"
         revision: "Bản chỉnh sửa"
         updated: "Cập nhật"
         actions: "Thao tác"
+      filters:
+        all: "Tất cả"
+        draft: "Bản nháp"
+        awaiting: "Chờ duyệt"
+        published: "Đã xuất bản"
       badges:
         draft: "Bản nháp"
         awaiting_review: "Chờ duyệt"
         published: "Đã xuất bản"
+        rejected: "Bị từ chối"
+      feedback:
+        conversation: "Trao đổi"
+        admin_feedback: "Phản hồi quản trị"
+        author_replied: "Tác giả đã phản hồi"
+        none: "Chưa có phản hồi"
       actions:
+        review: "Xem"
         view: "Xem"
     show:
       by: "bởi"
       reactions: "Cảm xúc"
       comments: "Bình luận"
       join_conversation: "để tham gia cuộc trò chuyện."
+      ai_review:
+        title: "Duyệt AI"
+        waiting: "AI đang duyệt bài viết này. Khung này sẽ tự động cập nhật."
       review_controls:
         title: "Kiểm duyệt"
         verified_description: "Bài viết này đã được xác minh. Thêm lý do bên dưới để gửi lại cho tác giả."
@@ -364,6 +381,29 @@ vi:
       propose_edits: "Đề xuất chỉnh sửa"
 
   admin:
+    moderation_settings:
+      flash:
+        updated: "Đã cập nhật cài đặt kiểm duyệt AI."
+      edit:
+        title: "Cài đặt kiểm duyệt AI"
+        subtitle: "Cấu hình RubyLLM, prompt kiểm duyệt và ngưỡng an toàn."
+        save: "Lưu cài đặt"
+      fields:
+        provider: "Nhà cung cấp"
+        api_key: "Khóa API"
+        api_key_placeholder: "Để trống để giữ khóa hiện tại"
+        api_key_help: "Được lưu ở dạng mã hóa. Để trống để giữ khóa hiện có."
+        ai_model: "Mô hình"
+        auto_approve_threshold: "Ngưỡng tự duyệt"
+        request_timeout_seconds: "Thời gian chờ (giây)"
+        max_retries: "Số lần thử lại"
+        auto_review_enabled: "Bật tự động kiểm duyệt bằng AI"
+        new_post_instruction: "Hướng dẫn cho bài viết mới"
+        revision_instruction: "Hướng dẫn cho bản chỉnh sửa"
+      providers:
+        openai: "OpenAI"
+        gemini: "Gemini"
+        claude: "Claude"
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
@@ -416,6 +456,7 @@ vi:
             post: "Bài viết"
             author: "Tác giả"
             status: "Trạng thái"
+            ai_review: "Duyệt AI"
             submitted: "Ngày gửi"
             feedback: "Phản hồi"
             actions: "Hành động"
@@ -427,6 +468,14 @@ vi:
           posts: "Bài viết"
           revisions: "Bản chỉnh sửa"
         filters:
+          all_posts: "Tất cả bài viết"
+          awaiting_review: "Chờ duyệt"
+          rejected: "Bị từ chối"
+          ai_needs_admin_review: "AI: Cần quản trị duyệt"
+          ai_auto_approved: "AI: Tự duyệt"
+          ai_failed: "AI: Thất bại"
+          ai_in_progress: "AI: Đang xử lý"
+          ai_pending: "AI: Đang chờ"
           pending: "Chờ duyệt"
           open: "Bản nháp"
           reviewed: "Đã xử lý"
@@ -434,8 +483,27 @@ vi:
           post: "Bài viết"
           author: "Tác giả"
           status: "Trạng thái"
+          ai_review: "Duyệt AI"
           submitted: "Thời điểm gửi"
           actions: "Hành động"
+        ai_statuses:
+          pending: "Đang chờ"
+          in_progress: "Đang xử lý"
+          auto_approved: "Tự duyệt"
+          needs_admin_review: "Cần quản trị viên duyệt"
+          failed: "Thất bại"
+        ai_assessment: "Đánh giá AI"
+        ai_reason: "Lý do AI"
+        ai_reason_not_available: "Mô hình không trả về lý do cho quyết định này."
+        ai_confidence: "Độ tin cậy %{value}"
+        ai_risk: "Rủi ro %{value}"
+        ai_provider: "Nhà cung cấp"
+        ai_model: "Mô hình"
+        ai_reviewed_at: "Thời điểm duyệt"
+        rerun_ai_review: "Chạy lại duyệt AI"
+      flash:
+        rerun_enqueued: "Đã đưa yêu cầu chạy lại duyệt AI vào hàng đợi."
+        rerun_not_allowed: "Chỉ có thể chạy lại duyệt AI cho bài viết đã xuất bản, chưa được xác minh và ở trạng thái thất bại."
 
   activerecord:
     attributes:

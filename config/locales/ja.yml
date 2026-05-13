@@ -60,6 +60,7 @@ ja:
     profile_settings: "プロフィール設定"
     manage_posts: "投稿管理"
     manage_users: "ユーザー管理"
+    ai_moderation: "AIモデレーション"
     sign_out: "サインアウト"
     sign_in: "サインイン"
     sign_up: "新規登録"
@@ -88,21 +89,37 @@ ja:
         subtitle: "公開フィードとは分けて、自分の投稿だけを管理できます。"
       columns:
         post: "投稿"
-        visibility: "投稿状態"
+        visibility: "状態"
+        feedback: "フィードバック"
         revision: "修正"
         updated: "更新日時"
         actions: "操作"
+      filters:
+        all: "すべて"
+        draft: "下書き"
+        awaiting: "レビュー待ち"
+        published: "公開済み"
       badges:
         draft: "下書き"
         awaiting_review: "レビュー待ち"
         published: "公開済み"
+        rejected: "差し戻し"
+      feedback:
+        conversation: "やり取り"
+        admin_feedback: "管理者フィードバック"
+        author_replied: "著者が返信済み"
+        none: "フィードバックはまだありません"
       actions:
+        review: "確認"
         view: "表示"
     show:
       by: "投稿者"
       reactions: "リアクション"
       comments: "コメント"
       join_conversation: "して会話に参加しましょう。"
+      ai_review:
+        title: "AIレビュー"
+        waiting: "AIがこの投稿をレビュー中です。このパネルは自動で更新されます。"
       review_controls:
         title: "レビュー管理"
         verified_description: "この投稿は現在確認済みです。差し戻す場合は、下に理由を入力してください。"
@@ -364,6 +381,29 @@ ja:
       propose_edits: "編集を提案する"
 
   admin:
+    moderation_settings:
+      flash:
+        updated: "AIモデレーション設定を更新しました。"
+      edit:
+        title: "AIモデレーション設定"
+        subtitle: "RubyLLM の既定設定、プロンプト、安全しきい値を管理します。"
+        save: "設定を保存"
+      fields:
+        provider: "プロバイダー"
+        api_key: "APIキー"
+        api_key_placeholder: "空欄のまま保存すると現在のキーを保持します"
+        api_key_help: "暗号化して保存されます。空欄のまま保存すると既存のキーを保持します。"
+        ai_model: "モデル"
+        auto_approve_threshold: "自動承認しきい値"
+        request_timeout_seconds: "タイムアウト（秒）"
+        max_retries: "再試行回数"
+        auto_review_enabled: "AI自動レビューを有効化"
+        new_post_instruction: "新規投稿向け指示"
+        revision_instruction: "修正向け指示"
+      providers:
+        openai: "OpenAI"
+        gemini: "Gemini"
+        claude: "Claude"
     posts:
       flash:
         approved: "修正が承認され、公開投稿に反映されました。"
@@ -416,6 +456,7 @@ ja:
             post: "投稿"
             author: "著者"
             status: "状態"
+            ai_review: "AIレビュー"
             submitted: "投稿日"
             feedback: "フィードバック"
             actions: "操作"
@@ -427,6 +468,14 @@ ja:
           posts: "投稿"
           revisions: "修正"
         filters:
+          all_posts: "すべての投稿"
+          awaiting_review: "レビュー待ち"
+          rejected: "差し戻し"
+          ai_needs_admin_review: "AI: 管理者レビュー必要"
+          ai_auto_approved: "AI: 自動承認"
+          ai_failed: "AI: 失敗"
+          ai_in_progress: "AI: 処理中"
+          ai_pending: "AI: 保留"
           pending: "レビュー待ち"
           open: "ドラフト"
           reviewed: "レビュー済み"
@@ -434,8 +483,27 @@ ja:
           post: "投稿"
           author: "著者"
           status: "状態"
+          ai_review: "AIレビュー"
           submitted: "提出日時"
           actions: "操作"
+        ai_statuses:
+          pending: "保留"
+          in_progress: "処理中"
+          auto_approved: "自動承認"
+          needs_admin_review: "管理者レビューが必要"
+          failed: "失敗"
+        ai_assessment: "AI判定"
+        ai_reason: "AI理由"
+        ai_reason_not_available: "この判定に対する理由はモデルから返されませんでした。"
+        ai_confidence: "信頼度 %{value}"
+        ai_risk: "リスク %{value}"
+        ai_provider: "プロバイダー"
+        ai_model: "モデル"
+        ai_reviewed_at: "判定時刻"
+        rerun_ai_review: "AIレビューを再実行"
+      flash:
+        rerun_enqueued: "AIレビューの再実行をキューに追加しました。"
+        rerun_not_allowed: "AIレビューを再実行できるのは、公開済み・未承認・失敗状態の投稿のみです。"
 
   activerecord:
     attributes:

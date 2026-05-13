@@ -1,6 +1,8 @@
 class Post < ApplicationRecord
   searchkick word_middle: [ :title, :tags ], callbacks: :async
 
+  after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
+
   belongs_to :user
   belongs_to :reviewed_by, class_name: "User", optional: true
   has_many :post_revisions, dependent: :destroy
@@ -9,6 +11,13 @@ class Post < ApplicationRecord
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
   enum :status, { draft: 0, published: 1 }
+  enum :ai_review_status, {
+    pending: 0,
+    in_progress: 1,
+    auto_approved: 2,
+    needs_admin_review: 3,
+    failed: 4
+  }, prefix: :ai_review
   validates :title, presence: true
   validate :moderation_feedback_consistency
   has_rich_text :body
@@ -103,7 +112,114 @@ class Post < ApplicationRecord
     tags.pluck(:name).join(", ")
   end
 
+  def queue_ai_review!
+    update!(
+      ai_review_status: :pending,
+      ai_attempts_count: 0,
+      ai_last_error: nil,
+      ai_decision_payload: {},
+      ai_confidence: nil,
+      ai_risk_score: nil,
+      ai_provider: nil,
+      ai_model_name: nil,
+      ai_reviewed_at: nil
+    )
+  end
+
+  def mark_ai_in_progress!
+    update!(
+      ai_review_status: :in_progress,
+      ai_attempts_count: ai_attempts_count + 1,
+      ai_last_error: nil
+    )
+  end
+
+  def record_ai_decision!(decision:, config:)
+    update!(
+      ai_confidence: decision.confidence,
+      ai_risk_score: decision.risk_score,
+      ai_provider: config.fetch(:provider),
+      ai_model_name: config.fetch(:model_name),
+      ai_decision_payload: decision.payload,
+      ai_reviewed_at: Time.current
+    )
+  end
+
+  def mark_ai_auto_approved!
+    update!(ai_review_status: :auto_approved, ai_last_error: nil)
+  end
+
+  def mark_ai_needs_admin_review!(reason:)
+    update!(ai_review_status: :needs_admin_review, ai_last_error: reason.to_s.presence)
+  end
+
+  def mark_ai_failed!(reason:)
+    update!(ai_review_status: :failed, ai_last_error: reason.to_s)
+  end
+
   private
+
+  def ai_review_realtime_update?
+    saved_change_to_ai_review_status? ||
+      saved_change_to_ai_last_error? ||
+      saved_change_to_ai_confidence? ||
+      saved_change_to_ai_risk_score? ||
+      saved_change_to_ai_reviewed_at? ||
+      saved_change_to_ai_model_name? ||
+      saved_change_to_ai_provider? ||
+      saved_change_to_verified?
+  end
+
+  def broadcast_ai_review_updates
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      self,
+      target: ActionView::RecordIdentifier.dom_id(self, :ai_review_panel),
+      partial: "posts/ai_review_panel",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "posts_mine_user_#{user_id}",
+      target: ActionView::RecordIdentifier.dom_id(self, :mine_visibility),
+      partial: "posts/mine_visibility_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "posts_mine_user_#{user_id}",
+      target: ActionView::RecordIdentifier.dom_id(self, :mine_updated),
+      partial: "posts/mine_updated_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_status),
+      partial: "admin/posts/post_status_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_ai_review),
+      partial: "admin/posts/post_ai_review_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_submitted),
+      partial: "admin/posts/post_submitted_cell",
+      locals: { post: self }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_later_to(
+      "admin_posts",
+      target: ActionView::RecordIdentifier.dom_id(self, :admin_ai_assessment),
+      partial: "admin/posts/post_ai_assessment_section",
+      locals: { post: self }
+    )
+  end
 
   def moderation_feedback_consistency
     if published? && reviewed_at.present? && !verified? && unverify_reason.blank?

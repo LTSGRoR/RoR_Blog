@@ -44,7 +44,12 @@ Rails.application.routes.draw do
     end
 
     namespace :admin do
-      resources :posts, only: [ :index ]
+      resources :posts, only: [ :index ] do
+        member do
+          post :rerun_ai_review
+        end
+      end
+      resource :moderation_setting, only: [ :edit, :update ]
       resources :post_revisions, only: [ :show, :destroy ] do
         member do
           post :approve

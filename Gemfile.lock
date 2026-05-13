@@ -134,12 +134,17 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    event_stream_parser (1.0.0)
     faraday (2.14.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
+    faraday-multipart (1.2.0)
+      multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
+    faraday-retry (2.4.0)
+      faraday (~> 2.0)
     ffi (1.17.3-aarch64-linux-gnu)
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
@@ -219,11 +224,10 @@ GEM
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
-    minitest (6.0.2)
-      drb (~> 2.0)
-      prism (~> 1.5)
+    minitest (5.27.0)
     msgpack (1.8.0)
     multi_json (1.19.1)
+    multipart-post (2.4.1)
     net-http (0.9.1)
       uri (>= 0.11.1)
     net-imap (0.6.3)
@@ -386,6 +390,17 @@ GEM
     ruby-vips (2.3.0)
       ffi (~> 1.12)
       logger
+    ruby_llm (1.15.0)
+      base64
+      event_stream_parser (~> 1)
+      faraday (>= 1.10.0)
+      faraday-multipart (>= 1)
+      faraday-net_http (>= 1)
+      faraday-retry (>= 1)
+      marcel (~> 1)
+      ruby_llm-schema (~> 0)
+      zeitwerk (~> 2)
+    ruby_llm-schema (0.3.0)
     rubyzip (3.2.2)
     searchkick (6.1.0)
       activemodel (>= 7.2)
@@ -502,6 +517,7 @@ DEPENDENCIES
   kamal
   kaminari
   letter_opener
+  minitest (~> 5.0)
   pg
   propshaft
   pry-byebug
@@ -512,6 +528,7 @@ DEPENDENCIES
   rails-i18n
   redis
   rubocop-rails-omakase
+  ruby_llm
   searchkick
   selenium-webdriver
   sidekiq
