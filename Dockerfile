@@ -14,13 +14,14 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 ARG RUBY_VERSION=3.3.9
 ARG APP_ENV=production
 ARG BUNDLE_WITHOUT=development
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Rails app lives here
 WORKDIR /rails
 
 # Install base packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
+RUN apt-get -o Acquire::Retries=5 update -qq && \
+    apt-get -o Acquire::Retries=5 install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
@@ -33,8 +34,8 @@ ENV RAILS_ENV="${APP_ENV}" \
 FROM base AS build
 
 # Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
+RUN apt-get -o Acquire::Retries=5 update -qq && \
+    apt-get -o Acquire::Retries=5 install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

@@ -1,0 +1,23 @@
+<% ordered_replies = comment.replies.order(created_at: :asc) %>
+<%= turbo_frame_tag dom_id(comment, :replies) do %>
+  <% if ordered_replies.any? %>
+    <% if current_depth < visible_depth_limit %>
+      <%= render "comments/replies",
+            replies: ordered_replies,
+            current_depth: current_depth + 1,
+            visible_depth_limit: visible_depth_limit %>
+    <% else %>
+      <div class="mt-4 pl-8 border-l-2 border-slate-100">
+        <%= link_to "Load more replies (#{ordered_replies.size})",
+              replies_post_comment_path(
+                comment.post,
+                comment,
+                depth: current_depth,
+                visible_depth_limit: [ visible_depth_limit + 2, Comment::MAX_VISIBLE_REPLY_DEPTH ].min
+              ),
+              data: { turbo_frame: dom_id(comment, :replies) },
+              class: "text-xs font-medium text-indigo-600 hover:text-indigo-500" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

@@ -44,7 +44,15 @@ class PostsController < ApplicationController
   end
 
   def show
-    @comments = @post.comments.includes(:user).order(created_at: :asc).page(params[:page]).per(10)
+    requested_visible_count = params[:comments_visible].to_i
+    @comments_visible = requested_visible_count.positive? ? requested_visible_count : 5
+    @comments_increment = 10
+
+    root_comments_scope = @post.comments.root.includes(:user, replies: :user).order(created_at: :asc)
+    @root_comments_count = root_comments_scope.count
+    @has_more_comments = @root_comments_count > @comments_visible
+    @comments = root_comments_scope.limit(@comments_visible)
+
     @comment = Comment.new
     @active_revision = if current_user == @post.user
       @post.active_revision

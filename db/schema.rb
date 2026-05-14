@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_12_103000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_14_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_12_103000) do
     t.text "body", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "parent_id"
+    t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -155,9 +157,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_12_103000) do
     t.bigint "user_id", null: false
     t.string "reactable_type", null: false
     t.bigint "reactable_id", null: false
-    t.string "emoji_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "emoji_type", null: false
     t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
     t.index ["user_id", "reactable_type", "reactable_id"], name: "index_reactions_unique_per_user_target", unique: true
     t.index ["user_id"], name: "index_reactions_on_user_id"
@@ -205,6 +207,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_12_103000) do
     t.index ["suspended_time_zone"], name: "index_users_on_suspended_time_zone"
   end
 
+  add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "post_revision_taggings", "post_revisions"
