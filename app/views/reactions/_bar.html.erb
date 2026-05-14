@@ -5,16 +5,17 @@
   <% render_reaction_buttons = warden_available ? signed_in_viewer : true %>
   <% viewer_id = signed_in_viewer ? current_user.id : nil %>
   <div class="<%= compact ? 'mt-3' : 'mt-8' %> flex flex-wrap items-center gap-2">
-    <% Reaction::EMOJI_TYPES.each do |emoji| %>
-      <% total = reactable.reactions.where(emoji_type: emoji).count %>
-      <% reacted = viewer_id.present? && reactable.reactions.exists?(user_id: viewer_id, emoji_type: emoji) %>
+    <% Reaction.emoji_types.each_key do |key| %>
+      <% emoji = Reaction::EMOJI_MAP[key] %>
+      <% total = reactable.reactions.where(emoji_type: key).count %>
+      <% reacted = viewer_id.present? && reactable.reactions.exists?(user_id: viewer_id, emoji_type: key) %>
 
       <% if render_reaction_buttons %>
         <%= button_to reactions_path,
                       params: {
                         reactable_type: reactable.class.name,
                         reactable_id: reactable.id,
-                        reaction: { emoji_type: emoji }
+                        reaction: { emoji_type: key }
                       },
                       method: :post,
                       form: { class: "inline-block" },

@@ -30,7 +30,11 @@ Rails.application.routes.draw do
         get :mine
       end
 
-      resources :comments, only: [ :create ]
+      resources :comments, only: [ :create ] do
+        member do
+          get :reply
+        end
+      end
       resource :revision, controller: :post_revisions, only: [ :new, :create, :edit, :update ] do
         post :submit
         post :withdraw

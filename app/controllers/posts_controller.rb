@@ -44,7 +44,7 @@ class PostsController < ApplicationController
   end
 
   def show
-    @comments = @post.comments.includes(:user).order(created_at: :asc).page(params[:page]).per(10)
+    @comments = @post.comments.root.includes(:user, replies: :user).order(created_at: :asc).page(params[:page]).per(10)
     @comment = Comment.new
     @active_revision = if current_user == @post.user
       @post.active_revision

@@ -3,43 +3,87 @@ class CommentsController < ApplicationController
   before_action :set_post
   before_action :ensure_interactions_enabled!
 
+  def reply
+    parent_comment = @post.comments.find(params[:id])
+    open = params[:cancel].blank?
+    render partial: "comments/reply_form",
+           locals: { post: @post, parent_comment: parent_comment, comment: Comment.new, open: open }
+  end
+
   def create
     @comment = @post.comments.build(comment_params)
     @comment.user = current_user
 
     if @comment.save
-      @comment.broadcast_append_later_to(
-        @post,
-        target: helpers.dom_id(@post, :comments),
-        partial: "comments/comment",
-        locals: { comment: @comment }
-      )
+      if @comment.parent_id?
+        parent_comment = @comment.parent
+        @comment.broadcast_append_later_to(
+          @post,
+          target: helpers.dom_id(parent_comment, :replies),
+          partial: "comments/comment",
+          locals: { comment: @comment }
+        )
 
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.append(
-              helpers.dom_id(@post, :comments),
-              partial: "comments/comment",
-              locals: { comment: @comment }
-            ),
-            turbo_stream.replace(
-              "new_comment",
-              partial: "comments/form",
-              locals: { post: @post, comment: Comment.new }
-            )
-          ]
+        respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: [
+              turbo_stream.append(
+                helpers.dom_id(parent_comment, :replies),
+                partial: "comments/comment",
+                locals: { comment: @comment }
+              ),
+              turbo_stream.replace(
+                helpers.dom_id(parent_comment, :reply_form),
+                partial: "comments/reply_form",
+                locals: { post: @post, parent_comment: parent_comment, comment: Comment.new, open: false }
+              )
+            ]
+          end
+          format.html { redirect_to @post, notice: "Reply posted." }
         end
-        format.html { redirect_to @post, notice: "Comment posted." }
+      else
+        @comment.broadcast_append_later_to(
+          @post,
+          target: helpers.dom_id(@post, :comments),
+          partial: "comments/comment",
+          locals: { comment: @comment }
+        )
+
+        respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: [
+              turbo_stream.append(
+                helpers.dom_id(@post, :comments),
+                partial: "comments/comment",
+                locals: { comment: @comment }
+              ),
+              turbo_stream.replace(
+                "new_comment",
+                partial: "comments/form",
+                locals: { post: @post, comment: Comment.new }
+              )
+            ]
+          end
+          format.html { redirect_to @post, notice: "Comment posted." }
+        end
       end
     else
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "new_comment",
-            partial: "comments/form",
-            locals: { post: @post, comment: @comment }
-          ), status: :unprocessable_entity
+          if @comment.parent_id?
+            parent_comment = Comment.find(@comment.parent_id)
+            render turbo_stream: turbo_stream.replace(
+              helpers.dom_id(parent_comment, :reply_form),
+              partial: "comments/reply_form",
+              locals: { post: @post, parent_comment: parent_comment, comment: @comment, open: true }
+            ), status: :unprocessable_entity
+          else
+            render turbo_stream: turbo_stream.replace(
+              "new_comment",
+              partial: "comments/form",
+              locals: { post: @post, comment: @comment }
+            ), status: :unprocessable_entity
+          end
         end
         format.html do
           redirect_to @post, alert: @comment.errors.full_messages.to_sentence
@@ -59,7 +103,7 @@ class CommentsController < ApplicationController
   end
 
   def comment_params
-    params.require(:comment).permit(:body)
+    params.require(:comment).permit(:body, :parent_id)
   end
 
   def ensure_interactions_enabled!

@@ -18,4 +18,18 @@
   <div class="pl-11">
     <%= render "reactions/bar", reactable: comment, compact: true %>
   </div>
+
+  <% unless comment.parent_id? %>
+    <div class="pl-11 mt-2">
+      <%= render "comments/reply_form", post: comment.post, parent_comment: comment, comment: Comment.new, open: false %>
+    </div>
+
+    <% if comment.replies.any? %>
+      <div id="<%= dom_id(comment, :replies) %>" class="mt-4 pl-8 space-y-3 border-l-2 border-slate-100">
+        <%= render comment.replies.order(created_at: :asc) %>
+      </div>
+    <% else %>
+      <div id="<%= dom_id(comment, :replies) %>" class="mt-4 pl-8 space-y-3 border-l-2 border-slate-100"></div>
+    <% end %>
+  <% end %>
 </article>
