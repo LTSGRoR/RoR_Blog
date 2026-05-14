@@ -31,13 +31,13 @@ class PostsController < ApplicationController
 
     @posts = case @filter
     when "draft"
-               base_posts.where(status: Post.statuses[:draft])
+      base_posts.where(status: Post.statuses[:draft])
     when "awaiting"
-               base_posts.where(status: Post.statuses[:published], verified: false)
+      base_posts.where(status: Post.statuses[:published], verified: false)
     when "published"
-               base_posts.where(status: Post.statuses[:published], verified: true)
+      base_posts.where(status: Post.statuses[:published], verified: true)
     else
-        base_posts
+      base_posts
     end
 
     @posts = @posts.page(params[:page]).per(10)
