@@ -1,6 +1,8 @@
 <%# locals: (post:, parent_comment:, comment:, open: false) %>
 <%= turbo_frame_tag dom_id(parent_comment, :reply_form) do %>
-  <% if open %>
+  <% can_reply = parent_comment.depth < Comment::MAX_REPLY_DEPTH %>
+
+  <% if open && can_reply %>
     <%= form_with model: [post, comment], class: "mt-2 space-y-2" do |f| %>
       <%= f.hidden_field :parent_id, value: parent_comment.id %>
 
@@ -24,7 +26,7 @@
       </div>
     <% end %>
   <% else %>
-    <% if user_signed_in? %>
+    <% if user_signed_in? && can_reply %>
       <%= link_to "Reply",
             reply_post_comment_path(post, parent_comment),
             data: { turbo_frame: dom_id(parent_comment, :reply_form) },

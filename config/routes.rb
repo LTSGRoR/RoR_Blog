@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       resources :comments, only: [ :create ] do
         member do
           get :reply
+          get :replies
         end
       end
       resource :revision, controller: :post_revisions, only: [ :new, :create, :edit, :update ] do

@@ -5,9 +5,28 @@ class CommentsController < ApplicationController
 
   def reply
     parent_comment = @post.comments.find(params[:id])
-    open = params[:cancel].blank?
+    open = params[:cancel].blank? && parent_comment.depth < Comment::MAX_REPLY_DEPTH
     render partial: "comments/reply_form",
            locals: { post: @post, parent_comment: parent_comment, comment: Comment.new, open: open }
+  end
+
+  def replies
+    parent_comment = @post.comments.find(params[:id])
+    current_depth = [ params[:depth].to_i, 0 ].max
+    requested_limit = params[:visible_depth_limit].to_i
+    visible_depth_limit = if requested_limit.positive?
+      [ requested_limit, Comment::MAX_VISIBLE_REPLY_DEPTH ].min
+    else
+      Comment::DEFAULT_VISIBLE_REPLY_DEPTH
+    end
+    visible_depth_limit = [ visible_depth_limit, current_depth ].max
+
+    render partial: "comments/replies_frame",
+           locals: {
+             comment: parent_comment,
+             current_depth: current_depth,
+             visible_depth_limit: visible_depth_limit
+           }
   end
 
   def create
@@ -17,20 +36,28 @@ class CommentsController < ApplicationController
     if @comment.save
       if @comment.parent_id?
         parent_comment = @comment.parent
-        @comment.broadcast_append_later_to(
+        @comment.broadcast_replace_later_to(
           @post,
           target: helpers.dom_id(parent_comment, :replies),
-          partial: "comments/comment",
-          locals: { comment: @comment }
+          partial: "comments/replies_frame",
+          locals: {
+            comment: parent_comment,
+            current_depth: parent_comment.depth,
+            visible_depth_limit: Comment::DEFAULT_VISIBLE_REPLY_DEPTH
+          }
         )
 
         respond_to do |format|
           format.turbo_stream do
             render turbo_stream: [
-              turbo_stream.append(
+              turbo_stream.replace(
                 helpers.dom_id(parent_comment, :replies),
-                partial: "comments/comment",
-                locals: { comment: @comment }
+                partial: "comments/replies_frame",
+                locals: {
+                  comment: parent_comment,
+                  current_depth: parent_comment.depth,
+                  visible_depth_limit: Comment::DEFAULT_VISIBLE_REPLY_DEPTH
+                }
               ),
               turbo_stream.replace(
                 helpers.dom_id(parent_comment, :reply_form),
@@ -46,7 +73,11 @@ class CommentsController < ApplicationController
           @post,
           target: helpers.dom_id(@post, :comments),
           partial: "comments/comment",
-          locals: { comment: @comment }
+          locals: {
+            comment: @comment,
+            current_depth: 0,
+            visible_depth_limit: Comment::DEFAULT_VISIBLE_REPLY_DEPTH
+          }
         )
 
         respond_to do |format|
@@ -55,7 +86,11 @@ class CommentsController < ApplicationController
               turbo_stream.append(
                 helpers.dom_id(@post, :comments),
                 partial: "comments/comment",
-                locals: { comment: @comment }
+                locals: {
+                  comment: @comment,
+                  current_depth: 0,
+                  visible_depth_limit: Comment::DEFAULT_VISIBLE_REPLY_DEPTH
+                }
               ),
               turbo_stream.replace(
                 "new_comment",

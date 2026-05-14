@@ -1,0 +1,9 @@
+<div class="mt-4 pl-8 space-y-3 border-l-2 border-slate-100">
+  <%= render partial: "comments/comment",
+             collection: replies,
+             as: :comment,
+             locals: {
+               current_depth: current_depth,
+               visible_depth_limit: visible_depth_limit
+             } %>
+</div>

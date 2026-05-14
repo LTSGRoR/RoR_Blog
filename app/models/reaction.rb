@@ -1,17 +1,17 @@
 class Reaction < ApplicationRecord
   EMOJI_MAP = {
-    "thumbs_up"   => "👍",
-    "thumbs_down" => "👎",
-    "heart"       => "❤️",
-    "cry"         => "😢",
-    "laugh"       => "😂",
-    "fire"        => "🔥"
+    "thumbs_up" => "👍",
+    "heart"     => "❤️",
+    "laugh"     => "😂",
+    "wow"       => "😮",
+    "sad"       => "😢",
+    "angry"     => "😠"
   }.freeze
 
   belongs_to :user
   belongs_to :reactable, polymorphic: true
 
-  enum :emoji_type, { thumbs_up: 0, cry: 1, heart: 2, thumbs_down: 3, laugh: 4, fire: 5 }
+  enum :emoji_type, { thumbs_up: 0, heart: 1, laugh: 2, wow: 3, sad: 4, angry: 5 }
 
   validates :emoji_type, presence: true
   validates :user_id, uniqueness: {
