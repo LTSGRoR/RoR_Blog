@@ -45,7 +45,7 @@ services:
         BUNDLE_WITHOUT: ""
     image: ror_blog_sidekiq
     restart: unless-stopped
-    command: bundle exec sidekiq
+    command: bundle exec sidekiq -q default -q searchkick
     environment:
       RAILS_ENV: development
       APP_HOST: ${APP_HOST:-localhost}

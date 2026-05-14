@@ -1,6 +1,7 @@
 class Post < ApplicationRecord
-  searchkick word_middle: [ :title, :tags ], callbacks: :async
-
+  searchkick word_middle: [ :title, :tags ], callbacks: false
+  after_create_commit :enqueue_search_index
+  after_update_commit :enqueue_search_index, if: :search_index_data_changed?
   after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
 
   belongs_to :user
@@ -158,6 +159,17 @@ class Post < ApplicationRecord
   end
 
   private
+
+  def enqueue_search_index
+    PostSearchIndexJob.perform_later(id)
+  end
+
+  def search_index_data_changed?
+    saved_change_to_title? ||
+      saved_change_to_status? ||
+      saved_change_to_verified? ||
+      saved_change_to_user_id?
+  end
 
   def ai_review_realtime_update?
     saved_change_to_ai_review_status? ||

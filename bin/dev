@@ -20,7 +20,7 @@ trap cleanup EXIT INT TERM
 ./bin/rails server "$@" &
 SERVER_PID=$!
 
-bundle exec sidekiq &
+bundle exec sidekiq -q default -q searchkick &
 SIDEKIQ_PID=$!
 
 ./bin/rails tailwindcss:watch &
