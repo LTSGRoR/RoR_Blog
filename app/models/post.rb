@@ -1,7 +1,7 @@
 class Post < ApplicationRecord
   searchkick word_middle: [ :title, :tags ], callbacks: false
   after_create_commit :enqueue_search_index
-  after_update_commit :enqueue_search_index, if: :search_index_data_changed?
+  after_update_commit :enqueue_search_index, if: :search_index_reindex_needed?
   after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
 
   belongs_to :user
@@ -25,6 +25,11 @@ class Post < ApplicationRecord
 
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
+
+  def tag_ids=(value)
+    mark_removed_tags_for_search_index(value)
+    super
+  end
 
   def active_revision
     post_revisions.current_state.order(updated_at: :desc).first
@@ -162,6 +167,11 @@ class Post < ApplicationRecord
 
   def enqueue_search_index
     PostSearchIndexJob.perform_later(id)
+    @removed_tags_for_search_index = false
+  end
+
+  def search_index_reindex_needed?
+    search_index_data_changed? || @removed_tags_for_search_index
   end
 
   def search_index_data_changed?
@@ -169,6 +179,14 @@ class Post < ApplicationRecord
       saved_change_to_status? ||
       saved_change_to_verified? ||
       saved_change_to_user_id?
+  end
+
+  def mark_removed_tags_for_search_index(value)
+    return unless persisted?
+
+    next_tag_ids = Array(value).reject(&:blank?).map(&:to_i).uniq
+    current_tag_ids = taggings.pluck(:tag_id)
+    @removed_tags_for_search_index = (current_tag_ids - next_tag_ids).any?
   end
 
   def ai_review_realtime_update?

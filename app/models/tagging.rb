@@ -9,7 +9,7 @@ class Tagging < ApplicationRecord
   private
 
   def reindex_post_search_document_async
-    post.reindex(mode: :async)
+    PostSearchIndexJob.perform_later(post_id)
   rescue StandardError => e
     Rails.logger.warn("Failed to reindex Post##{post_id} after tagging change: #{e.class} - #{e.message}")
   end
