@@ -1,38 +1,132 @@
 <% content_for :title, t("posts.index.title") %>
 
-<div class="max-w-5xl mx-auto py-8">
-  <div class="mb-6 rounded-xl border border-[#e2e8f0] bg-white px-6 py-6 sm:px-8">
-    <p class="re-page-kicker">Rails Engineering Blog</p>
-    <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mb-8 rounded-2xl border border-[#e2e8f0] bg-white px-6 py-7 sm:px-8">
+    <p class="re-page-kicker"><%= t("posts.index.hero.kicker") %></p>
+    <div class="mt-2">
       <h1 class="re-heading text-4xl font-bold text-slate-900"><%= t("posts.index.title") %></h1>
-      <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
     </div>
-    <p class="mt-3 re-muted text-sm">Deep technical insights on Ruby on Rails, architecture, and performance engineering.</p>
+    <p class="mt-3 re-muted text-sm"><%= t("posts.index.hero.subtitle") %></p>
   </div>
 
-  <div class="mb-2">
-    <%= render 'shared/search_form', search_path: (@search_path || posts_path) %>
-  </div>
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+    <div id="posts-results" class="space-y-8 lg:col-span-8">
+      <% feed_posts = @posts.to_a %>
+      <% featured_post = feed_posts.first %>
 
-  <div id="posts-results" class="space-y-6">
-    <div class="space-y-5">
-      <% @posts.each do |post| %>
-        <%= render "index_post_card", post: post %>
+      <% if featured_post.present? %>
+        <article class="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white transition hover:shadow-lg">
+          <div class="grid gap-0 md:grid-cols-2">
+            <div class="h-56 bg-slate-100 md:h-full">
+              <%= link_to post_path(featured_post), class: "block h-full" do %>
+                <%= image_tag("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80", alt: featured_post.title, class: "h-full w-full object-cover") %>
+              <% end %>
+            </div>
+            <div class="flex flex-col p-6 sm:p-8">
+              <% if featured_post.tags.any? %>
+                <div class="mb-4 flex flex-wrap gap-2">
+                  <% featured_post.tags.first(2).each do |tag| %>
+                    <%= link_to "##{tag.name}", blog_path(q: tag.name), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000]" %>
+                  <% end %>
+                </div>
+              <% end %>
+              <h2 class="re-heading text-3xl font-bold text-slate-900 leading-tight">
+                <%= link_to featured_post.title, post_path(featured_post), class: "transition hover:text-[#9e0000]" %>
+              </h2>
+              <p class="mt-4 text-[17px] leading-7 text-slate-600"><%= post_excerpt(featured_post, length: 220) %></p>
+              <div class="mt-6 border-t border-slate-200 pt-5">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                    <span class="whitespace-nowrap font-semibold text-slate-700"><%= featured_post.user&.name.presence || t("common.unknown") %></span>
+                    <span class="hidden text-slate-300 sm:inline">•</span>
+                    <span class="whitespace-nowrap"><%= l(featured_post.created_at, format: :short) %></span>
+                    <span class="hidden text-slate-300 sm:inline">•</span>
+                    <span class="whitespace-nowrap"><%= t("posts.index.meta.read_time", count: post_read_minutes(featured_post)) %></span>
+                  </div>
+                  <%= btn_link_to t("posts.actions.read_more"), post_path(featured_post), variant: :ghost, class: "self-start" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% end %>
+
+      <% secondary_posts = featured_post.present? ? feed_posts.drop(1) : feed_posts %>
+      <div class="space-y-5">
+        <% secondary_posts.each do |post| %>
+          <%= render "index_post_card", post: post %>
+        <% end %>
+      </div>
+
+      <div class="mt-8">
+        <%= paginate @posts %>
+      </div>
+
+      <% if @posts.respond_to?(:total_count) %>
+        <% result_count = @posts.total_count %>
+      <% else %>
+        <% result_count = @posts.size %>
+      <% end %>
+
+      <% if params[:q].present? && result_count.to_i == 0 %>
+        <div class="mt-4 rounded-md border border-[#e2e8f0] bg-white px-4 py-3 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
       <% end %>
     </div>
 
-    <div class="mt-8">
-      <%= paginate @posts %>
-    </div>
+    <aside class="space-y-6 lg:col-span-4">
+      <section class="rounded-2xl border border-[#9e0000] bg-[#9e0000] p-6 text-white shadow-md">
+        <p class="re-label text-xs uppercase tracking-[0.2em] text-white/80"><%= t("posts.index.sidebar.newsletter.kicker") %></p>
+        <h3 class="mt-2 re-heading text-2xl font-semibold text-white"><%= t("posts.index.sidebar.newsletter.title") %></h3>
+        <p class="mt-3 text-sm leading-6 text-white/90"><%= t("posts.index.sidebar.newsletter.body") %></p>
+        <div class="mt-5">
+          <%= btn_link_to t("posts.index.sidebar.newsletter.cta"), blog_path, variant: :secondary, class: "!border-white !text-[#9e0000]" %>
+        </div>
+      </section>
 
-    <% if @posts.respond_to?(:total_count) %>
-      <% result_count = @posts.total_count %>
-    <% else %>
-      <% result_count = @posts.size %>
-    <% end %>
+      <section class="rounded-2xl border border-[#e2e8f0] bg-white p-6">
+        <h3 class="re-heading text-xl font-semibold text-slate-900"><%= t("posts.index.sidebar.most_read.title") %></h3>
+        <div class="mt-4 space-y-4">
+          <% @most_read_posts.each_with_index do |post, index| %>
+            <%= link_to post_path(post), class: "group flex items-start gap-4" do %>
+              <span class="font-mono text-lg font-semibold text-slate-300"><%= format("%02d", index + 1) %></span>
+              <div>
+                <p class="text-sm font-semibold leading-5 text-slate-800 transition group-hover:text-[#9e0000]"><%= post.title %></p>
+                <p class="mt-1 text-xs uppercase tracking-wide text-slate-500"><%= t("posts.index.meta.comments", count: post.comments.size) %></p>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
 
-    <% if params[:q].present? && result_count.to_i == 0 %>
-      <div class="mt-4 rounded-md border border-[#e2e8f0] bg-white px-4 py-3 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
-    <% end %>
+      <section class="rounded-2xl border border-[#e2e8f0] bg-white p-6">
+        <h3 class="re-heading text-xl font-semibold text-slate-900"><%= t("posts.index.sidebar.trending_topics.title") %></h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <% @trending_tags.each do |tag| %>
+            <%= link_to "##{tag.name}", blog_path(q: tag.name), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000]" %>
+          <% end %>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-[#e2e8f0] bg-slate-50 p-6">
+        <h3 class="re-heading text-xl font-semibold text-slate-900"><%= t("posts.index.sidebar.authors.title") %></h3>
+        <div class="mt-4 flex -space-x-3">
+          <% @top_authors.each do |author| %>
+            <% if author.avatar&.attached? %>
+              <%= image_tag author.avatar.variant(resize_to_fill: [40, 40]), class: "h-10 w-10 rounded-full border-2 border-white object-cover", alt: author.name, width: 40, height: 40, loading: "lazy" %>
+            <% else %>
+              <%= image_tag "default_avatar.svg", class: "h-10 w-10 rounded-full border-2 border-white object-cover", alt: author.name, width: 40, height: 40 %>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="mt-4 text-sm leading-6 text-slate-600"><%= t("posts.index.sidebar.authors.body") %></p>
+        <div class="mt-4 space-y-2">
+          <% @top_authors.first(3).each do |author| %>
+            <%= link_to user_path(author), class: "block text-sm font-medium text-slate-700 transition hover:text-[#9e0000]" do %>
+              <%= author.name.presence || author.email %>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    </aside>
   </div>
 </div>

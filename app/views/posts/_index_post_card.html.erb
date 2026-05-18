@@ -1,5 +1,5 @@
-<article class="group re-card p-6 flex items-start gap-4 transition hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300">
-  <div class="flex-shrink-0">
+<article class="group flex items-start gap-4 rounded-2xl border border-[#e2e8f0] bg-white p-6 transition hover:bg-slate-50 hover:shadow-sm">
+  <div class="hidden flex-shrink-0 sm:block">
     <% if post.user&.avatar&.attached? %>
       <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name, width: 48, height: 48, loading: "lazy" %>
     <% else %>
@@ -7,7 +7,7 @@
     <% end %>
   </div>
   <div class="flex-1 min-w-0">
-    <h2 class="re-heading text-2xl font-semibold text-slate-900 leading-tight">
+    <h2 class="re-heading text-2xl font-semibold leading-tight text-slate-900">
       <%= link_to post.title, post_path(post), class: "transition hover:text-[#9e0000]" %>
     </h2>
     <div class="mt-2 re-label text-xs text-slate-500">
@@ -19,6 +19,7 @@
       <% end %>
       · <%= l(post.created_at, format: :short) %>
     </div>
+    <p class="mt-3 text-sm leading-6 text-slate-600"><%= post_excerpt(post, length: 185) %></p>
     <% if post.tags.any? %>
       <div class="mt-2 flex flex-wrap gap-2">
         <% post.tags.each do |tag| %>
@@ -26,7 +27,11 @@
         <% end %>
       </div>
     <% end %>
-    <div class="mt-4">
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+      <div class="flex items-center gap-4 text-xs uppercase tracking-wide text-slate-500">
+        <span><%= t("posts.index.meta.read_time", count: post_read_minutes(post)) %></span>
+        <span><%= t("posts.index.meta.comments", count: post.comments.size) %></span>
+      </div>
       <%= render "post_actions", post: post, show_read_more: true %>
     </div>
   </div>

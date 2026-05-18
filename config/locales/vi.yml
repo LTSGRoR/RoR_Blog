@@ -1,5 +1,7 @@
 vi:
   app_name: "Blog App"
+  brand:
+    name: "Rails Engineering"
 
   time:
     formats:
@@ -64,6 +66,10 @@ vi:
     sign_out: "Đăng xuất"
     sign_in: "Đăng nhập"
     sign_up: "Đăng ký"
+    services: "Dịch vụ"
+    blog: "Blog"
+    meet_the_team: "Đội ngũ"
+    hire_us: "Thuê chúng tôi"
 
   posts:
     index:
@@ -71,6 +77,27 @@ vi:
       new_post: "Bài viết mới"
       moderation_queue: "Hàng đợi kiểm duyệt"
       no_results: "Không tìm thấy bài viết nào cho \"%{query}\"."
+      hero:
+        kicker: "Blog Kỹ Thuật Rails"
+        subtitle: "Những góc nhìn kỹ thuật chuyên sâu về Ruby on Rails, kiến trúc và hệ thống vận hành thực tế."
+      meta:
+        read_time: "%{count} phút đọc"
+        comments:
+          one: "%{count} bình luận"
+          other: "%{count} bình luận"
+      sidebar:
+        newsletter:
+          kicker: "Bản tin kỹ thuật hằng tuần"
+          title: "Bản tin sắp ra mắt"
+          body: "Chúng tôi đang chuẩn bị bản tin kỹ thuật chọn lọc. Trong lúc chờ đợi, hãy khám phá những bài viết mới nhất từ đội ngũ."
+          cta: "Xem bài mới"
+        most_read:
+          title: "Đọc nhiều nhất"
+        trending_topics:
+          title: "Chủ đề nổi bật"
+        authors:
+          title: "Các tác giả"
+          body: "Góc nhìn từ các kỹ sư của chúng tôi về kiến trúc Rails, vận hành và phát triển sản phẩm."
     mine:
       title: "Quản lý bài viết của bạn"
       subtitle: "Theo dõi bản nháp, phản hồi kiểm duyệt và bài viết đã xuất bản tại một nơi."
@@ -180,6 +207,25 @@ vi:
 
   pwa:
     description: "Blog App."
+
+  pages:
+    team:
+      title: "Đội ngũ"
+      kicker: "Rails Engineering"
+      hero_title: "Những Kiến Trúc Sư Rails Hiện Đại"
+      hero_body: "Chúng tôi là tập thể chuyên gia Ruby on Rails tập trung vào hệ thống tinh gọn, độ tin cậy và khả năng bảo trì lâu dài."
+      featured:
+        label: "Thành viên nổi bật"
+        body: "Xây dựng các giải pháp Rails thực tiễn về kiến trúc, hiệu năng backend và vận hành sản phẩm."
+        latest_writing: "Bài viết mới nhất"
+      published_articles:
+        one: "%{count} bài đã xuất bản"
+        other: "%{count} bài đã xuất bản"
+      published_posts:
+        one: "%{count} bài đã xuất bản"
+        other: "%{count} bài đã xuất bản"
+      recent_posts: "Bài viết gần đây"
+      view_profile: "Xem hồ sơ"
 
   auth:
     email_placeholder: "you@example.com"
@@ -298,6 +344,15 @@ vi:
         title: "Quản lý người dùng"
         subtitle: "Cấm hoặc tạm khóa tài khoản để kiểm duyệt."
         search_placeholder: "Tìm theo tên hoặc email"
+        total: "Tổng người dùng"
+        filters:
+          role:
+            any: "Mọi vai trò"
+            admin: "Quản trị"
+            author: "Tác giả"
+          status:
+            any: "Mọi trạng thái"
+            suspended: "Đang tạm khóa"
         columns:
           name: "Tên"
           email: "Email"
@@ -410,11 +465,19 @@ vi:
         rejected: "Đã từ chối bản chỉnh sửa."
         deleted: "Đã xóa bản chỉnh sửa."
       show:
+        section_kicker: "Duyệt bản chỉnh sửa"
         subtitle: "Đang duyệt nội dung nháp từ %{author}"
         back_to_queue: "Quay lại kiểm duyệt"
         draft_badge: "Xem trước bản nháp"
         live_post_title: "Bài viết đang hiển thị"
         review_actions: "Hành động duyệt"
+        content_preview: "Nội dung bản chỉnh sửa"
+        metadata: "Thông tin"
+        author_label: "Tác giả"
+        submitted_label: "Ngày gửi"
+        updated_label: "Cập nhật"
+        reviewed_label: "Đã duyệt"
+        reviewer_label: "Người duyệt"
         draft_notice: "Bản chỉnh sửa này vẫn là bản nháp. Tác giả phải gửi duyệt trước khi có thể phê duyệt hoặc từ chối."
         review_complete: "Bản chỉnh sửa này đã được xử lý."
       statuses:

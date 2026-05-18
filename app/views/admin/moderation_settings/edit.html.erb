@@ -1,61 +1,84 @@
-<section class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-  <div class="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 shadow-sm sm:p-8">
+<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-sm sm:p-8">
+    <p class="re-page-kicker">AI Moderation</p>
     <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.moderation_settings.edit.title") %></h1>
     <p class="mt-2 max-w-3xl text-sm text-slate-600"><%= t("admin.moderation_settings.edit.subtitle") %></p>
 
     <%= form_with model: @setting, url: admin_moderation_setting_path, method: :patch, class: "mt-6 space-y-6", data: { controller: "provider-settings" } do |f| %>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <%= f.label :provider, t("admin.moderation_settings.fields.provider"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.select :provider,
-                       ModerationSetting::PROVIDERS.values.map { |provider| [t("admin.moderation_settings.providers.#{provider}"), provider] },
-                       {},
-                       class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700",
-                       data: { action: "change->provider-settings#providerChanged", provider_settings_target: "providerSelect" } %>
-        </div>
-        <div data-provider-settings-target="apiKeyWrapper" class="hidden">
-          <%= f.label :api_key, t("admin.moderation_settings.fields.api_key"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.password_field :api_key,
-                               autocomplete: "new-password",
-                               placeholder: t("admin.moderation_settings.fields.api_key_placeholder"),
-                               class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700",
-                               data: { provider_settings_target: "apiKeyInput" } %>
-          <p class="mt-1 text-xs text-slate-500"><%= t("admin.moderation_settings.fields.api_key_help") %></p>
-        </div>
-        <div>
-          <%= f.label :ai_model, t("admin.moderation_settings.fields.ai_model"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.text_field :ai_model, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-        </div>
-        <div>
-          <%= f.label :auto_approve_threshold, t("admin.moderation_settings.fields.auto_approve_threshold"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.number_field :auto_approve_threshold, min: 0, max: 1, step: 0.01, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-        </div>
-        <div>
-          <%= f.label :request_timeout_seconds, t("admin.moderation_settings.fields.request_timeout_seconds"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.number_field :request_timeout_seconds, min: 1, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-        </div>
-        <div>
-          <%= f.label :max_retries, t("admin.moderation_settings.fields.max_retries"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-          <%= f.number_field :max_retries, min: 1, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-        </div>
-        <div class="flex items-center gap-2 pt-7">
-          <%= f.check_box :auto_review_enabled, class: "rounded border-slate-300 text-indigo-600" %>
-          <%= f.label :auto_review_enabled, t("admin.moderation_settings.fields.auto_review_enabled"), class: "text-sm font-semibold text-slate-700" %>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div class="space-y-6 lg:col-span-8">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-700">Provider & Runtime</h2>
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <%= f.label :provider, t("admin.moderation_settings.fields.provider"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.select :provider,
+                             ModerationSetting::PROVIDERS.values.map { |provider| [t("admin.moderation_settings.providers.#{provider}"), provider] },
+                             {},
+                             class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]",
+                             data: { action: "change->provider-settings#providerChanged", provider_settings_target: "providerSelect" } %>
+              </div>
 
-      <div>
-        <%= f.label :new_post_instruction, t("admin.moderation_settings.fields.new_post_instruction"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-        <%= f.text_area :new_post_instruction, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-      </div>
+              <div data-provider-settings-target="apiKeyWrapper" class="hidden">
+                <%= f.label :api_key, t("admin.moderation_settings.fields.api_key"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.password_field :api_key,
+                                     autocomplete: "new-password",
+                                     placeholder: t("admin.moderation_settings.fields.api_key_placeholder"),
+                                     class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]",
+                                     data: { provider_settings_target: "apiKeyInput" } %>
+                <p class="mt-1 text-xs text-slate-500"><%= t("admin.moderation_settings.fields.api_key_help") %></p>
+              </div>
 
-      <div>
-        <%= f.label :revision_instruction, t("admin.moderation_settings.fields.revision_instruction"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
-        <%= f.text_area :revision_instruction, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700" %>
-      </div>
+              <div>
+                <%= f.label :ai_model, t("admin.moderation_settings.fields.ai_model"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.text_field :ai_model, class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+              </div>
 
-      <div class="flex justify-end">
-        <%= f.submit t("admin.moderation_settings.edit.save"), class: "rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+              <div>
+                <%= f.label :auto_approve_threshold, t("admin.moderation_settings.fields.auto_approve_threshold"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.number_field :auto_approve_threshold, min: 0, max: 1, step: 0.01, class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+              </div>
+
+              <div>
+                <%= f.label :request_timeout_seconds, t("admin.moderation_settings.fields.request_timeout_seconds"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.number_field :request_timeout_seconds, min: 1, class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+              </div>
+
+              <div>
+                <%= f.label :max_retries, t("admin.moderation_settings.fields.max_retries"), class: "mb-1 block text-sm font-semibold text-slate-700" %>
+                <%= f.number_field :max_retries, min: 1, class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-white p-5">
+            <%= f.label :new_post_instruction, t("admin.moderation_settings.fields.new_post_instruction"), class: "mb-2 block text-sm font-semibold text-slate-700" %>
+            <%= f.text_area :new_post_instruction, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-white p-5">
+            <%= f.label :revision_instruction, t("admin.moderation_settings.fields.revision_instruction"), class: "mb-2 block text-sm font-semibold text-slate-700" %>
+            <%= f.text_area :revision_instruction, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+          </div>
+        </div>
+
+        <aside class="space-y-4 lg:col-span-4">
+          <div class="rounded-xl border border-[#fecaca] bg-[#fff1f2] p-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-[#9e0000]">Automation</h3>
+            <div class="mt-4 flex items-center gap-2">
+              <%= f.check_box :auto_review_enabled, class: "rounded border-slate-300 text-[#9e0000] focus:ring-[#9e0000]" %>
+              <%= f.label :auto_review_enabled, t("admin.moderation_settings.fields.auto_review_enabled"), class: "text-sm font-semibold text-slate-700" %>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Apply Changes</p>
+            <p class="mt-2 text-sm text-slate-600">Saving updates modifies moderation behavior for new submissions and reviews immediately.</p>
+            <div class="mt-4">
+              <%= f.submit t("admin.moderation_settings.edit.save"), class: "inline-flex w-full items-center justify-center rounded-lg bg-[#9e0000] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#820000]" %>
+            </div>
+          </div>
+        </aside>
       </div>
     <% end %>
   </div>

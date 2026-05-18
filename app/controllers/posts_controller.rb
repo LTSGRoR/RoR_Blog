@@ -9,6 +9,7 @@ class PostsController < ApplicationController
 
   def index
     load_public_posts
+    load_blog_feed_panels
     respond_with_posts
   end
 
@@ -179,8 +180,34 @@ class PostsController < ApplicationController
         @posts = Post.none.page(@page).per(@per_page)
       end
     else
-      @posts = public_scope.includes(:tags).order(created_at: :desc).page(@page).per(@per_page)
+      @posts = public_scope.includes(:tags, :user, :comments).order(created_at: :desc).page(@page).per(@per_page)
     end
+  end
+
+  def load_blog_feed_panels
+    published_verified_scope = Post.where(status: Post.statuses[:published], verified: true)
+
+    @most_read_posts = published_verified_scope
+                       .left_joins(:comments, :reactions)
+                       .select("posts.*, COUNT(DISTINCT comments.id) AS comments_count_metric, COUNT(DISTINCT reactions.id) AS reactions_count_metric")
+                       .group("posts.id")
+                       .order(Arel.sql("COUNT(DISTINCT comments.id) DESC, COUNT(DISTINCT reactions.id) DESC, posts.created_at DESC"))
+                       .includes(:user)
+                       .limit(3)
+
+    @trending_tags = Tag.joins(:posts)
+                   .merge(published_verified_scope)
+                   .select("tags.*, COUNT(posts.id) AS usage_count")
+                   .group("tags.id")
+                   .order(Arel.sql("COUNT(posts.id) DESC, tags.name ASC"))
+                   .limit(8)
+
+    @top_authors = User.joins(:posts)
+                 .merge(published_verified_scope)
+                 .select("users.*, COUNT(posts.id) AS published_posts_count")
+                 .group("users.id")
+                 .order(Arel.sql("COUNT(posts.id) DESC, users.created_at ASC"))
+                 .limit(5)
   end
 
   def respond_with_posts

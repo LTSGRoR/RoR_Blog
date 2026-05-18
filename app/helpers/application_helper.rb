@@ -179,6 +179,19 @@ module ApplicationHelper
     end
   end
 
+  def estimated_read_minutes(text, words_per_minute: 220)
+    words = text.to_s.split.size
+    [ (words.to_f / words_per_minute).ceil, 1 ].max
+  end
+
+  def post_read_minutes(post)
+    estimated_read_minutes("#{post.title} #{post.body.to_plain_text}")
+  end
+
+  def post_excerpt(post, length: 190)
+    truncate(post.body.to_plain_text.to_s.squish, length: length)
+  end
+
   private
 
   def btn_classes(variant)

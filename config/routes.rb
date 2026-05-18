@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   # Public routes
   root "pages#landing"
   get "blog", to: "posts#index", as: :blog
+  get "team", to: "pages#team", as: :team
   resources :tags, only: [ :index, :create ]
   resources :reactions, only: [ :create ]
   resources :users, only: [ :show, :index ] do

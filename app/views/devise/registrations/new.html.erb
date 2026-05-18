@@ -3,65 +3,50 @@
 <% resource_name ||= :user %>
 <% devise_mapping ||= Devise.mappings[:user] %>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-    <!-- Left promotional panel -->
-    <div class="hidden md:flex flex-col justify-center px-8 py-12 bg-gradient-to-br from-indigo-600 to-purple-600 text-white space-y-6">
-      <div class="text-3xl font-bold"><%= t("auth.registrations.promo_headline") %></div>
-      <p class="text-sm opacity-90"><%= t("auth.registrations.promo_body") %></p>
-      <div class="mt-4 bg-white/10 rounded-lg p-4 text-sm">
-        <ul class="space-y-2">
-          <li>• <%= t("auth.registrations.feature_1") %></li>
-          <li>• <%= t("auth.registrations.feature_2") %></li>
-          <li>• <%= t("auth.registrations.feature_3") %></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Right form panel -->
-    <div class="px-4 py-8 sm:px-8 sm:py-10">
-      <div class="max-w-md mx-auto">
-        <div class="flex items-center justify-center mb-6">
-          <div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">B</div>
+<div class="min-h-[calc(100vh-11rem)] bg-[#f1f5f9] px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-xl">
+    <section class="rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-sm sm:p-8">
+      <div class="mb-7 flex flex-col items-center text-center">
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-[#9e0000] text-white">
+          <span class="text-2xl font-bold">R</span>
         </div>
-        <h2 class="text-center text-2xl font-semibold text-slate-800"><%= t("auth.registrations.title") %></h2>
-        <p class="mt-2 text-center text-sm text-slate-500"><%= t("auth.registrations.subtitle") %></p>
-
-        <div class="mt-6">
-          <%= render 'shared/flash' %>
-          <%= devise_error_messages! %>
-
-          <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-            <div class="space-y-4">
-              <div>
-                <%= f.label :name, class: "block text-xs font-medium text-slate-600" %>
-                <%= f.text_field :name, autocomplete: "name", placeholder: t("auth.registrations.name_placeholder"), class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
-              </div>
-
-              <div>
-                <%= f.label :email, class: "block text-xs font-medium text-slate-600" %>
-                <%= f.email_field :email, autocomplete: "email", placeholder: t("auth.email_placeholder", default: "you@example.com"), class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
-              </div>
-
-              <div>
-                <%= f.label :password, class: "block text-xs font-medium text-slate-600" %>
-                <%= f.password_field :password, autocomplete: "new-password", placeholder: t("auth.registrations.password_placeholder"), class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
-              </div>
-
-              <div>
-                <%= f.label :password_confirmation, class: "block text-xs font-medium text-slate-600" %>
-                <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: t("auth.registrations.password_confirmation_placeholder"), class: "mt-1 block w-full px-4 py-3 rounded-lg border border-slate-200 bg-white placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" %>
-              </div>
-
-              <div>
-                <%= f.submit t("auth.registrations.submit"), class: "w-full py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 transition" %>
-              </div>
-            </div>
-          <% end %>
-
-          <p class="mt-6 text-center text-sm text-slate-600"><%= t("auth.registrations.have_account") %> <%= link_to t("auth.links.sign_in"), new_session_path(resource_name), class: "text-indigo-600 hover:text-indigo-800" %></p>
-        </div>
+        <h1 class="re-heading text-3xl font-bold text-slate-900"><%= t("auth.registrations.title") %></h1>
+        <p class="mt-2 text-sm text-slate-500"><%= t("auth.registrations.subtitle") %></p>
       </div>
-    </div>
+
+      <%= render 'shared/flash' %>
+      <%= devise_error_messages! %>
+
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+        <div class="space-y-4">
+          <div>
+            <%= f.label :name, class: "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-600" %>
+            <%= f.text_field :name, autocomplete: "name", placeholder: t("auth.registrations.name_placeholder"), class: "block h-12 w-full rounded-md border border-[#e2e8f0] bg-white px-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9e0000]" %>
+          </div>
+
+          <div>
+            <%= f.label :email, class: "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-600" %>
+            <%= f.email_field :email, autocomplete: "email", placeholder: t("auth.email_placeholder", default: "you@example.com"), class: "block h-12 w-full rounded-md border border-[#e2e8f0] bg-white px-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9e0000]" %>
+          </div>
+
+          <div>
+            <%= f.label :password, class: "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-600" %>
+            <%= f.password_field :password, autocomplete: "new-password", placeholder: t("auth.registrations.password_placeholder"), class: "block h-12 w-full rounded-md border border-[#e2e8f0] bg-white px-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9e0000]" %>
+          </div>
+
+          <div>
+            <%= f.label :password_confirmation, class: "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-600" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: t("auth.registrations.password_confirmation_placeholder"), class: "block h-12 w-full rounded-md border border-[#e2e8f0] bg-white px-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9e0000]" %>
+          </div>
+
+          <%= f.submit t("auth.registrations.submit"), class: "mt-2 inline-flex h-12 w-full items-center justify-center rounded-md bg-[#9e0000] px-4 text-base font-semibold text-white transition hover:bg-[#820000]" %>
+        </div>
+      <% end %>
+
+      <div class="mt-6 border-t border-slate-200 pt-4 text-center text-sm text-slate-600">
+        <%= t("auth.registrations.have_account") %>
+        <%= link_to t("auth.links.sign_in"), new_session_path(resource_name), class: "font-medium text-[#9e0000] hover:text-[#820000]" %>
+      </div>
+    </section>
   </div>
 </div>

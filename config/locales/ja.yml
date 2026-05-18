@@ -1,5 +1,7 @@
 ja:
   app_name: "Blog App"
+  brand:
+    name: "Rails Engineering"
 
   time:
     formats:
@@ -64,6 +66,10 @@ ja:
     sign_out: "サインアウト"
     sign_in: "サインイン"
     sign_up: "新規登録"
+    services: "サービス"
+    blog: "ブログ"
+    meet_the_team: "チーム紹介"
+    hire_us: "相談する"
 
   posts:
     index:
@@ -71,6 +77,27 @@ ja:
       new_post: "新しい投稿"
       moderation_queue: "レビューキュー"
       no_results: "\"%{query}\" に一致する投稿は見つかりませんでした。"
+      hero:
+        kicker: "Rails Engineering ブログ"
+        subtitle: "Ruby on Rails の設計、アーキテクチャ、運用に関する実践的な技術知見を届けます。"
+      meta:
+        read_time: "%{count}分で読めます"
+        comments:
+          one: "%{count}件のコメント"
+          other: "%{count}件のコメント"
+      sidebar:
+        newsletter:
+          kicker: "週刊スタックアップデート"
+          title: "ニュースレターは近日公開"
+          body: "厳選した技術アップデートを準備中です。それまでの間、チームの最新記事をご覧ください。"
+          cta: "最新記事を見る"
+        most_read:
+          title: "よく読まれている記事"
+        trending_topics:
+          title: "注目トピック"
+        authors:
+          title: "執筆メンバー"
+          body: "Rails アーキテクチャ、運用、プロダクト開発に取り組むエンジニアの知見を紹介します。"
     mine:
       title: "投稿を管理"
       subtitle: "下書き、レビュー対応、公開済み投稿を一か所で確認できます。"
@@ -180,6 +207,25 @@ ja:
 
   pwa:
     description: "Blog App."
+
+  pages:
+    team:
+      title: "チーム紹介"
+      kicker: "Rails Engineering"
+      hero_title: "モダン Rails を支えるアーキテクト"
+      hero_body: "私たちは、洗練された設計・高い信頼性・長期保守性を重視する Ruby on Rails の専門家チームです。"
+      featured:
+        label: "注目のコントリビューター"
+        body: "アーキテクチャ、バックエンド性能、プロダクト運用における実践的な Rails ソリューションを構築しています。"
+        latest_writing: "最新の執筆"
+      published_articles:
+        one: "公開記事 %{count} 件"
+        other: "公開記事 %{count} 件"
+      published_posts:
+        one: "公開投稿 %{count} 件"
+        other: "公開投稿 %{count} 件"
+      recent_posts: "最近の投稿"
+      view_profile: "プロフィールを見る"
 
   auth:
     email_placeholder: "you@example.com"
@@ -298,6 +344,15 @@ ja:
         title: "ユーザー管理"
         subtitle: "モデレーションのためにアカウントをBANまたは一時停止します。"
         search_placeholder: "名前またはメールアドレスで検索"
+        total: "ユーザー総数"
+        filters:
+          role:
+            any: "すべての権限"
+            admin: "管理者"
+            author: "著者"
+          status:
+            any: "すべての状態"
+            suspended: "一時停止中"
         columns:
           name: "名前"
           email: "メール"
@@ -410,11 +465,19 @@ ja:
         rejected: "修正を却下しました。"
         deleted: "修正を削除しました。"
       show:
+        section_kicker: "修正レビュー"
         subtitle: "%{author} の下書き内容をレビューしています"
         back_to_queue: "モデレーションに戻る"
         draft_badge: "下書きプレビュー"
         live_post_title: "現在の公開投稿"
         review_actions: "レビュー操作"
+        content_preview: "修正内容"
+        metadata: "メタ情報"
+        author_label: "著者"
+        submitted_label: "提出日時"
+        updated_label: "更新日時"
+        reviewed_label: "レビュー日時"
+        reviewer_label: "レビュアー"
         draft_notice: "この修正はまだ下書きです。承認または却下する前に、著者がレビューへ提出する必要があります。"
         review_complete: "この修正はすでにレビュー済みです。"
       statuses:

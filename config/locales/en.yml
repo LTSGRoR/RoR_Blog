@@ -29,6 +29,8 @@
 
 en:
   app_name: "Blog App"
+  brand:
+    name: "Rails Engineering"
 
   time:
     formats:
@@ -93,6 +95,10 @@ en:
     sign_out: "Sign out"
     sign_in: "Sign in"
     sign_up: "Sign up"
+    services: "Services"
+    blog: "Blog"
+    meet_the_team: "Meet the Team"
+    hire_us: "Hire Us"
 
   posts:
     index:
@@ -100,6 +106,27 @@ en:
       new_post: "New Post"
       moderation_queue: "Moderation Queue"
       no_results: "No posts found for \"%{query}\"."
+      hero:
+        kicker: "Rails Engineering Blog"
+        subtitle: "Deep technical insights on Ruby on Rails, architecture, and production engineering systems."
+      meta:
+        read_time: "%{count} min read"
+        comments:
+          one: "%{count} comment"
+          other: "%{count} comments"
+      sidebar:
+        newsletter:
+          kicker: "Weekly Stack Updates"
+          title: "Newsletter coming soon"
+          body: "We are preparing curated engineering updates. For now, explore the latest stories from the team."
+          cta: "Browse latest"
+        most_read:
+          title: "Most Read"
+        trending_topics:
+          title: "Trending Topics"
+        authors:
+          title: "The Authors"
+          body: "Insights from our engineering contributors working across Rails architecture, operations, and product delivery."
     mine:
       title: "Manage Your Posts"
       subtitle: "Track drafts, review feedback, and published posts in one place."
@@ -209,6 +236,25 @@ en:
 
   pwa:
     description: "Blog App."
+
+  pages:
+    team:
+      title: "Meet the Team"
+      kicker: "Rails Engineering"
+      hero_title: "The Architects of Modern Rails"
+      hero_body: "We are a collective of Ruby on Rails specialists focused on elegant systems, reliability, and long-term maintainability."
+      featured:
+        label: "Featured Contributor"
+        body: "Building practical Rails solutions across architecture, backend performance, and production operations."
+        latest_writing: "Latest writing"
+      published_articles:
+        one: "%{count} published article"
+        other: "%{count} published articles"
+      published_posts:
+        one: "%{count} published post"
+        other: "%{count} published posts"
+      recent_posts: "Recent posts"
+      view_profile: "View profile"
 
   auth:
     email_placeholder: "you@example.com"
@@ -327,6 +373,15 @@ en:
         title: "User management"
         subtitle: "Ban or suspend accounts for moderation."
         search_placeholder: "Search name or email"
+        total: "Total users"
+        filters:
+          role:
+            any: "Any role"
+            admin: "Admin"
+            author: "Author"
+          status:
+            any: "Any status"
+            suspended: "Suspended"
         columns:
           name: "Name"
           email: "Email"
@@ -437,11 +492,19 @@ en:
         rejected: "Revision rejected."
         deleted: "Revision deleted."
       show:
+        section_kicker: "Revision review"
         subtitle: "Reviewing draft content from %{author}"
         back_to_queue: "Back to moderation"
         draft_badge: "Draft Preview"
         live_post_title: "Current live post"
         review_actions: "Review actions"
+        content_preview: "Revision content"
+        metadata: "Metadata"
+        author_label: "Author"
+        submitted_label: "Submitted"
+        updated_label: "Updated"
+        reviewed_label: "Reviewed"
+        reviewer_label: "Reviewer"
         draft_notice: "This revision is still a draft. The author must submit it for review before it can be approved or rejected."
         review_complete: "This revision has already been reviewed."
       statuses:
