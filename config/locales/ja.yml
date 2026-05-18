@@ -635,6 +635,15 @@ ja:
   activerecord:
     attributes:
       post:
+        title: "タイトル"
+        body: "本文"
+        status: "ステータス"
+        tags: "タグ"
         statuses:
           draft: "下書き"
           published: "公開済み"
+  helpers:
+    submit:
+      post:
+        create: "投稿する"
+        update: "変更を保存"

@@ -635,6 +635,15 @@ vi:
   activerecord:
     attributes:
       post:
+        title: "Tiêu đề"
+        body: "Nội dung"
+        status: "Trạng thái"
+        tags: "Thẻ"
         statuses:
           draft: "Bản nháp"
           published: "Đã xuất bản"
+  helpers:
+    submit:
+      post:
+        create: "Đăng bài"
+        update: "Lưu thay đổi"
