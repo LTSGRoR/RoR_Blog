@@ -27,7 +27,7 @@ module ApplicationHelper
     end
   end
 
-  def btn_submit(f, label = "Submit", variant: :primary, **opts)
+  def btn_submit(f, label = nil, variant: :primary, **opts)
     classes = btn_classes(variant) + " transition !cursor-pointer " + (opts.delete(:class) || "")
     if opts[:name] && opts[:value]
       f.button label, type: "submit", **opts.merge(class: classes)

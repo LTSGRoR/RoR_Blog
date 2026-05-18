@@ -665,6 +665,15 @@ en:
   activerecord:
     attributes:
       post:
+        title: "Title"
+        body: "Body"
+        status: "Status"
+        tags: "Tags"
         statuses:
           draft: "Draft"
           published: "Published"
+  helpers:
+    submit:
+      post:
+        create: "Submit"
+        update: "Save Changes"
