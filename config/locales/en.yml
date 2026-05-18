@@ -256,6 +256,69 @@ en:
       recent_posts: "Recent posts"
       view_profile: "View profile"
 
+    landing:
+      title: "Rails Engineering | Excellence in Ruby on Rails"
+      hero:
+        badge: "RAILS 8 READY"
+        title: "Engineering Excellence with Ruby on Rails"
+        body: "We build robust, scalable, and secure web applications using the most productive framework in the world. Our department is dedicated to technical rigor and community contribution."
+        cta_primary: "Start Your Project"
+        cta_blog: "Read the Blog"
+        image_alt: "Engineering workspace with Ruby on Rails code on monitors"
+        glass_label: "HOTWIRE MASTERED"
+        glass_body: "Delivering SPA-like experiences with zero complex JavaScript overhead."
+      services:
+        title: "Specialized Core Services"
+        subtitle: "Built on a decade of experience in the Rails ecosystem."
+        learn_more: "Learn more"
+        architecture:
+          title: "Architecture & Scalability"
+          body: "We design monoliths that scale. From database optimization to background processing with Sidekiq, we ensure your Rails app handles millions of requests with ease."
+          item_1: "Multi-tenant Design"
+          item_2: "Redis & Caching Layers"
+          image_alt: "Server infrastructure"
+        security:
+          title: "Hardened Security"
+          body: "Compliance and safety are baked into every line of code. We perform thorough audits and implement best-in-class authentication."
+        performance:
+          title: "Performance"
+          body: "N+1 query elimination and front-end optimization. We make sure your Rails app is blazing fast for every user."
+        consulting:
+          title: "Technical Consulting"
+          body: "Need to modernize a legacy Rails app? Our experts provide the roadmap and execution for seamless upgrades and refactors."
+          image_alt: "Engineering consulting session"
+      insights:
+        title: "Featured Technical Insights"
+        subtitle: "Deep dives into the Ruby on Rails ecosystem."
+        view_all: "View all posts"
+        fallback_1:
+          title: "Understanding Warden in Rails"
+          body: "Deep dive into authentication middleware and security strategy in modern Rails applications."
+        fallback_2:
+          title: "Getting Started with Hotwire"
+          body: "Build interactive experiences with Turbo and Stimulus while keeping your Rails architecture simple."
+      team:
+        title: "The Minds Behind the Code"
+        body: "Our team consists of senior developers, open-source contributors, and industry experts dedicated to the Rails community."
+        member_alt: "Team member"
+        fallback_alt: "Lead architect"
+        fallback_name: "Rails Architect"
+        fallback_role: "Lead Engineer"
+        cta: "Join Our Engineering Team"
+      cta:
+        title: "Ready to build the future?"
+        body: "Whether you are starting from scratch or scaling an existing app, our Ruby on Rails experts are here to help you achieve engineering excellence."
+        button: "Let's Chat"
+      footer:
+        tagline: "The authoritative peer in Ruby on Rails development."
+        copyright: "© 2024 Rails Engineering Department. Built with Ruby on Rails and Hotwire."
+        nav:
+          architecture: "Architecture"
+          security: "Security"
+          careers: "Careers"
+          privacy: "Privacy Policy"
+          rss: "RSS Feed"
+
   auth:
     email_placeholder: "you@example.com"
     confirmations:

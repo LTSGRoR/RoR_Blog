@@ -227,6 +227,69 @@ ja:
       recent_posts: "最近の投稿"
       view_profile: "プロフィールを見る"
 
+    landing:
+      title: "Rails Engineering | Ruby on Rails の卓越したエンジニアリング"
+      hero:
+        badge: "RAILS 8 対応済み"
+        title: "Ruby on Rails でエンジニアリングの卓越性を"
+        body: "私たちは、世界で最も生産性の高いフレームワークを使って、堅牢でスケーラブルかつ安全な Web アプリケーションを構築します。技術的な厳密さとコミュニティへの貢献に専念しています。"
+        cta_primary: "プロジェクトを始める"
+        cta_blog: "ブログを読む"
+        image_alt: "モニターに Ruby on Rails のコードが表示されたエンジニアリングの作業環境"
+        glass_label: "HOTWIRE 習得済み"
+        glass_body: "複雑な JavaScript なしで SPA のような体験を提供します。"
+      services:
+        title: "専門的なコアサービス"
+        subtitle: "Rails エコシステムにおける 10 年以上の経験に基づいて構築されています。"
+        learn_more: "詳しく見る"
+        architecture:
+          title: "アーキテクチャとスケーラビリティ"
+          body: "スケールするモノリスを設計します。データベース最適化から Sidekiq によるバックグラウンド処理まで、Rails アプリが数百万のリクエストを簡単に処理できるようにします。"
+          item_1: "マルチテナント設計"
+          item_2: "Redis とキャッシュ層"
+          image_alt: "サーバーインフラ"
+        security:
+          title: "堅牢なセキュリティ"
+          body: "コンプライアンスと安全性はすべてのコードに組み込まれています。徹底的な監査を実施し、最高水準の認証を実装します。"
+        performance:
+          title: "パフォーマンス"
+          body: "N+1 クエリの排除とフロントエンドの最適化。すべてのユーザーに対して Rails アプリが超高速で動作するようにします。"
+        consulting:
+          title: "技術コンサルティング"
+          body: "レガシー Rails アプリのモダナイズが必要ですか？私たちの専門家がシームレスなアップグレードとリファクタリングのロードマップと実行を提供します。"
+          image_alt: "エンジニアリングコンサルティングの様子"
+      insights:
+        title: "注目の技術的洞察"
+        subtitle: "Ruby on Rails エコシステムの深掘り分析。"
+        view_all: "すべての記事を見る"
+        fallback_1:
+          title: "Rails における Warden を理解する"
+          body: "モダンな Rails アプリケーションにおける認証ミドルウェアとセキュリティ戦略の詳細解説。"
+        fallback_2:
+          title: "Hotwire を始める"
+          body: "Rails アーキテクチャをシンプルに保ちながら、Turbo と Stimulus でインタラクティブな体験を構築します。"
+      team:
+        title: "コードを支える頭脳"
+        body: "私たちのチームは、Rails コミュニティに専念するシニアデベロッパー、オープンソースコントリビューター、業界の専門家で構成されています。"
+        member_alt: "チームメンバー"
+        fallback_alt: "リードアーキテクト"
+        fallback_name: "Rails アーキテクト"
+        fallback_role: "リードエンジニア"
+        cta: "エンジニアリングチームに参加する"
+      cta:
+        title: "未来を一緒に構築しましょう"
+        body: "ゼロから始める場合でも、既存のアプリをスケールさせる場合でも、私たちの Ruby on Rails の専門家がエンジニアリングの卓越性を達成するお手伝いをします。"
+        button: "お問い合わせ"
+      footer:
+        tagline: "Ruby on Rails 開発における信頼のパートナー。"
+        copyright: "© 2024 Rails Engineering Department. Ruby on Rails と Hotwire で構築。"
+        nav:
+          architecture: "アーキテクチャ"
+          security: "セキュリティ"
+          careers: "採用情報"
+          privacy: "プライバシーポリシー"
+          rss: "RSS フィード"
+
   auth:
     email_placeholder: "you@example.com"
     confirmations:

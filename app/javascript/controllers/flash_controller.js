@@ -5,21 +5,41 @@ export default class extends Controller {
   static targets = ["message"]
 
   connect() {
-    const t = this.hasTimeoutValue ? this.timeoutValue : 5000
-    if (!this.hasMessageTarget) return
-
     this.messageTargets.forEach((el, idx) => {
-      // stagger slightly if multiple messages
-      const delay = t + idx * 200
-      setTimeout(() => this.dismiss(el), delay)
+      this.#animateIn(el, idx * 80)
+      this.#scheduleAutoDismiss(el, idx)
     })
   }
 
+  // Called by Stimulus whenever a new [data-flash-target="message"] is inserted
+  // into the DOM (e.g. via Turbo Stream), even after initial connect()
+  messageTargetConnected(el) {
+    this.#animateIn(el)
+    this.#scheduleAutoDismiss(el)
+  }
+
+  close(event) {
+    const message = event.currentTarget.closest('[data-flash-target="message"]')
+    if (message) this.dismiss(message)
+  }
+
   dismiss(el) {
-    el.classList.add('transition-opacity', 'duration-300')
-    el.style.opacity = '0'
-    setTimeout(() => {
-      if (el && el.remove) el.remove()
-    }, 300)
+    el.classList.remove('translate-x-0', 'opacity-100')
+    el.classList.add('translate-x-full', 'opacity-0')
+    setTimeout(() => { if (el?.remove) el.remove() }, 300)
+  }
+
+  #animateIn(el, delayMs = 0) {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        el.classList.remove('translate-x-full', 'opacity-0')
+        el.classList.add('translate-x-0', 'opacity-100')
+      }, delayMs)
+    })
+  }
+
+  #scheduleAutoDismiss(el, idx = 0) {
+    const t = this.hasTimeoutValue ? this.timeoutValue : 5000
+    setTimeout(() => this.dismiss(el), t + idx * 200)
   }
 }

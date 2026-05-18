@@ -227,6 +227,69 @@ vi:
       recent_posts: "Bài viết gần đây"
       view_profile: "Xem hồ sơ"
 
+    landing:
+      title: "Rails Engineering | Xuất Sắc Trong Ruby on Rails"
+      hero:
+        badge: "RAILS 8 SẴN SÀNG"
+        title: "Kỹ Thuật Xuất Sắc Với Ruby on Rails"
+        body: "Chúng tôi xây dựng các ứng dụng web mạnh mẽ, có thể mở rộng và bảo mật bằng framework năng suất nhất thế giới. Bộ phận chúng tôi cam kết về sự nghiêm ngặt kỹ thuật và đóng góp cộng đồng."
+        cta_primary: "Bắt Đầu Dự Án"
+        cta_blog: "Đọc Blog"
+        image_alt: "Không gian làm việc kỹ thuật với code Ruby on Rails trên màn hình"
+        glass_label: "HOTWIRE THÀNH THẠO"
+        glass_body: "Mang lại trải nghiệm như SPA mà không cần JavaScript phức tạp."
+      services:
+        title: "Dịch Vụ Cốt Lõi Chuyên Biệt"
+        subtitle: "Được xây dựng trên một thập kỷ kinh nghiệm trong hệ sinh thái Rails."
+        learn_more: "Tìm hiểu thêm"
+        architecture:
+          title: "Kiến Trúc & Khả Năng Mở Rộng"
+          body: "Chúng tôi thiết kế monolith có thể mở rộng. Từ tối ưu hóa cơ sở dữ liệu đến xử lý nền với Sidekiq, chúng tôi đảm bảo ứng dụng Rails của bạn xử lý hàng triệu yêu cầu dễ dàng."
+          item_1: "Thiết Kế Multi-tenant"
+          item_2: "Redis & Caching Layers"
+          image_alt: "Hạ tầng máy chủ"
+        security:
+          title: "Bảo Mật Toàn Diện"
+          body: "Tuân thủ và an toàn được tích hợp vào từng dòng code. Chúng tôi thực hiện kiểm tra kỹ lưỡng và triển khai xác thực tốt nhất."
+        performance:
+          title: "Hiệu Năng"
+          body: "Loại bỏ truy vấn N+1 và tối ưu hóa front-end. Chúng tôi đảm bảo ứng dụng Rails của bạn cực kỳ nhanh cho mọi người dùng."
+        consulting:
+          title: "Tư Vấn Kỹ Thuật"
+          body: "Cần hiện đại hóa ứng dụng Rails cũ? Các chuyên gia của chúng tôi cung cấp lộ trình và thực thi để nâng cấp và tái cấu trúc liền mạch."
+          image_alt: "Buổi tư vấn kỹ thuật"
+      insights:
+        title: "Bài Viết Kỹ Thuật Nổi Bật"
+        subtitle: "Phân tích chuyên sâu về hệ sinh thái Ruby on Rails."
+        view_all: "Xem tất cả bài viết"
+        fallback_1:
+          title: "Tìm Hiểu Warden Trong Rails"
+          body: "Phân tích sâu về middleware xác thực và chiến lược bảo mật trong các ứng dụng Rails hiện đại."
+        fallback_2:
+          title: "Bắt Đầu Với Hotwire"
+          body: "Xây dựng trải nghiệm tương tác với Turbo và Stimulus trong khi giữ kiến trúc Rails đơn giản."
+      team:
+        title: "Những Bộ Óc Đằng Sau Code"
+        body: "Đội ngũ chúng tôi gồm các lập trình viên cấp cao, người đóng góp mã nguồn mở và chuyên gia trong ngành tận tụy với cộng đồng Rails."
+        member_alt: "Thành viên nhóm"
+        fallback_alt: "Kiến trúc sư trưởng"
+        fallback_name: "Kiến Trúc Sư Rails"
+        fallback_role: "Kỹ Sư Trưởng"
+        cta: "Gia Nhập Nhóm Kỹ Thuật"
+      cta:
+        title: "Sẵn Sàng Xây Dựng Tương Lai?"
+        body: "Dù bạn bắt đầu từ đầu hay mở rộng ứng dụng hiện có, các chuyên gia Ruby on Rails của chúng tôi sẵn sàng giúp bạn đạt được sự xuất sắc kỹ thuật."
+        button: "Hãy Trò Chuyện"
+      footer:
+        tagline: "Đối tác uy tín trong phát triển Ruby on Rails."
+        copyright: "© 2024 Bộ Phận Rails Engineering. Được xây dựng bằng Ruby on Rails và Hotwire."
+        nav:
+          architecture: "Kiến Trúc"
+          security: "Bảo Mật"
+          careers: "Tuyển Dụng"
+          privacy: "Chính Sách Bảo Mật"
+          rss: "RSS Feed"
+
   auth:
     email_placeholder: "you@example.com"
     confirmations:

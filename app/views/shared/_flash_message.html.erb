@@ -1,14 +1,48 @@
 <% s = case key.to_sym
-  when :notice then { wrap: "bg-emerald-50 border-emerald-200", text: "text-emerald-800", ring: "bg-emerald-100 text-emerald-600", d: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" }
-  when :alert  then { wrap: "bg-amber-50 border-amber-200",   text: "text-amber-800",   ring: "bg-amber-100 text-amber-600",   d: "M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.008v.008H12v-.008Z" }
-  else           { wrap: "bg-sky-50 border-sky-200",          text: "text-sky-800",     ring: "bg-sky-100 text-sky-600",       d: "m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" }
+  when :notice then {
+    border_l:    "border-l-emerald-500",
+    icon_bg:     "bg-emerald-50 text-emerald-600",
+    label_color: "text-emerald-700",
+    label:       "Success",
+    d: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+  }
+  when :alert then {
+    border_l:    "border-l-amber-500",
+    icon_bg:     "bg-amber-50 text-amber-600",
+    label_color: "text-amber-700",
+    label:       "Warning",
+    d: "M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.008v.008H12v-.008Z"
+  }
+  else {
+    border_l:    "border-l-sky-500",
+    icon_bg:     "bg-sky-50 text-sky-600",
+    label_color: "text-sky-700",
+    label:       "Info",
+    d: "m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+  }
 end %>
 
-<div data-flash-target="message" class="mb-4 flex items-start gap-3 rounded-xl border <%= s[:wrap] %> px-4 py-3 shadow-sm" role="alert">
-  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full <%= s[:ring] %>">
+<div
+  data-flash-target="message"
+  class="pointer-events-auto flex w-full translate-x-full items-start gap-3 overflow-hidden rounded-xl border border-slate-200 border-l-4 <%= s[:border_l] %> bg-white px-4 py-3.5 opacity-0 shadow-lg ring-1 ring-slate-900/5 transition-all duration-300 ease-out"
+  role="alert"
+>
+  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full <%= s[:icon_bg] %>">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" d="<%= s[:d] %>" />
     </svg>
   </div>
-  <p class="flex-1 pt-0.5 text-sm leading-5 <%= s[:text] %>"><%= msg %></p>
+  <div class="min-w-0 flex-1 pt-0.5">
+    <p class="text-xs font-semibold uppercase tracking-wide re-label <%= s[:label_color] %>"><%= s[:label] %></p>
+    <p class="mt-0.5 text-sm leading-5 text-slate-700"><%= msg %></p>
+  </div>
+  <button
+    data-action="flash#close"
+    class="ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+    aria-label="Dismiss"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  </button>
 </div>
