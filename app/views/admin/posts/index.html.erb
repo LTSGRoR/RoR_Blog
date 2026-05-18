@@ -1,70 +1,72 @@
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-controller="review-modal" data-action="keydown@window->review-modal#closeOnEscape">
   <%= turbo_stream_from "admin_posts" %>
 
-  <div class="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-sm sm:p-8">
-    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div class="min-w-0">
-        <p class="re-page-kicker"><%= t("admin.posts.index.pending_posts.title") %></p>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.posts.index.title") %></h1>
-        <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.posts.index.subtitle") %></p>
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div class="h-1.5 bg-gradient-to-r from-[#9e0000] via-[#cc0000] to-[#820000]"></div>
+    <div class="bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.08),transparent_34%),linear-gradient(180deg,#fff8f8_0%,#f8fafc_68%,#f8fafc_100%)] p-6 sm:p-8">
+      <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.posts.index.title") %></h1>
+          <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.posts.index.subtitle") %></p>
+        </div>
+        <%= btn_link_to t("posts.new.title"), new_post_path, variant: :primary %>
       </div>
-      <%= btn_link_to t("posts.new.title"), new_post_path, variant: :primary %>
-    </div>
 
-    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <div class="rounded-xl border border-[#fecaca] bg-[#fff1f2] p-3 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-[#9f1239]"><%= t("admin.posts.index.stats.pending_posts") %></p>
-        <p class="mt-1 text-2xl font-semibold text-[#881337]"><%= @pending_post_count %></p>
+      <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-2xl border border-[#fecaca] bg-[#fff1f2] p-4 shadow-sm ring-1 ring-[#ffe4e6]">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-[#9f1239]"><%= t("admin.posts.index.stats.pending_posts") %></p>
+          <p class="mt-2 text-2xl font-semibold text-[#881337]"><%= @pending_post_count %></p>
+        </div>
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm ring-1 ring-amber-100">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-amber-700"><%= t("admin.posts.index.stats.pending_revisions") %></p>
+          <p class="mt-2 text-2xl font-semibold text-amber-800"><%= @pending_count %></p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-100">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-slate-600"><%= t("admin.posts.index.stats.open") %></p>
+          <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @draft_count %></p>
+        </div>
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm ring-1 ring-emerald-100">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700"><%= t("admin.posts.index.stats.reviewed_today") %></p>
+          <p class="mt-2 text-2xl font-semibold text-emerald-800"><%= @reviewed_today_count %></p>
+        </div>
       </div>
-      <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-amber-700"><%= t("admin.posts.index.stats.pending_revisions") %></p>
-        <p class="mt-1 text-2xl font-semibold text-amber-800"><%= @pending_count %></p>
-      </div>
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-slate-700"><%= t("admin.posts.index.stats.open") %></p>
-        <p class="mt-1 text-2xl font-semibold text-slate-800"><%= @draft_count %></p>
-      </div>
-      <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-emerald-700"><%= t("admin.posts.index.stats.reviewed_today") %></p>
-        <p class="mt-1 text-2xl font-semibold text-emerald-800"><%= @reviewed_today_count %></p>
-      </div>
-    </div>
 
-    <div class="mt-5 flex flex-wrap items-center gap-2">
-      <% { "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
-        <%= link_to label, admin_posts_path(scope: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-[#9e0000] bg-[#9e0000] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <% { "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
+          <%= link_to label, admin_posts_path(scope: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-[#9e0000] bg-[#9e0000] text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
+        <% end %>
+      </div>
+
+      <% if @scope == "posts" || @scope == "revisions" %>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <% if @scope == "posts" %>
+          <% {
+            "all_posts" => t("admin.posts.index.filters.all_posts"),
+            "awaiting_review" => t("admin.posts.index.filters.awaiting_review"),
+            "rejected" => t("admin.posts.index.filters.rejected"),
+            "ai_needs_admin_review" => t("admin.posts.index.filters.ai_needs_admin_review"),
+            "ai_auto_approved" => t("admin.posts.index.filters.ai_auto_approved"),
+            "ai_failed" => t("admin.posts.index.filters.ai_failed"),
+            "ai_in_progress" => t("admin.posts.index.filters.ai_in_progress"),
+            "ai_pending" => t("admin.posts.index.filters.ai_pending")
+          }.each do |value, label| %>
+            <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
+          <% end %>
+        <% elsif @scope == "revisions" %>
+          <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
+            <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
+          <% end %>
+        <% end %>
+      </div>
+      <% end %>
+
+      <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center" do |f| %>
+        <%= f.hidden_field :scope, value: @scope %>
+        <%= f.hidden_field :filter, value: @filter %>
+        <%= f.search_field :q, value: @query, placeholder: t("admin.posts.index.search_placeholder"), class: "h-10 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000] sm:w-80" %>
+        <%= f.submit t("admin.posts.index.search"), class: "self-start rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800" %>
       <% end %>
     </div>
-
-    <% if @scope == "posts" || @scope == "revisions" %>
-    <div class="mt-4 flex flex-wrap items-center gap-2">
-      <% if @scope == "posts" %>
-        <% {
-          "all_posts" => t("admin.posts.index.filters.all_posts"),
-          "awaiting_review" => t("admin.posts.index.filters.awaiting_review"),
-          "rejected" => t("admin.posts.index.filters.rejected"),
-          "ai_needs_admin_review" => t("admin.posts.index.filters.ai_needs_admin_review"),
-          "ai_auto_approved" => t("admin.posts.index.filters.ai_auto_approved"),
-          "ai_failed" => t("admin.posts.index.filters.ai_failed"),
-          "ai_in_progress" => t("admin.posts.index.filters.ai_in_progress"),
-          "ai_pending" => t("admin.posts.index.filters.ai_pending")
-        }.each do |value, label| %>
-          <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
-        <% end %>
-      <% elsif @scope == "revisions" %>
-        <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
-          <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}" %>
-        <% end %>
-      <% end %>
-    </div>
-    <% end %>
-
-    <%= form_with url: admin_posts_path, method: :get, local: true, class: "mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center" do |f| %>
-      <%= f.hidden_field :scope, value: @scope %>
-      <%= f.hidden_field :filter, value: @filter %>
-      <%= f.search_field :q, value: @query, placeholder: t("admin.posts.index.search_placeholder"), class: "w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000] sm:max-w-md sm:flex-1" %>
-      <%= f.submit t("admin.posts.index.search"), class: "w-full rounded-lg bg-[#9e0000] px-3 py-2 text-sm font-semibold text-white hover:bg-[#820000] sm:w-auto" %>
-    <% end %>
   </div>
 
   <% if %w[all posts].include?(@scope) %>
@@ -91,7 +93,7 @@
           <% @pending_posts.each_with_index do |post, i| %>
             <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-red-50/40">
               <td class="min-w-[240px] px-4 py-4 align-top">
-                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %></p>
+                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to post.title, post_path(post), class: "hover:text-[#9e0000]" %></p>
                 <% if post.tags.any? %>
                   <div class="mt-2 flex flex-wrap gap-1.5">
                     <% post.tags.each do |tag| %>
@@ -269,7 +271,7 @@
           <% @revisions.each_with_index do |revision, i| %>
             <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-red-50/40">
               <td class="min-w-[240px] px-4 py-4 align-top">
-                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to revision.title, admin_post_revision_path(revision), class: "hover:text-indigo-600" %></p>
+                <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to revision.title, admin_post_revision_path(revision), class: "hover:text-[#9e0000]" %></p>
               </td>
               <td class="min-w-[180px] px-4 py-4 align-top text-sm text-slate-700">
                 <p><%= revision.author.name.presence || revision.author.email %></p>
