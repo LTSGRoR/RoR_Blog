@@ -77,7 +77,7 @@
         </nav>
 
         <nav class="flex flex-wrap items-center justify-end gap-3">
-          <% show_public_post_search = controller_name == "posts" && action_name == "index" %>
+          <% show_public_post_search = controller_path == "posts" && action_name == "index" %>
           <% if show_public_post_search %>
             <%= form_tag blog_path, method: :get, class: "relative w-full sm:w-auto", data: { controller: "search", "search-url-value": blog_path, "search-delay-value": 300 } do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
