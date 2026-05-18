@@ -1,4 +1,4 @@
-<article class="group bg-white border border-slate-200 shadow-sm rounded-xl p-6 flex items-start gap-4 transition hover:border-indigo-200 hover:shadow-md">
+<article class="group re-card p-6 flex items-start gap-4 transition hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300">
   <div class="flex-shrink-0">
     <% if post.user&.avatar&.attached? %>
       <%= image_tag post.user.avatar.variant(resize_to_fill: [48, 48]), class: "rounded-full w-12 h-12 object-cover border border-slate-300", alt: post.user.name, width: 48, height: 48, loading: "lazy" %>
@@ -7,13 +7,13 @@
     <% end %>
   </div>
   <div class="flex-1 min-w-0">
-    <h2 class="text-xl font-semibold text-slate-800">
-      <%= link_to post.title, post_path(post), class: "transition hover:text-indigo-600" %>
+    <h2 class="re-heading text-2xl font-semibold text-slate-900 leading-tight">
+      <%= link_to post.title, post_path(post), class: "transition hover:text-[#9e0000]" %>
     </h2>
-    <div class="mt-2 text-sm text-slate-500">
+    <div class="mt-2 re-label text-xs text-slate-500">
       <%= t("posts.show.by") %>
       <% if post.user.present? %>
-        <%= link_to(post.user.name.presence || post.user.email, user_path(post.user), class: "font-medium text-slate-600 hover:text-indigo-600") %>
+        <%= link_to(post.user.name.presence || post.user.email, user_path(post.user), class: "font-medium text-slate-700 hover:text-[#9e0000]") %>
       <% else %>
         <%= t("common.unknown") %>
       <% end %>

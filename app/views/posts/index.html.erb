@@ -1,19 +1,26 @@
 <% content_for :title, t("posts.index.title") %>
 
-<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-    <h1 class="text-3xl font-bold text-slate-800"><%= t("posts.index.title") %></h1>
-    <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
+<div class="max-w-5xl mx-auto py-8">
+  <div class="mb-6 rounded-xl border border-[#e2e8f0] bg-white px-6 py-6 sm:px-8">
+    <p class="re-page-kicker">Rails Engineering Blog</p>
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+      <h1 class="re-heading text-4xl font-bold text-slate-900"><%= t("posts.index.title") %></h1>
+      <%= btn_link_to t("posts.index.new_post"), new_post_path, variant: :primary %>
+    </div>
+    <p class="mt-3 re-muted text-sm">Deep technical insights on Ruby on Rails, architecture, and performance engineering.</p>
   </div>
 
-  <%= render 'shared/search_form', search_path: (@search_path || posts_path) %>
+  <div class="mb-2">
+    <%= render 'shared/search_form', search_path: (@search_path || posts_path) %>
+  </div>
 
-  <div id="posts-results">
-    <div class="space-y-6">
+  <div id="posts-results" class="space-y-6">
+    <div class="space-y-5">
       <% @posts.each do |post| %>
         <%= render "index_post_card", post: post %>
       <% end %>
     </div>
+
     <div class="mt-8">
       <%= paginate @posts %>
     </div>
@@ -25,8 +32,7 @@
     <% end %>
 
     <% if params[:q].present? && result_count.to_i == 0 %>
-      <div class="mt-4 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
+      <div class="mt-4 rounded-md border border-[#e2e8f0] bg-white px-4 py-3 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
     <% end %>
-
   </div>
 </div>

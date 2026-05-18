@@ -54,6 +54,11 @@ class PostsController < ApplicationController
     @comments = root_comments_scope.limit(@comments_visible)
 
     @comment = Comment.new
+    @related_posts = Post.where(status: Post.statuses[:published], verified: true)
+                         .where.not(id: @post.id)
+                         .includes(:user, :tags)
+                         .order(created_at: :desc)
+                         .limit(3)
     @active_revision = if current_user == @post.user
       @post.active_revision
     end

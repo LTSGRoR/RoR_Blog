@@ -185,7 +185,7 @@ module ApplicationHelper
     base = "inline-flex items-center justify-center h-10 px-4 rounded-md text-sm font-medium border shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition !cursor-pointer whitespace-nowrap"
     case variant
     when :primary
-      base + " bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500"
+      base + " bg-[#9e0000] border-[#9e0000] text-white hover:bg-[#820000] focus:ring-[#9e0000]"
     when :secondary
       base + " bg-white border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-slate-300"
     when :danger
@@ -195,7 +195,7 @@ module ApplicationHelper
     when :warning
       base + " bg-amber-500 border-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400"
     when :ghost
-      base + " bg-white border-slate-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 focus:ring-indigo-300"
+      base + " bg-white border-slate-200 text-[#9e0000] hover:bg-red-50 hover:border-red-200 focus:ring-red-300"
     else
       base + " border-transparent"
     end
