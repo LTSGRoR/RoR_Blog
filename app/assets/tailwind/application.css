@@ -1,4 +1,92 @@
 @import "tailwindcss";
+
+:root {
+  --re-primary: #9e0000;
+  --re-primary-dark: #820000;
+  --re-surface: #f7f9fb;
+  --re-surface-alt: #f1f5f9;
+  --re-card: #ffffff;
+  --re-text: #191c1e;
+  --re-text-muted: #545f73;
+  --re-border: #e2e8f0;
+  --re-code-bg: #1e293b;
+}
+
+body {
+  background: var(--re-surface);
+  color: var(--re-text);
+  font-family: "Source Serif 4", Georgia, serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.re-heading {
+  font-family: "Hanken Grotesk", "Segoe UI", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.re-label,
+.re-mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+}
+
+.re-shell {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.re-card {
+  background: var(--re-card);
+  border: 1px solid var(--re-border);
+  border-radius: 0.75rem;
+}
+
+.re-chip {
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+  background: #e5e7eb;
+  color: #475569;
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.re-page-kicker {
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.re-muted {
+  color: var(--re-text-muted);
+}
+
+.re-link {
+  color: var(--re-primary);
+}
+
+.re-link:hover {
+  color: var(--re-primary-dark);
+}
+
+.hero-pattern {
+  background-color: var(--re-surface);
+  background-image: radial-gradient(rgba(158, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.glass-card {
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.84);
+}
 /* Styling the Trix editor content */
 
 trix-editor {

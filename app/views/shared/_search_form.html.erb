@@ -9,7 +9,7 @@
       </div>
       <%= text_field_tag :q, params[:q],
             placeholder: t("search.placeholder"),
-            class: "w-full h-10 pl-10 pr-4 rounded-full border border-slate-200 bg-white shadow-sm text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition",
+            class: "w-full h-11 pl-10 pr-4 rounded-md border border-[#e2e8f0] bg-white text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9e0000] focus:border-transparent transition",
             data: { action: "input->search#changed" } %>
     </div>
   <% end %>
