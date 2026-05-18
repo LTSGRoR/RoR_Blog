@@ -1,82 +1,107 @@
 <% content_for :title, @user.name.presence || @user.email %>
 
-<div class="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-white">
-  <div class="rounded-2xl bg-white shadow-sm border border-slate-200 overflow-hidden">
-    <div class="bg-slate-900 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 px-4 py-8 sm:px-8 sm:py-10">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
-          <% if @user.avatar.attached? %>
-            <%= image_tag @user.avatar.variant(resize_to_fill: [96, 96]), class: "h-24 w-24 rounded-full border-4 border-white/20 object-cover", alt: @user.name.presence || @user.email %>
-          <% end %>
-
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-3xl font-bold "><%= @user.name.presence || @user.email %></h1>
-              <% if user_signed_in? && current_user == @user %>
-                <span class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium  ring-1 ring-white/15"><%= t("users.profile.own_badge") %></span>
+<div class="bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.08),transparent_28%),linear-gradient(180deg,#fff7f7_0%,#f8fafc_36%,#f8fafc_100%)] py-10 sm:py-12">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-[#9e0000] px-5 py-8 text-white sm:px-8 sm:py-10">
+        <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div class="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
+            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-white/15 bg-white/10 shadow-lg ring-1 ring-white/10">
+              <% if @user.avatar.attached? %>
+                <%= image_tag @user.avatar.variant(resize_to_fill: [96, 96]), class: "h-full w-full object-cover", alt: @user.name.presence || @user.email %>
+              <% else %>
+                <span class="text-3xl font-semibold text-white/90"><%= (@user.name.presence || @user.email).to_s.first.upcase %></span>
               <% end %>
             </div>
-            <p class="mt-2 text-sm text-slate-200"><%= t("users.profile.member_since", date: l(@user.created_at, format: :short)) %></p>
-            <p class="mt-1 text-sm text-slate-300"><%= t("users.profile.published_count", count: @posts.size) %></p>
-          </div>
-        </div>
 
-        <% if user_signed_in? && current_user == @user %>
-          <%= btn_link_to t("users.profile.manage_account"), edit_user_registration_path, variant: :secondary %>
-        <% end %>
-      </div>
-
-      <div class="mt-8 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
-          <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.published") %></p>
-          <p class="mt-2 text-2xl font-semibold "><%= @posts_count %></p>
-        </div>
-        <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
-          <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.verified") %></p>
-          <p class="mt-2 text-2xl font-semibold "><%= @verified_count %></p>
-        </div>
-        <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
-          <p class="text-xs uppercase tracking-wide text-slate-300"><%= t("users.profile.stats.latest") %></p>
-          <p class="mt-2 text-sm font-medium "><%= @posts.first ? l(@posts.first.created_at, format: :short) : t("users.profile.no_posts_short") %></p>
-        </div>
-      </div>
-    </div>
-
-    <div class="px-4 py-6 sm:px-8 sm:py-8">
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
-        <div>
-          <h2 class="text-xl font-semibold text-slate-800"><%= t("users.profile.recent_posts_title") %></h2>
-          <p class="mt-1 text-sm text-slate-500"><%= t("users.profile.recent_posts_subtitle") %></p>
-        </div>
-      </div>
-
-      <% if @posts.any? %>
-        <div class="mt-6 space-y-4">
-          <% @posts.each do |post| %>
-            <article class="rounded-2xl border border-slate-200 p-5 transition hover:border-indigo-200 hover:bg-slate-50/70">
-              <div class="flex flex-wrap items-start justify-between gap-4">
-                <div class="min-w-0 flex-1">
-                  <h3 class="text-lg font-semibold text-slate-800">
-                    <%= link_to post.title, post_path(post), class: "hover:text-indigo-600" %>
-                  </h3>
-                  <p class="mt-2 text-sm text-slate-500"><%= l(post.created_at, format: :short) %></p>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2">
-                  <% if post.verified? %>
-                    <span class="inline-flex items-center whitespace-nowrap rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800"><%= t("posts.status.verified") %></span>
-                  <% end %>
-                </div>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl"><%= @user.name.presence || @user.email %></h1>
+                <% if user_signed_in? && current_user == @user %>
+                  <span class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium ring-1 ring-white/15"><%= t("users.profile.own_badge") %></span>
+                <% end %>
               </div>
-            </article>
+              <p class="mt-3 max-w-2xl text-sm leading-6 text-white/75"><%= t("users.profile.member_since", date: l(@user.created_at, format: :short)) %></p>
+            </div>
+          </div>
+
+          <% if user_signed_in? && current_user == @user %>
+            <div class="flex flex-wrap gap-3">
+              <%= btn_link_to t("users.profile.manage_account"), edit_user_registration_path, variant: :secondary %>
+            </div>
           <% end %>
         </div>
-      <% else %>
-        <div class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
-          <p class="font-medium text-slate-700"><%= t("users.profile.empty_title") %></p>
-          <p class="mt-2"><%= t("users.profile.empty_body") %></p>
+
+        <div class="mt-8 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
+            <p class="text-xs uppercase tracking-[0.18em] text-white/60"><%= t("users.profile.stats.published") %></p>
+            <p class="mt-2 text-2xl font-semibold"><%= @posts_count %></p>
+          </div>
+          <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
+            <p class="text-xs uppercase tracking-[0.18em] text-white/60"><%= t("users.profile.stats.verified") %></p>
+            <p class="mt-2 text-2xl font-semibold"><%= @verified_count %></p>
+          </div>
+          <div class="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/10">
+            <p class="text-xs uppercase tracking-[0.18em] text-white/60"><%= t("users.profile.stats.latest") %></p>
+            <p class="mt-2 text-sm font-medium"><%= @posts.first ? l(@posts.first.created_at, format: :short) : t("users.profile.no_posts_short") %></p>
+          </div>
         </div>
-      <% end %>
-    </div>
+      </div>
+
+      <div class="grid gap-8 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <section>
+          <div class="flex flex-wrap items-end justify-between gap-3 border-b border-slate-100 pb-5">
+
+          </div>
+
+          <% if @posts.any? %>
+            <div class="mt-6 space-y-4">
+              <% @posts.each do |post| %>
+                <article class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 transition hover:-translate-y-0.5 hover:border-red-200 hover:bg-white hover:shadow-sm">
+                  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-lg font-semibold text-slate-900">
+                          <%= link_to post.title, post_path(post), class: "transition hover:text-[#9e0000]" %>
+                        </h3>
+                        <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800"><%= t("posts.status.verified") %></span>
+                      </div>
+
+                      <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600"><%= post_excerpt(post, length: 180) %></p>
+                      <p class="mt-3 text-xs font-medium uppercase tracking-[0.16em] text-slate-400"><%= l(post.created_at, format: :short) %></p>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-2 sm:pt-1">
+                      <%= btn_link_to t("users.profile.open_post"), post_path(post), variant: :secondary %>
+                    </div>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
+              <p class="font-medium text-slate-700"><%= t("users.profile.empty_title") %></p>
+              <p class="mt-2"><%= t("users.profile.empty_body") %></p>
+            </div>
+          <% end %>
+        </section>
+
+        <aside class="space-y-4 lg:sticky lg:top-24">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#9e0000]"><%= t("users.profile.quick_links_title", default: t("users.profile.manage_account")) %></p>
+            <div class="mt-4 space-y-3">
+              <div class="rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
+                <p class="text-xs uppercase tracking-wide text-slate-400"><%= t("users.profile.stats.published") %></p>
+                <p class="mt-1 text-lg font-semibold text-slate-900"><%= @posts_count %></p>
+              </div>
+              <div class="rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
+                <p class="text-xs uppercase tracking-wide text-slate-400"><%= t("users.profile.stats.latest") %></p>
+                <p class="mt-1 text-sm font-medium text-slate-700"><%= @posts.first ? l(@posts.first.created_at, format: :short) : t("users.profile.no_posts_short") %></p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
   </div>
 </div>
