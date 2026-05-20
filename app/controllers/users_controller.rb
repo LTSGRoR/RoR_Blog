@@ -23,16 +23,11 @@ class UsersController < ApplicationController
     users_scope = users_scope.by_role(@role)
     users_scope = users_scope.by_status(@status)
 
-    # compute counts efficiently from the filtered scope (before pagination)
-    total = users_scope.count
-    banned = users_scope.where.not(banned_at: nil).count
-    suspended = users_scope.where(suspended_until: Time.current..).count
-    active = total - banned - suspended
-
-    @total_count = total
-    @banned_count = banned
-    @suspended_count = suspended
-    @active_count = active
+    status_counts = summarize_status_counts(users_scope)
+    @total_count = status_counts[:total]
+    @banned_count = status_counts[:banned]
+    @suspended_count = status_counts[:suspended]
+    @active_count = status_counts[:active]
 
     @users = users_scope.page(params[:page]).per(10)
     respond_to do |format|
@@ -61,7 +56,7 @@ class UsersController < ApplicationController
   def ban
     authorize @user, :ban?
 
-    @user.update!(banned_at: Time.current, suspended_until: nil)
+    @user.update!(banned_at: Time.current, suspended_until: nil, suspended_time_zone: nil)
     broadcast_user_and_summary(@user)
     redirect_to users_path, notice: t("users.admin.flash.banned", email: @user.email), status: :see_other
   end
@@ -76,6 +71,11 @@ class UsersController < ApplicationController
 
   def suspend
     authorize @user, :suspend?
+
+    if @user.banned?
+      redirect_to users_path, alert: t("users.admin.flash.unban_first", default: "Unban user before suspending.")
+      return
+    end
 
     suspended_until = parse_suspended_until
     unless suspended_until&.future?
@@ -145,17 +145,28 @@ class UsersController < ApplicationController
         partial: "users/user_row",
         locals: { user: user, i: order_ids.index(user.id) }
 
-      total = User.count
-      banned = User.where.not(banned_at: nil).count
-      suspended = User.where(suspended_until: Time.current..).count
-      active = total - banned - suspended
+      status_counts = summarize_status_counts(User.all)
 
       Turbo::StreamsChannel.broadcast_replace_to "users",
         target: "users_summary",
         partial: "users/users_summary",
-        locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+        locals: {
+          total_count: status_counts[:total],
+          active_count: status_counts[:active],
+          suspended_count: status_counts[:suspended],
+          banned_count: status_counts[:banned]
+        }
     rescue => e
       Rails.logger.error "UsersController#broadcast_user_and_summary: broadcast failed for user=#{user.id} — #{e.message}"
     end
+  end
+
+  def summarize_status_counts(scope)
+    total = scope.count
+    banned = scope.where.not(banned_at: nil).count
+    suspended = scope.where(banned_at: nil).where(suspended_until: Time.current..).count
+    active = scope.where(banned_at: nil).where(suspended_until: [ nil, ..Time.current ]).count
+
+    { total: total, banned: banned, suspended: suspended, active: active }
   end
 end

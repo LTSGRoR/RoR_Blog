@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
+  validate :not_banned_and_suspended
 
   # Scopes for admin user management
   scope :by_name, ->(q) {
@@ -29,7 +30,7 @@ class User < ApplicationRecord
     when "banned"
       where.not(banned_at: nil)
     when "suspended"
-      where(suspended_until: Time.current..)
+      where(banned_at: nil).where(suspended_until: Time.current..)
     when "active"
       where(banned_at: nil).where(suspended_until: [ nil, ..Time.current ])
     else
@@ -57,6 +58,12 @@ class User < ApplicationRecord
   end
 
   protected
+
+  def not_banned_and_suspended
+    return unless banned_at.present? && suspended?
+
+    errors.add(:base, "User cannot be banned and suspended at the same time")
+  end
 
   def send_devise_notification(notification, *args)
     devise_mailer.public_send(notification, self, *args).deliver_later
