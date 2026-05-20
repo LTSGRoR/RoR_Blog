@@ -72,11 +72,9 @@
             <% has_feedback_modal = post.unverify_reason.present? || post.author_feedback_reply.present? %>
             <% can_delete_post = policy(post).destroy? %>
             <% action_layout = "grid grid-cols-2 gap-2" %>
-            <% action_button_class = "w-full justify-center" %>
-            <% base_action_class = "group inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1" %>
-            <% view_action_class = "#{base_action_class} border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:ring-slate-300 #{action_button_class}" %>
-            <% edit_action_class = "#{base_action_class} border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300 #{action_button_class}" %>
-            <% delete_action_class = "#{base_action_class} border border-rose-200 bg-rose-50 text-rose-600 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-700 focus:ring-rose-300 #{action_button_class}" %>
+            <% view_action_class = ui_action_button_classes(tone: :neutral, full_width: true, size: :xs) %>
+            <% edit_action_class = ui_action_button_classes(tone: :approve, full_width: true, size: :xs) %>
+            <% delete_action_class = ui_action_button_classes(tone: :reject, full_width: true, size: :xs) %>
             <tr class="<%= i.even? ? "bg-white" : "bg-slate-50/40" %> transition hover:bg-red-50/40">
               <td class="min-w-[100px] px-4 py-4 align-top">
                 <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to post.title, post_path(post), class: "hover:text-[#9e0000]" %></p>
@@ -120,7 +118,7 @@
                   <% if has_feedback_modal %>
                     <button
                       type="button"
-                      class="group inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold leading-none text-[#9e0000] shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:text-[#820000] hover:shadow focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 <%= action_button_class %>"
+                      class="<%= ui_action_button_classes(tone: :primary_red, full_width: true, size: :xs) %>"
                       data-action="review-modal#open"
                       data-review-modal-id-param="post-feedback-<%= post.id %>">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-red-500 transition group-hover:text-red-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -208,7 +206,7 @@
                                 <%= label_tag "post_author_feedback_reply_#{post.id}", t("posts.show.feedback.reply_label"), class: "mb-1 block text-xs font-medium text-slate-700" %>
                                 <%= text_area_tag "post[author_feedback_reply]", nil, id: "post_author_feedback_reply_#{post.id}", rows: 3, placeholder: t("posts.show.feedback.reply_placeholder"), required: true, class: "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
                               </div>
-                              <%= button_tag t("posts.show.feedback.send_reply"), type: :submit, class: "group inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold leading-none text-[#9e0000] shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:text-[#820000] hover:shadow focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1" %>
+                              <%= button_tag t("posts.show.feedback.send_reply"), type: :submit, class: ui_action_button_classes(tone: :primary_red, size: :xs) %>
                             <% end %>
                           </div>
                         <% end %>

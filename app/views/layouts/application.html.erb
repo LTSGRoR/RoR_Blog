@@ -63,7 +63,7 @@
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-[#9e0000] focus:ring-2 focus:ring-[#9e0000] focus:shadow-md">
       <%= t("accessibility.skip_to_main", default: "Skip to main content") %>
     </a>
-    <header class="border-b border-[#e2e8f0] bg-white/95 shadow-sm backdrop-blur" style="position: relative; top: 0; z-index: 50;">
+    <header class="relative top-0 z-50 border-b border-[#e2e8f0] bg-white/95 shadow-sm backdrop-blur">
       <div class="re-shell flex flex-wrap items-center justify-between gap-3 py-4">
         <%= link_to(root_path, class: "block") do %>
           <div class="re-heading text-lg font-bold text-[#9e0000] transition hover:text-[#820000]"><%= t("brand.name") %></div>
@@ -90,7 +90,7 @@
             <% end %>
           <% end %>
 
-          <%= link_to t("nav.hire_us"), "#", class: "hidden rounded-md bg-[#9e0000] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#820000] sm:inline-flex" %>
+          <%= link_to t("nav.hire_us"), team_path, class: "hidden rounded-md bg-[#9e0000] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#820000] sm:inline-flex" %>
 
           <% if defined?(user_signed_in?) && user_signed_in? %>
             <details class="relative z-50" data-controller="dropdown">

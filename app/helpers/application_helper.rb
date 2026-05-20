@@ -192,6 +192,44 @@ module ApplicationHelper
     truncate(post.body.to_plain_text.to_s.squish, length: length)
   end
 
+  def ui_action_button_classes(tone:, full_width: false, size: :sm)
+    base = "group inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1"
+
+    width_class = full_width ? "w-full" : ""
+
+    size_class = case size
+    when :xs
+      "px-3 py-1.5 text-xs leading-none"
+    when :sm
+      "px-3 py-2 text-sm"
+    when :sm_relaxed
+      "px-4 py-2 text-sm"
+    when :md
+      "px-4 py-2.5 text-sm"
+    else
+      "px-3 py-2 text-sm"
+    end
+
+    tone_class = case tone
+    when :primary_red
+      "border border-[#fecaca] bg-[#fff1f2] text-[#9e0000] hover:border-[#fda4af] hover:bg-[#ffe4e6] hover:text-[#820000] focus:ring-[#fda4af]"
+    when :approve
+      "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300"
+    when :reject
+      "border border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus:ring-rose-300"
+    when :danger_outline
+      "border border-rose-200 bg-white text-rose-600 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 focus:ring-rose-300"
+    when :unsuspend
+      "border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 focus:ring-sky-300"
+    when :warning
+      "border border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100 hover:text-amber-800 focus:ring-amber-300"
+    else
+      "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-300"
+    end
+
+    [ base, width_class, size_class, tone_class ].join(" ").squish
+  end
+
   private
 
   def btn_classes(variant)
