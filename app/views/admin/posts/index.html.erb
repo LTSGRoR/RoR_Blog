@@ -13,49 +13,26 @@
       </div>
 
       <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-2xl border border-[#fecaca] bg-[#fff1f2] p-4 shadow-sm ring-1 ring-[#ffe4e6]">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-[#9f1239]"><%= t("admin.posts.index.stats.pending_posts") %></p>
-          <p class="mt-2 text-2xl font-semibold text-[#881337]"><%= @pending_post_count %></p>
-        </div>
-        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm ring-1 ring-amber-100">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-amber-700"><%= t("admin.posts.index.stats.pending_revisions") %></p>
-          <p class="mt-2 text-2xl font-semibold text-amber-800"><%= @pending_count %></p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-slate-600"><%= t("admin.posts.index.stats.open") %></p>
-          <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @draft_count %></p>
-        </div>
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm ring-1 ring-emerald-100">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700"><%= t("admin.posts.index.stats.reviewed_today") %></p>
-          <p class="mt-2 text-2xl font-semibold text-emerald-800"><%= @reviewed_today_count %></p>
-        </div>
+        <% admin_post_stats(
+          pending_post_count: @pending_post_count,
+          pending_count: @pending_count,
+          draft_count: @draft_count,
+          reviewed_today_count: @reviewed_today_count
+        ).each do |stat| %>
+          <%= render "stat_card", **stat %>
+        <% end %>
       </div>
 
       <div class="mt-5 flex flex-wrap items-center gap-2">
-        <% { "posts" => t("admin.posts.index.scopes.posts"), "revisions" => t("admin.posts.index.scopes.revisions") }.each do |value, label| %>
-          <%= link_to label, admin_posts_path(scope: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @scope ? 'border-[#9e0000] bg-[#9e0000] text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
+        <% admin_scope_options.each do |value, label| %>
+          <%= link_to label, admin_posts_path(scope: value, q: @query), class: admin_scope_chip_classes(value == @scope) %>
         <% end %>
       </div>
 
       <% if @scope == "posts" || @scope == "revisions" %>
       <div class="mt-4 flex flex-wrap items-center gap-2">
-        <% if @scope == "posts" %>
-          <% {
-            "all_posts" => t("admin.posts.index.filters.all_posts"),
-            "awaiting_review" => t("admin.posts.index.filters.awaiting_review"),
-            "rejected" => t("admin.posts.index.filters.rejected"),
-            "ai_needs_admin_review" => t("admin.posts.index.filters.ai_needs_admin_review"),
-            "ai_auto_approved" => t("admin.posts.index.filters.ai_auto_approved"),
-            "ai_failed" => t("admin.posts.index.filters.ai_failed"),
-            "ai_in_progress" => t("admin.posts.index.filters.ai_in_progress"),
-            "ai_pending" => t("admin.posts.index.filters.ai_pending")
-          }.each do |value, label| %>
-            <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
-          <% end %>
-        <% elsif @scope == "revisions" %>
-          <% { "pending" => t("admin.posts.index.filters.pending"), "open" => t("admin.posts.index.filters.open"), "reviewed" => t("admin.posts.index.filters.reviewed") }.each do |value, label| %>
-            <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: "rounded-full border px-3 py-1.5 text-xs font-semibold transition #{value == @filter ? 'border-[#fecaca] bg-[#fff1f2] text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:border-red-200 hover:text-[#9e0000]'}" %>
-          <% end %>
+        <% admin_filter_options(@scope).each do |value, label| %>
+          <%= link_to label, admin_posts_path(scope: @scope, filter: value, q: @query), class: admin_filter_chip_classes(value == @filter) %>
         <% end %>
       </div>
       <% end %>
@@ -129,7 +106,7 @@
               <td class="min-w-[90px] px-4 py-4 text-right align-top">
                 <button
                   type="button"
-                  class="group inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#fecaca] bg-[#fff1f2] px-3 py-1.5 text-xs font-semibold leading-none text-[#9e0000] shadow-sm transition hover:-translate-y-0.5 hover:border-[#fda4af] hover:bg-[#ffe4e6] hover:text-[#820000] hover:shadow focus:outline-none focus:ring-2 focus:ring-[#fda4af] focus:ring-offset-1"
+                  class="<%= ui_action_button_classes(tone: :primary_red, size: :xs) %>"
                   data-action="review-modal#open"
                   data-review-modal-id-param="post-review-<%= post.id %>">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-[#9e0000] transition group-hover:text-[#820000]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -137,98 +114,7 @@
                   </svg>
                   <span class="inline-flex items-center leading-none"><%= t("admin.posts.index.review") %></span>
                 </button>
-
-                <div
-                  class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 p-4"
-                  data-review-modal-target="modal"
-                  data-modal-id="post-review-<%= post.id %>"
-                  data-action="click->review-modal#backdropClose">
-                  <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl text-center" role="dialog" aria-modal="true" aria-labelledby="post-review-modal-title-<%= post.id %>">
-                    <div class=" border-b border-slate-200 bg-slate-50 px-5 py-4">
-                      <div>
-                        <h3 id="post-review-modal-title-<%= post.id %>" class="text-base font-semibold text-slate-900"><%= t("admin.posts.index.review") %></h3>
-                        <p class="mt-1 text-xs text-slate-500"><%= post.title %></p>
-                      </div>
-                    </div>
-
-                    <div class="max-h-[70vh] space-y-3 overflow-y-auto p-5">
-
-                      <%= render "post_ai_assessment_section", post: post %>
-
-                      <%# Conversation thread (if any) %>
-                      <% if post.unverify_reason.present? || post.author_feedback_reply.present? %>
-                        <div class="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-2.5">
-                          <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-600"><%= t("admin.posts.index.pending_posts.conversation") %></p>
-                          <% if post.unverify_reason.present? %>
-                            <div class="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5">
-                              <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700"><%= t("admin.posts.index.pending_posts.admin_feedback") %></p>
-                              <p class="mt-1 whitespace-pre-wrap text-xs text-amber-900"><%= post.unverify_reason %></p>
-                            </div>
-                          <% end %>
-                          <% if post.author_feedback_reply.present? %>
-                            <div class="rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5">
-                              <p class="text-[11px] font-semibold uppercase tracking-wide text-sky-700"><%= t("posts.show.feedback.author_reply") %></p>
-                              <p class="mt-1 whitespace-pre-wrap text-xs text-sky-900"><%= post.author_feedback_reply %></p>
-                              <% if post.author_replied_at.present? %>
-                                <p class="mt-1 text-[11px] text-sky-700"><%= t("posts.show.feedback.updated_at", time: l(post.author_replied_at, format: :short)) %></p>
-                              <% end %>
-                            </div>
-                          <% end %>
-                        </div>
-                      <% end %>
-
-                      <% if post.verified? %>
-                        <%# Verified post: only unverify action %>
-                        <details class="group rounded-lg border border-slate-200">
-                          <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50">
-                            <%= t("admin.posts.index.unverify") %>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                          </summary>
-                          <div class="border-t border-slate-200 p-3">
-                            <%= form_with url: unverify_post_path(post), method: :post, class: "space-y-2" do %>
-                              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("admin.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
-                              <%= button_tag type: :submit, class: "group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-1" do %>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-rose-500 transition group-hover:text-rose-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M9.707 3.293a1 1 0 00-1.414 0L3.586 8H6a1 1 0 110 2H2a1 1 0 01-1-1V5a1 1 0 112 0v2.414l4.293-4.293a1 1 0 011.414 0l8 8a1 1 0 01-1.414 1.414L9 6.414l-2.293 2.293a1 1 0 11-1.414-1.414l4.414-4.414z" clip-rule="evenodd" /></svg>
-                                <span><%= t("admin.posts.index.unverify") %></span>
-                              <% end %>
-                            <% end %>
-                          </div>
-                        </details>
-                      <% else %>
-                        <%# Unverified post: Approve (primary) then Reject (collapsed) %>
-                        <%= button_to verify_post_path(post), method: :post, class: "group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-1", data: { turbo_confirm: t("admin.posts.index.confirm_approve") }, form: { class: "w-full" } do %>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-emerald-500 transition group-hover:text-emerald-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                          <span><%= t("admin.posts.index.approve") %></span>
-                        <% end %>
-
-                        <details class="group rounded-lg border border-rose-200">
-                          <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50">
-                            <%= t("admin.posts.index.reject") %>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-400 transition group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                          </summary>
-                          <div class="border-t border-rose-100 p-3">
-                            <%= form_with url: unverify_post_path(post), method: :post, class: "space-y-2" do %>
-                              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("admin.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
-                              <%= button_tag type: :submit, class: "group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-1" do %>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-rose-500 transition group-hover:text-rose-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                <span><%= t("admin.posts.index.reject") %></span>
-                              <% end %>
-                            <% end %>
-                          </div>
-                        </details>
-                      <% end %>
-
-                      <%# Delete — always available, de-emphasised %>
-                      <div class="border-t border-slate-100 pt-1">
-                        <%= button_to post_path(post), method: :delete, class: "group inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-600 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 hover:shadow focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-1", data: { turbo_confirm: t("posts.actions.confirm_delete") }, form: { class: "w-full" } do %>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-rose-500 transition group-hover:text-rose-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 4.75A1.75 1.75 0 017.75 3h4.5A1.75 1.75 0 0114 4.75V5h2.25a.75.75 0 010 1.5h-.56l-.63 8.17A2 2 0 0113.06 16H6.94a2 2 0 01-1.99-1.83L4.31 6.5h-.56a.75.75 0 010-1.5H6v-.25zM7.5 5h5v-.25a.25.25 0 00-.25-.25h-4.5a.25.25 0 00-.25.25V5zm.75 3a.75.75 0 00-1.5 0v4a.75.75 0 001.5 0V8zm4 0a.75.75 0 00-1.5 0v4a.75.75 0 001.5 0V8z" clip-rule="evenodd" /></svg>
-                          <span><%= t("posts.actions.delete") %></span>
-                        <% end %>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
+                <%= render "post_review_modal", post: post %>
               </td>
             </tr>
           <% end %>
@@ -320,7 +206,7 @@
               </td>
               <td class="min-w-[220px] px-4 py-4 text-right align-top">
                 <div class="grid grid-cols-2 gap-2">
-                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: "group inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-[#fecaca] bg-[#fff1f2] px-3 py-1.5 text-xs font-semibold text-[#9e0000] shadow-sm transition hover:-translate-y-0.5 hover:border-[#fda4af] hover:bg-[#ffe4e6] hover:text-[#820000] hover:shadow focus:outline-none focus:ring-2 focus:ring-[#fda4af] focus:ring-offset-1") %>
+                  <%= link_to(revision.pending_review? ? t("admin.posts.index.review") : t("admin.posts.index.open_draft"), admin_post_revision_path(revision), class: ui_action_button_classes(tone: :primary_red, full_width: true, size: :xs)) %>
                   <%= btn_button_to t("posts.actions.delete"), admin_post_revision_path(revision), method: :delete, variant: :danger, class: "w-full justify-center px-3 py-1.5 text-xs", data: { turbo_confirm: t("admin.posts.index.confirm_delete_revision") }, form: { class: "w-full" } %>
                 </div>
               </td>

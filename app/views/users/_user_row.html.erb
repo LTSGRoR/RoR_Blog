@@ -40,17 +40,16 @@
   </td>
   <td class="min-w-[220px] px-4 py-4 text-right">
     <% unless user.admin? %>
-      <% action_button_base = "group inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none shadow-sm transition hover:-translate-y-0.5 hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1" %>
       <div class="grid grid-cols-2 gap-2">
         <% if user.banned? %>
-          <%= button_to unban_user_path(user), method: :post, class: "#{action_button_base} border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 focus:ring-emerald-300", form: { class: "w-full" } do %>
+          <%= button_to unban_user_path(user), method: :post, class: ui_action_button_classes(tone: :approve, full_width: true, size: :xs), form: { class: "w-full" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-emerald-500 transition group-hover:text-emerald-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
             <span><%= t("users.admin.actions.unban") %></span>
           <% end %>
         <% else %>
           <button
             type="button"
-            class="<%= action_button_base %> border border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus:ring-rose-300"
+            class="<%= ui_action_button_classes(tone: :reject, full_width: true, size: :xs) %>"
             data-action="click->suspend-form#openBan"
             data-suspend-form-url-param="<%= ban_user_path(user) %>"
             data-suspend-form-user-param="<%= user.name.presence || user.email %>">
@@ -60,14 +59,14 @@
         <% end %>
 
         <% if user.suspended? %>
-          <%= button_to unsuspend_user_path(user), method: :post, class: "#{action_button_base} border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 focus:ring-sky-300", form: { class: "w-full" } do %>
+          <%= button_to unsuspend_user_path(user), method: :post, class: ui_action_button_classes(tone: :unsuspend, full_width: true, size: :xs), form: { class: "w-full" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-sky-500 transition group-hover:text-sky-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a1 1 0 011 1v1.07A7.001 7.001 0 0117 11a7 7 0 11-14 0 7.001 7.001 0 016-6.93V3a1 1 0 011-1zm-3 9a3 3 0 106 0 3 3 0 00-6 0z" /></svg>
             <span><%= t("users.admin.actions.unsuspend") %></span>
           <% end %>
         <% else %>
           <button
             type="button"
-            class="<%= action_button_base %> border border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100 hover:text-amber-800 focus:ring-amber-300"
+            class="<%= ui_action_button_classes(tone: :warning, full_width: true, size: :xs) %>"
             data-action="click->suspend-form#openSuspend"
             data-suspend-form-url-param="<%= suspend_user_path(user) %>"
             data-suspend-form-user-param="<%= user.name.presence || user.email %>">
