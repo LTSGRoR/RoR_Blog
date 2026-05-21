@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
+  before_validation :normalize_profile_title
   validates :name, presence: true
   validates :profile_title, length: { maximum: 120 }, allow_blank: true
   validates :bio, length: { maximum: 600 }, allow_blank: true
@@ -60,6 +61,16 @@ class User < ApplicationRecord
   end
 
   protected
+
+  def normalize_profile_title
+    return if profile_title.blank?
+
+    cleaned = profile_title.to_s.strip
+    slug = cleaned.delete_prefix("@").downcase
+    slug = slug.gsub(/[^a-z0-9]+/, "_").gsub(/\A_+|_+\z/, "").gsub(/_+/, "_")
+
+    self.profile_title = slug.present? ? "@#{slug}" : nil
+  end
 
   def not_banned_and_suspended
     return unless banned_at.present? && suspended?
