@@ -173,6 +173,20 @@ en:
       reactions: "Reactions"
       comments: "Comments"
       join_conversation: "to join the conversation."
+      reaction_picker:
+        cta: "React"
+        hover_to_choose: "Hover to choose"
+        hover_to_preview: "Hover to preview"
+        reset_to_like: "Tap to reset to like"
+        show_all: "show all"
+        hide: "hide"
+        labels:
+          thumbs_up: "Like"
+          heart: "Love"
+          laugh: "Haha"
+          wow: "Wow"
+          sad: "Sad"
+          angry: "Angry"
       ai_review:
         title: "AI review"
         waiting: "AI is reviewing this post. This panel updates automatically."

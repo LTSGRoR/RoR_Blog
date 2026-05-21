@@ -2,7 +2,11 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["picker", "counts"]
-  static values = { delay: { type: Number, default: 1000 } }
+  static values = {
+    delay: { type: Number, default: 1000 },
+    showAllText: { type: String, default: "show all" },
+    hideText: { type: String, default: "hide" }
+  }
 
   initialize() {
     this.hoverTimeout = null
@@ -73,7 +77,7 @@ export default class extends Controller {
     event.preventDefault()
     if (this.hasCountsTarget) {
       this.countsTarget.classList.toggle("hidden")
-      event.target.textContent = this.countsTarget.classList.contains("hidden") ? "show all" : "hide"
+      event.target.textContent = this.countsTarget.classList.contains("hidden") ? this.showAllTextValue : this.hideTextValue
     }
   }
 }

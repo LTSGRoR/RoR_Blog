@@ -144,6 +144,20 @@ ja:
       reactions: "リアクション"
       comments: "コメント"
       join_conversation: "して会話に参加しましょう。"
+      reaction_picker:
+        cta: "リアクションする"
+        hover_to_choose: "ホバーして選択"
+        hover_to_preview: "ホバーして確認"
+        reset_to_like: "タップして「いいね」に戻す"
+        show_all: "すべて表示"
+        hide: "閉じる"
+        labels:
+          thumbs_up: "いいね"
+          heart: "大好き"
+          laugh: "笑"
+          wow: "驚き"
+          sad: "悲しい"
+          angry: "怒り"
       ai_review:
         title: "AIレビュー"
         waiting: "AIがこの投稿をレビュー中です。このパネルは自動で更新されます。"

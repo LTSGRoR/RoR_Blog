@@ -144,6 +144,20 @@ vi:
       reactions: "Cảm xúc"
       comments: "Bình luận"
       join_conversation: "để tham gia cuộc trò chuyện."
+      reaction_picker:
+        cta: "Bày tỏ cảm xúc"
+        hover_to_choose: "Di chuột để chọn"
+        hover_to_preview: "Di chuột để xem"
+        reset_to_like: "Chạm để chuyển về thích"
+        show_all: "xem tất cả"
+        hide: "ẩn"
+        labels:
+          thumbs_up: "Thích"
+          heart: "Yêu thích"
+          laugh: "Haha"
+          wow: "Wow"
+          sad: "Buồn"
+          angry: "Giận dữ"
       ai_review:
         title: "Duyệt AI"
         waiting: "AI đang duyệt bài viết này. Khung này sẽ tự động cập nhật."
