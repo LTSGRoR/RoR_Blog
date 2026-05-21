@@ -102,10 +102,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_14_000002) do
     t.datetime "reviewed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "embedding_generated_at"
-    t.jsonb "feedback_suggestions"
-    t.datetime "suggestions_generated_at"
-    t.boolean "suggestions_error", default: false
     t.integer "ai_review_status", default: 0, null: false
     t.float "ai_confidence"
     t.float "ai_risk_score"
