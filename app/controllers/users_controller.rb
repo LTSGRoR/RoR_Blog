@@ -30,26 +30,26 @@ class UsersController < ApplicationController
     @active_count = status_counts[:active]
 
     @users = users_scope.page(params[:page]).per(10)
-    respond_to do |format|
-      format.html { render "users/index" }
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.replace(
-            "users_table",
-            partial: "users/users_table",
-            locals: { users: @users }
-          ),
-          turbo_stream.replace(
-            "users_summary",
-            partial: "users/users_summary",
-            locals: { total_count: @total_count, active_count: @active_count, suspended_count: @suspended_count, banned_count: @banned_count }
-          ),
-          turbo_stream.update(
-            "flash_messages",
-            partial: "shared/flash"
-          )
-        ]
-      end
+
+    if turbo_frame_request?
+      render turbo_stream: [
+        turbo_stream.replace(
+          "users_table",
+          partial: "users/users_table",
+          locals: { users: @users }
+        ),
+        turbo_stream.replace(
+          "users_summary",
+          partial: "users/users_summary",
+          locals: { total_count: @total_count, active_count: @active_count, suspended_count: @suspended_count, banned_count: @banned_count }
+        ),
+        turbo_stream.update(
+          "flash_messages",
+          partial: "shared/flash"
+        )
+      ]
+    else
+      render "users/index"
     end
   end
 

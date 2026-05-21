@@ -18,7 +18,7 @@ class LocalesController < ApplicationController
     else
       I18n.locale = I18n.default_locale
       flash[:alert] = t("locale.unsupported", locale_name: raw)
-      redirect_back fallback_location: root_path(locale: I18n.default_locale)
+      redirect_back fallback_location: root_path(locale: I18n.default_locale), status: :see_other
     end
   end
 
@@ -32,9 +32,9 @@ class LocalesController < ApplicationController
       uri = URI.parse(referer)
       new_path = uri.path.sub(%r{\A/(en|vi|ja)(/|\z)}, "/#{locale}\\2")
       new_path = "/#{locale}#{uri.path}" unless new_path.start_with?("/#{locale}")
-      redirect_to new_path + (uri.query ? "?#{uri.query}" : "")
+      redirect_to new_path + (uri.query ? "?#{uri.query}" : ""), status: :see_other
     else
-      redirect_to fallback
+      redirect_to fallback, status: :see_other
     end
   end
 end
