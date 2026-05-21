@@ -5,8 +5,10 @@
 puts "Seeding database..."
 
 # ── Users ───────────────────────────────────────────────────────────────────
+seed_password = "password1234"
+
 admin = User.find_or_initialize_by(email: "admin@department.com")
-admin.assign_attributes(name: "Admin User", password: "password123", role: :admin)
+admin.assign_attributes(name: "Admin User", password: seed_password, role: :admin)
 admin.skip_confirmation!
 admin.save!
 
@@ -18,7 +20,7 @@ authors = [
   { name: "Eva Rodriguez", email: "eva@department.com" }
 ].map do |attrs|
   u = User.find_or_initialize_by(email: attrs[:email])
-  u.assign_attributes(attrs.merge(password: "password123", role: :author))
+  u.assign_attributes(attrs.merge(password: seed_password, role: :author))
   u.skip_confirmation!
   u.save!
   u

@@ -17,8 +17,14 @@ vi:
       unauthenticated: "Bạn cần đăng nhập hoặc đăng ký trước khi tiếp tục."
       unconfirmed: "Bạn cần xác nhận địa chỉ email trước khi tiếp tục."
     registrations:
+      destroyed: "Tạm biệt! Tài khoản của bạn đã được hủy thành công. Hy vọng sớm gặp lại bạn."
       signed_up: "Chào mừng! Bạn đã đăng ký thành công."
+      signed_up_but_inactive: "Bạn đã đăng ký thành công. Tuy nhiên, chúng tôi chưa thể đăng nhập cho bạn vì tài khoản chưa được kích hoạt."
+      signed_up_but_locked: "Bạn đã đăng ký thành công. Tuy nhiên, chúng tôi chưa thể đăng nhập cho bạn vì tài khoản đã bị khóa."
+      signed_up_but_unconfirmed: "Một email chứa liên kết xác nhận đã được gửi đến địa chỉ email của bạn. Vui lòng mở liên kết để kích hoạt tài khoản."
+      update_needs_confirmation: "Bạn đã cập nhật tài khoản thành công, nhưng chúng tôi cần xác minh địa chỉ email mới của bạn. Vui lòng kiểm tra email và xác nhận."
       updated: "Tài khoản của bạn đã được cập nhật thành công."
+      updated_but_not_signed_in: "Tài khoản của bạn đã được cập nhật thành công, nhưng do mật khẩu đã thay đổi, bạn cần đăng nhập lại."
     sessions:
       signed_in: "Đăng nhập thành công."
       signed_out: "Đăng xuất thành công."
