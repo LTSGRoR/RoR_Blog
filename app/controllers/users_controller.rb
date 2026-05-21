@@ -44,7 +44,7 @@ class UsersController < ApplicationController
             partial: "users/users_summary",
             locals: { total_count: @total_count, active_count: @active_count, suspended_count: @suspended_count, banned_count: @banned_count }
           ),
-          turbo_stream.replace(
+          turbo_stream.update(
             "flash_messages",
             partial: "shared/flash"
           )
@@ -139,23 +139,26 @@ class UsersController < ApplicationController
   def broadcast_user_and_summary(user)
     begin
       order_ids = User.order(created_at: :desc).pluck(:id)
-
-      Turbo::StreamsChannel.broadcast_replace_to "users",
-        target: "user_#{user.id}",
-        partial: "users/user_row",
-        locals: { user: user, i: order_ids.index(user.id) }
-
       status_counts = summarize_status_counts(User.all)
 
-      Turbo::StreamsChannel.broadcast_replace_to "users",
-        target: "users_summary",
-        partial: "users/users_summary",
-        locals: {
-          total_count: status_counts[:total],
-          active_count: status_counts[:active],
-          suspended_count: status_counts[:suspended],
-          banned_count: status_counts[:banned]
-        }
+      I18n.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+            target: "user_#{user.id}",
+            partial: "users/user_row",
+            locals: { user: user, i: order_ids.index(user.id) }
+
+          Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+            target: "users_summary",
+            partial: "users/users_summary",
+            locals: {
+              total_count: status_counts[:total],
+              active_count: status_counts[:active],
+              suspended_count: status_counts[:suspended],
+              banned_count: status_counts[:banned]
+            }
+        end
+      end
     rescue => e
       Rails.logger.error "UsersController#broadcast_user_and_summary: broadcast failed for user=#{user.id} — #{e.message}"
     end

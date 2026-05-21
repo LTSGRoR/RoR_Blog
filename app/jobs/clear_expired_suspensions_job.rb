@@ -22,10 +22,14 @@ class ClearExpiredSuspensionsJob < ApplicationJob
     order_ids = User.order(created_at: :desc).pluck(:id)
 
     users.each_value do |user|
-      Turbo::StreamsChannel.broadcast_replace_to "users",
-        target: "user_#{user.id}",
-        partial: "users/user_row",
-        locals: { user: user, i: order_ids.index(user.id) }
+      I18n.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+            target: "user_#{user.id}",
+            partial: "users/user_row",
+            locals: { user: user, i: order_ids.index(user.id) }
+        end
+      end
     rescue => e
       Rails.logger.error "ClearExpiredSuspensionsJob: broadcast failed for user=#{user.id} — #{e.message}"
     end
@@ -41,10 +45,14 @@ class ClearExpiredSuspensionsJob < ApplicationJob
     total, banned, suspended = counts
     active = total - banned - suspended
 
-    Turbo::StreamsChannel.broadcast_replace_to "users",
-      target: "users_summary",
-      partial: "users/users_summary",
-      locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+    I18n.available_locales.each do |locale|
+      I18n.with_locale(locale) do
+        Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+          target: "users_summary",
+          partial: "users/users_summary",
+          locals: { total_count: total, active_count: active, suspended_count: suspended, banned_count: banned }
+      end
+    end
   rescue => e
     Rails.logger.error "ClearExpiredSuspensionsJob: summary broadcast failed — #{e.message}"
   end
