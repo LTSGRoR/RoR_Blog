@@ -363,7 +363,7 @@ vi:
         title: "Cài đặt"
         subtitle: "Cập nhật hồ sơ, đổi mật khẩu và quản lý thông tin tài khoản gắn với các bài viết của bạn."
         current_password_note: "Devise yêu cầu mật khẩu hiện tại để lưu các thay đổi của tài khoản."
-        quick_links: "Liên kết nhanh"
+        quick_links: "Ngày tham gia"
         public_profile: "Hồ sơ công khai"
         back_home: "Về trang chủ"
         profile_title: "Hồ sơ"

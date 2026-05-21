@@ -392,7 +392,7 @@ en:
         title: "Settings"
         subtitle: "Update your profile, change your password, and manage the account details tied to your posts."
         current_password_note: "Devise requires your current password to save account changes."
-        quick_links: "Quick links"
+        quick_links: "Joined"
         public_profile: "Public profile"
         back_home: "Back home"
         profile_title: "Profile"

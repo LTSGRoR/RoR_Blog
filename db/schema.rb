@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_14_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_21_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -196,6 +196,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_14_000002) do
     t.datetime "suspended_until"
     t.string "suspended_time_zone"
     t.string "locale"
+    t.string "profile_title"
+    t.text "bio"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["locale"], name: "index_users_on_locale"
