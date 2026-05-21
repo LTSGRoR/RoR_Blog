@@ -377,7 +377,7 @@ ja:
         title: "設定"
         subtitle: "プロフィールの更新、パスワード変更、投稿に紐づくアカウント情報の管理を行います。"
         current_password_note: "アカウント情報を保存するには現在のパスワードが必要です。"
-        quick_links: "クイックリンク"
+        quick_links: "登録日"
         public_profile: "公開プロフィール"
         back_home: "ホームへ戻る"
         profile_title: "プロフィール"

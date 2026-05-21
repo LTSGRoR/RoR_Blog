@@ -19,8 +19,8 @@ module Users
       edit_user_registration_path
     end
 
-    # Only require current_password when changing email or password.
-    # For name/avatar-only updates, skip password verification entirely.
+    # Only require current_password when changing password.
+    # For profile updates, skip password verification entirely.
     def update_resource(resource, params)
       changing_sensitive = params[:password].present?
 

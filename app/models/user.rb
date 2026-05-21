@@ -11,6 +11,8 @@ class User < ApplicationRecord
   has_many :reactions, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
   validates :name, presence: true
+  validates :profile_title, length: { maximum: 120 }, allow_blank: true
+  validates :bio, length: { maximum: 600 }, allow_blank: true
   validate :not_banned_and_suspended
 
   # Scopes for admin user management

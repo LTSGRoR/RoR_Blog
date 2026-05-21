@@ -126,8 +126,12 @@
         <% end %>
         <div>
           <h3 class="re-heading text-2xl font-semibold text-slate-900"><%= @post.user&.name.presence || @post.user&.email || t("common.unknown") %></h3>
-          <p class="mt-1 text-sm text-slate-500">Principal Engineer @ Rails Engineering</p>
-          <p class="mt-3 text-slate-700">Passionate about systems architecture, security, and the Ruby ecosystem.</p>
+          <% if @post.user&.profile_title.present? %>
+            <p class="mt-1 text-sm text-slate-500"><%= @post.user.profile_title %></p>
+          <% end %>
+          <% if @post.user&.bio.present? %>
+            <p class="mt-3 text-slate-700"><%= @post.user.bio %></p>
+          <% end %>
         </div>
       </div>
     </section>
