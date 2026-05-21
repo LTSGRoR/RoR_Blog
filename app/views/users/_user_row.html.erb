@@ -23,11 +23,9 @@
       <span class="inline-flex whitespace-nowrap rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700"><%= t("users.admin.index.status.banned") %></span>
     <% elsif user.suspended? %>
       <div>
-          <% display_zone = user.suspended_time_zone.presence || Time.zone.name %>
-          <% display_time = user.suspended_until.in_time_zone(display_zone) rescue user.suspended_until %>
           <div class="inline-flex flex-col items-start gap-1 max-w-xs">
             <div class="rounded-md bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700 whitespace-normal break-words">
-              <%= t("users.admin.index.status.suspended_until", time: l(display_time, format: :short)) %>
+              <%= t("users.admin.index.status.suspended_until_html", time: localized_time_tag(user.suspended_until)) %>
             </div>
             <% if user.suspended_time_zone.present? %>
               <div class="text-xs text-slate-500 break-words"><%= user.suspended_time_zone %></div>

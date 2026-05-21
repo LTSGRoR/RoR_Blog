@@ -29,7 +29,7 @@
               <p class="text-[11px] font-semibold uppercase tracking-wide text-sky-700"><%= t("posts.show.feedback.author_reply") %></p>
               <p class="mt-1 whitespace-pre-wrap text-xs text-sky-900"><%= post.author_feedback_reply %></p>
               <% if post.author_replied_at.present? %>
-                <p class="mt-1 text-[11px] text-sky-700"><%= t("posts.show.feedback.updated_at", time: l(post.author_replied_at, format: :short)) %></p>
+                <p class="mt-1 text-[11px] text-sky-700"><%= t("posts.show.feedback.updated_at_html", time: localized_time_tag(post.author_replied_at)) %></p>
               <% end %>
             </div>
           <% end %>

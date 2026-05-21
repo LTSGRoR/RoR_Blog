@@ -12,7 +12,7 @@
     <% end %>
     <div class="flex min-w-0 flex-1 items-baseline justify-between gap-2">
       <p class="min-w-0 truncate text-sm font-semibold text-slate-800"><%= comment.user.name.presence || comment.user.email %></p>
-      <p class="shrink-0 text-xs text-slate-400"><%= l(comment.created_at, format: :short) %></p>
+      <p class="shrink-0 text-xs text-slate-400"><%= localized_time_tag(comment.created_at) %></p>
     </div>
   </header>
 

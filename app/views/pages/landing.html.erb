@@ -111,7 +111,7 @@
                 </div>
                 <h3 class="re-heading text-2xl font-semibold leading-tight text-slate-900 transition group-hover:text-[#9e0000]"><%= link_to post.title, post_path(post) %></h3>
                 <p class="text-[#545f73]"><%= truncate(post.body.to_plain_text, length: 130) %></p>
-                <p class="re-label text-xs text-slate-500"><%= post.user&.name.presence || post.user&.email %> • <%= l(post.created_at, format: :short) %></p>
+                <p class="re-label text-xs text-slate-500"><%= post.user&.name.presence || post.user&.email %> • <%= localized_time_tag(post.created_at) %></p>
               </div>
             </article>
           <% end %>
