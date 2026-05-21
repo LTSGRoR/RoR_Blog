@@ -4,65 +4,68 @@
   <% signed_in_viewer = warden_available && user_signed_in? %>
   <% render_reaction_buttons = warden_available ? signed_in_viewer : true %>
   <% viewer_id = signed_in_viewer ? current_user.id : nil %>
+  <% reaction_labels = {
+    "thumbs_up" => t("posts.show.reaction_picker.labels.thumbs_up"),
+    "heart" => t("posts.show.reaction_picker.labels.heart"),
+    "laugh" => t("posts.show.reaction_picker.labels.laugh"),
+    "wow" => t("posts.show.reaction_picker.labels.wow"),
+    "sad" => t("posts.show.reaction_picker.labels.sad"),
+    "angry" => t("posts.show.reaction_picker.labels.angry")
+  } %>
+  <% grouped_counts = reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
+       normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
+         emoji_type
+       else
+         Reaction.emoji_types.key(emoji_type)&.to_s
+       end
+       memo[normalized_key] = count if normalized_key.present?
+     end %>
+  <% reaction_counts = Reaction.emoji_types.keys.map { |key| [key, grouped_counts[key]] }.sort_by { |key, count| [-count, Reaction.emoji_types.keys.index(key)] } %>
+  <% visible_counts = reaction_counts.reject { |_, count| count.zero? } %>
+  <% top_3_counts = visible_counts.take(3) %>
+  <% has_hidden_reactions = visible_counts.length > 3 %>
+  <% total_reactions = visible_counts.sum { |_, count| count } %>
+  <% viewer_reaction = viewer_id.present? ? reactable.reactions.find_by(user_id: viewer_id) : nil %>
+  <% viewer_reaction_key = viewer_reaction&.emoji_type&.to_s %>
+  <% primary_key = viewer_reaction_key || "thumbs_up" %>
+  <% primary_label = viewer_reaction_key.present? ? reaction_labels.fetch(primary_key) : t("posts.show.reaction_picker.cta") %>
 
-    <div class="<%= compact ? 'mt-2' : 'mt-4' %> flex flex-col items-start gap-1.5 relative"
-      data-controller="reactions"
-      data-action="click@window->reactions#closeOnOutsideClick"
-       data-reactions-delay-value="1000">
+  <div class="<%= compact ? 'mt-2' : 'mt-4' %> relative flex flex-col items-start gap-2.5"
+    data-controller="reactions"
+    data-action="click@window->reactions#closeOnOutsideClick"
+    data-reactions-delay-value="1000"
+    data-reactions-show-all-text-value="<%= t('posts.show.reaction_picker.show_all') %>"
+    data-reactions-hide-text-value="<%= t('posts.show.reaction_picker.hide') %>">
 
-    <!-- Reaction Counts (Top 3 + Show All) -->
-    <% reaction_counts = Reaction.emoji_types.keys.map { |key| [key, reactable.reactions.where(emoji_type: key).count] }.sort_by { |_, count| -count } %>
-    <% top_3_counts = reaction_counts.take(3) %>
-    <% all_counts = reaction_counts %>
-
-    <% if top_3_counts.any? { |_, count| count > 0 } %>
-      <div class="relative flex items-center gap-3 text-xs text-slate-600">
-        <!-- Top 3 Reactions Display -->
-        <div class="flex items-center gap-3">
-          <% top_3_counts.each do |key, count| %>
-            <% next if count.zero? %>
-            <% emoji = Reaction::EMOJI_MAP[key] %>
-            <span class="inline-flex h-7 items-center gap-1.5 rounded-full bg-slate-50 px-2 leading-none <%= key == 'thumbs_up' ? 'text-blue-600' : 'text-slate-600' %>">
-              <span>
-                <% if key == "thumbs_up" %>
-                  <%= reaction_thumb_icon(filled: true, classes: "h-4.5 w-4.5") %>
-                <% else %>
-                  <%= emoji %>
-                <% end %>
-              </span>
-              <span class="font-medium"><%= count %></span>
+    <% if top_3_counts.any? %>
+      <div class="relative flex flex-wrap items-center gap-2 text-xs text-slate-600">
+        <% top_3_counts.each do |key, count| %>
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-2.5 py-1 font-medium shadow-sm ring-1 ring-slate-950/5 backdrop-blur <%= key == 'thumbs_up' ? 'text-blue-600' : 'text-slate-700' %>">
+            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full <%= key == 'thumbs_up' ? 'bg-blue-50' : 'bg-slate-100' %>">
+              <%= reaction_icon(key, filled: true, classes: "h-3.5 w-3.5") %>
             </span>
-          <% end %>
-        </div>
+            <span><%= count %></span>
+          </span>
+        <% end %>
 
-        <!-- Show All Reactions Button -->
-        <% has_hidden_reactions = all_counts.reject { |_, count| count.zero? }.length > 3 %>
         <% if has_hidden_reactions %>
           <button type="button"
                   data-action="click->reactions#toggleCounts"
-                  class="text-slate-500 hover:text-slate-700 underline">
-            show all
+                  class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-700">
+            <%= t("posts.show.reaction_picker.show_all") %>
           </button>
-        <% end %>
 
-        <!-- All Reactions (Hidden by Default if more than 3) -->
-        <% if has_hidden_reactions %>
           <div data-reactions-target="counts"
-               class="hidden absolute left-0 top-full mt-2 flex items-center gap-2 rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-md">
-            <div class="flex flex-wrap gap-2">
-              <% all_counts.each do |key, count| %>
-                <% next if count.zero? %>
-                <% emoji = Reaction::EMOJI_MAP[key] %>
-                <span class="inline-flex h-7 items-center gap-1.5 rounded-full bg-slate-50 px-2 leading-none <%= key == 'thumbs_up' ? 'text-blue-600' : 'text-slate-600' %>">
-                  <span>
-                    <% if key == "thumbs_up" %>
-                      <%= reaction_thumb_icon(filled: true, classes: "h-4.5 w-4.5") %>
-                    <% else %>
-                      <%= emoji %>
-                    <% end %>
+               class="hidden absolute left-0 top-full z-20 mt-2 min-w-[15rem] rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-xl ring-1 ring-slate-950/5 backdrop-blur">
+            <div class="grid grid-cols-2 gap-2">
+              <% visible_counts.each do |key, count| %>
+                <div class="inline-flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-full <%= key == 'thumbs_up' ? 'bg-blue-50 text-blue-600' : 'bg-white text-slate-700 ring-1 ring-slate-200' %>">
+                    <%= reaction_icon(key, filled: true, classes: "h-4 w-4") %>
                   </span>
-                  <span class="font-medium"><%= count %></span>
-                </span>
+                  <span><%= reaction_labels.fetch(key) %></span>
+                  <span class="ml-auto text-slate-500"><%= count %></span>
+                </div>
               <% end %>
             </div>
           </div>
@@ -70,16 +73,11 @@
       </div>
     <% end %>
 
-    <!-- Reaction Button Group -->
     <div class="relative">
-      <!-- Like Button (Thumbs Up - Always Visible) -->
-      <% like_total = reactable.reactions.where(emoji_type: :thumbs_up).count %>
-      <% user_reacted_like = viewer_id.present? && reactable.reactions.exists?(user_id: viewer_id, emoji_type: :thumbs_up) %>
+      <% user_reacted_like = viewer_reaction_key == "thumbs_up" %>
 
-      <div class="flex items-center gap-1 m-1"
+      <div class="relative"
            data-action="mouseenter->reactions#showPicker mouseleave->reactions#hidePicker">
-
-        <!-- Like Button -->
         <% if render_reaction_buttons %>
           <%= button_to reactions_path,
                         params: {
@@ -89,26 +87,44 @@
                         },
                         method: :post,
                         form: { class: "inline-block" },
-                        class: "group inline-flex h-7 items-center gap-1.5 px-1 text-sm leading-none transition #{user_reacted_like ? 'font-semibold text-blue-600' : 'text-slate-600 hover:text-blue-600'}" do %>
-            <% if user_reacted_like %>
-              <span class="text-blue-600"><%= reaction_thumb_icon(filled: true, classes: "h-5 w-5") %></span>
-            <% else %>
-              <span class="text-blue-600 group-hover:hidden"><%= reaction_thumb_icon(classes: "h-5 w-5") %></span>
-              <span class="hidden text-blue-600 group-hover:inline-flex"><%= reaction_thumb_icon(filled: true, classes: "h-5 w-5") %></span>
+                        class: "group inline-flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-950/5 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md #{viewer_reaction_key.present? ? 'border-amber-200/80 bg-amber-50/80 text-slate-900' : 'hover:text-blue-600'}" do %>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl transition <%= viewer_reaction_key.present? ? 'bg-white text-amber-500 shadow-sm ring-1 ring-amber-200/80' : 'bg-slate-100 text-blue-600 group-hover:bg-blue-50' %>">
+              <% if user_reacted_like %>
+                <%= reaction_thumb_icon(filled: true, classes: "h-5 w-5") %>
+              <% else %>
+                <span class="group-hover:hidden"><%= reaction_icon(primary_key, filled: viewer_reaction_key.present?, classes: "h-5 w-5") %></span>
+                <span class="hidden group-hover:inline-flex"><%= reaction_thumb_icon(filled: true, classes: "h-5 w-5") %></span>
+              <% end %>
+            </span>
+
+            <span class="flex flex-col items-start leading-none">
+              <span><%= primary_label %></span>
+              <span class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400"><%= viewer_reaction_key.present? ? t("posts.show.reaction_picker.reset_to_like") : t("posts.show.reaction_picker.hover_to_choose") %></span>
+            </span>
+
+            <% if total_reactions.positive? %>
+              <span class="inline-flex min-w-8 items-center justify-center rounded-full bg-slate-900 px-2 py-1 text-xs font-semibold text-white"><%= total_reactions %></span>
             <% end %>
           <% end %>
         <% else %>
-          <span class="inline-flex h-7 items-center gap-1.5 px-1 text-sm leading-none text-slate-600">
-            <span class="text-blue-600"><%= reaction_thumb_icon(classes: "h-5 w-5") %></span>
+          <span class="inline-flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-950/5 backdrop-blur">
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-blue-600">
+              <%= reaction_thumb_icon(classes: "h-5 w-5") %>
+            </span>
+            <span class="flex flex-col items-start leading-none">
+              <span><%= t("posts.show.reaction_picker.cta") %></span>
+              <span class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400"><%= t("posts.show.reaction_picker.hover_to_preview") %></span>
+            </span>
+            <% if total_reactions.positive? %>
+              <span class="inline-flex min-w-8 items-center justify-center rounded-full bg-slate-900 px-2 py-1 text-xs font-semibold text-white"><%= total_reactions %></span>
+            <% end %>
           </span>
         <% end %>
 
-        <!-- Emoji Picker (Hidden by Default) -->
         <div data-reactions-target="picker"
-             class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full bg-white px-2 py-1 shadow-lg whitespace-nowrap z-10">
+             class="hidden absolute bottom-full left-0 z-20 mb-3 flex items-stretch gap-1.5 rounded-[1.4rem] border border-slate-200 bg-white/95 p-2 shadow-2xl ring-1 ring-slate-950/5 backdrop-blur whitespace-nowrap">
           <% Reaction.emoji_types.each_key do |key| %>
-            <% emoji = Reaction::EMOJI_MAP[key] %>
-            <% user_reacted = viewer_id.present? && reactable.reactions.exists?(user_id: viewer_id, emoji_type: key) %>
+            <% user_reacted = viewer_reaction_key == key %>
 
             <% if render_reaction_buttons %>
               <%= button_to reactions_path,
@@ -119,12 +135,19 @@
                             },
                             method: :post,
                             form: { class: "inline-block" },
-                            class: "inline-flex items-center justify-center h-8 w-8 rounded-full text-lg transition hover:bg-slate-100 #{user_reacted ? 'ring-2 ring-indigo-500' : ''}" do %>
-                <span><%= emoji %></span>
+                            class: "group inline-flex h-14 min-w-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 text-[11px] font-semibold text-slate-500 transition hover:-translate-y-1 hover:bg-slate-50 hover:text-slate-900 #{user_reacted ? 'bg-amber-50 text-slate-900 ring-1 ring-amber-200' : ''}",
+                            title: reaction_labels.fetch(key) do %>
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full <%= user_reacted ? 'bg-white text-amber-500 shadow-sm ring-1 ring-amber-200/80' : 'bg-slate-100 text-slate-700 group-hover:bg-white group-hover:shadow-sm group-hover:ring-1 group-hover:ring-slate-200' %>">
+                  <%= reaction_icon(key, filled: user_reacted, classes: "h-4.5 w-4.5") %>
+                </span>
+                <span class="mt-1"><%= reaction_labels.fetch(key) %></span>
               <% end %>
             <% else %>
-              <span class="inline-flex items-center justify-center h-8 w-8 rounded-full text-lg text-slate-600">
-                <span><%= emoji %></span>
+              <span class="inline-flex h-14 min-w-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 text-[11px] font-semibold text-slate-500">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+                  <%= reaction_icon(key, classes: "h-4.5 w-4.5") %>
+                </span>
+                <span class="mt-1"><%= reaction_labels.fetch(key) %></span>
               </span>
             <% end %>
           <% end %>
