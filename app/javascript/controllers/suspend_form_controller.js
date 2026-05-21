@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { normalizeTimeZone } from "controllers/time_zone_aliases"
 
 export default class extends Controller {
   static targets = ["suspendModal", "suspendForm", "suspendInput", "suspendTimeZone", "suspendTimeZoneLabel", "suspendUserLabel", "banModal", "banForm", "banUserLabel"]
@@ -30,12 +31,7 @@ export default class extends Controller {
     this.suspendInputTarget.value = ""
     this.suspendInputTarget.min = this.currentLocalDateTime()
     if (this.hasSuspendTimeZoneTarget) {
-      let tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
-      // map a few common legacy/browser aliases to canonical IANA names
-      const aliasMap = {
-        "Asia/Saigon": "Asia/Ho_Chi_Minh",
-      }
-      if (aliasMap[tz]) tz = aliasMap[tz]
+      const tz = normalizeTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC")
 
       this.suspendTimeZoneTarget.value = tz
       if (this.hasSuspendTimeZoneLabelTarget) {

@@ -190,6 +190,7 @@ en:
         title: "Feedback"
         author_reply: "Author Reply"
         updated_at: "Updated %{time}"
+        updated_at_html: "Updated %{time}"
         reply_label: "Reply to admin"
         reply_placeholder: "Share what you changed or ask clarifying questions."
         send_reply: "Send Reply"
@@ -417,6 +418,7 @@ en:
     profile:
       own_badge: "Your profile"
       member_since: "Member since %{date}"
+      member_since_html: "Member since %{date}"
       published_count:
         one: "%{count} post published in this blog"
         other: "%{count} posts published in this blog"
@@ -456,6 +458,7 @@ en:
           active: "Active"
           banned: "Banned"
           suspended_until: "Suspended until %{time}"
+          suspended_until_html: "Suspended until %{time}"
         actions_unavailable: "Protected account"
       actions:
         ban: "Ban"
@@ -516,11 +519,13 @@ en:
       title: "Revision Status"
       current_status: "Current status: %{status}"
       submitted_at: "Submitted at %{time}"
+      submitted_at_html: "Submitted at %{time}"
       open_editor: "Open revision editor"
       view_revision: "View revision"
       rejected_title: "Revision needs updates"
       rejected_detail: "Review feedback is below. Create an updated revision when you're ready."
       reviewed_at: "Reviewed %{time}"
+      reviewed_at_html: "Reviewed %{time}"
       review_note_label: "Review feedback"
       start_new_revision: "Create updated revision"
       propose_edits: "Propose edits"

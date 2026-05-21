@@ -161,6 +161,7 @@ ja:
         title: "フィードバック"
         author_reply: "著者からの返信"
         updated_at: "%{time} 更新"
+        updated_at_html: "%{time} 更新"
         reply_label: "管理者への返信"
         reply_placeholder: "変更内容を共有するか、確認事項を質問してください。"
         send_reply: "返信を送信"
@@ -388,6 +389,7 @@ ja:
     profile:
       own_badge: "あなたのプロフィール"
       member_since: "%{date} から利用中"
+      member_since_html: "%{date} から利用中"
       published_count:
         one: "このブログで %{count} 件の投稿を公開しています"
         other: "このブログで %{count} 件の投稿を公開しています"
@@ -427,6 +429,7 @@ ja:
           active: "有効"
           banned: "禁止"
           suspended_until: "%{time} まで一時停止"
+          suspended_until_html: "%{time} まで一時停止"
         actions_unavailable: "保護されたアカウント"
       actions:
         ban: "禁止"
@@ -490,11 +493,13 @@ ja:
       title: "修正ステータス"
       current_status: "現在の状態: %{status}"
       submitted_at: "%{time} に提出"
+      submitted_at_html: "%{time} に提出"
       open_editor: "修正エディタを開く"
       view_revision: "修正を確認する"
       rejected_title: "修正に更新が必要です"
       rejected_detail: "レビュー内容は以下です。準備ができたら修正版を作成してください。"
       reviewed_at: "%{time} にレビュー済み"
+      reviewed_at_html: "%{time} にレビュー済み"
       review_note_label: "レビュー内容"
       start_new_revision: "修正版を作成する"
       propose_edits: "編集を提案する"

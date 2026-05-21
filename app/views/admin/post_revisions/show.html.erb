@@ -43,16 +43,16 @@
           </div>
           <div>
             <dt class="text-slate-500"><%= t("admin.posts.show.submitted_label") %></dt>
-            <dd class="font-medium text-slate-800"><%= @revision.submitted_at.present? ? l(@revision.submitted_at, format: :short) : "-" %></dd>
+            <dd class="font-medium text-slate-800"><%= @revision.submitted_at.present? ? localized_time_tag(@revision.submitted_at) : "-" %></dd>
           </div>
           <div>
             <dt class="text-slate-500"><%= t("admin.posts.show.updated_label") %></dt>
-            <dd class="font-medium text-slate-800"><%= l(@revision.updated_at, format: :short) %></dd>
+            <dd class="font-medium text-slate-800"><%= localized_time_tag(@revision.updated_at) %></dd>
           </div>
           <% if @revision.reviewed_at.present? %>
             <div>
               <dt class="text-slate-500"><%= t("admin.posts.show.reviewed_label") %></dt>
-              <dd class="font-medium text-slate-800"><%= l(@revision.reviewed_at, format: :short) %></dd>
+              <dd class="font-medium text-slate-800"><%= localized_time_tag(@revision.reviewed_at) %></dd>
             </div>
           <% end %>
           <% if @revision.reviewer.present? %>

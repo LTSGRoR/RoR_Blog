@@ -39,7 +39,7 @@
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                     <span class="whitespace-nowrap font-semibold text-slate-700"><%= featured_post.user&.name.presence || t("common.unknown") %></span>
                     <span class="hidden text-slate-300 sm:inline">•</span>
-                    <span class="whitespace-nowrap"><%= l(featured_post.created_at, format: :short) %></span>
+                    <span class="whitespace-nowrap"><%= localized_time_tag(featured_post.created_at) %></span>
                     <span class="hidden text-slate-300 sm:inline">•</span>
                     <span class="whitespace-nowrap"><%= t("posts.index.meta.read_time", count: post_read_minutes(featured_post)) %></span>
                   </div>

@@ -97,7 +97,7 @@
                     <% end %>
                   </div>
                   <% if post.author_replied_at.present? %>
-                    <p class="mt-1 text-[11px] text-slate-500"><%= t("posts.show.feedback.updated_at", time: l(post.author_replied_at, format: :short)) %></p>
+                    <p class="mt-1 text-[11px] text-slate-500"><%= t("posts.show.feedback.updated_at_html", time: localized_time_tag(post.author_replied_at)) %></p>
                   <% end %>
                 <% else %>
                   <span class="text-xs text-slate-500"><%= t("admin.posts.index.pending_posts.no_feedback") %></span>
@@ -202,7 +202,7 @@
                 <% end %>
               </td>
               <td class="min-w-[150px] px-4 py-4 align-top text-sm text-slate-600 whitespace-nowrap">
-                <%= revision.submitted_at.present? ? l(revision.submitted_at, format: :short) : "-" %>
+                <%= revision.submitted_at.present? ? localized_time_tag(revision.submitted_at) : "-" %>
               </td>
               <td class="min-w-[220px] px-4 py-4 text-right align-top">
                 <div class="grid grid-cols-2 gap-2">

@@ -161,6 +161,7 @@ vi:
         title: "Phản hồi"
         author_reply: "Phản hồi của tác giả"
         updated_at: "Cập nhật %{time}"
+        updated_at_html: "Cập nhật %{time}"
         reply_label: "Trả lời quản trị viên"
         reply_placeholder: "Chia sẻ những thay đổi của bạn hoặc đặt câu hỏi làm rõ."
         send_reply: "Gửi trả lời"
@@ -388,6 +389,7 @@ vi:
     profile:
       own_badge: "Hồ sơ của bạn"
       member_since: "Tham gia từ %{date}"
+      member_since_html: "Tham gia từ %{date}"
       published_count:
         one: "Đã xuất bản %{count} bài viết trên blog này"
         other: "Đã xuất bản %{count} bài viết trên blog này"
@@ -427,6 +429,7 @@ vi:
           active: "Đang hoạt động"
           banned: "Đã cấm"
           suspended_until: "Tạm khóa đến %{time}"
+          suspended_until_html: "Tạm khóa đến %{time}"
         actions_unavailable: "Tài khoản được bảo vệ"
       actions:
         ban: "Cấm"
@@ -490,11 +493,13 @@ vi:
       title: "Trạng thái chỉnh sửa"
       current_status: "Trạng thái hiện tại: %{status}"
       submitted_at: "Đã gửi lúc %{time}"
+      submitted_at_html: "Đã gửi lúc %{time}"
       open_editor: "Mở trình chỉnh sửa"
       view_revision: "Xem bản chỉnh sửa"
       rejected_title: "Bản chỉnh sửa cần cập nhật"
       rejected_detail: "Phản hồi duyệt ở bên dưới. Hãy tạo bản chỉnh sửa mới khi bạn sẵn sàng."
       reviewed_at: "Đã duyệt %{time}"
+      reviewed_at_html: "Đã duyệt %{time}"
       review_note_label: "Phản hồi duyệt"
       start_new_revision: "Tạo bản chỉnh sửa cập nhật"
       propose_edits: "Đề xuất chỉnh sửa"

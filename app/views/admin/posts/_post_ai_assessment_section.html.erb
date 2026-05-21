@@ -33,7 +33,7 @@
             <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_model") %>:</span> <%= post.ai_model_name %></span>
           <% end %>
           <% if post.ai_reviewed_at.present? %>
-            <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_reviewed_at") %>:</span> <%= l(post.ai_reviewed_at, format: :short) %></span>
+            <span><span class="font-semibold text-slate-600"><%= t("admin.posts.index.ai_reviewed_at") %>:</span> <%= localized_time_tag(post.ai_reviewed_at) %></span>
           <% end %>
         </div>
       <% end %>

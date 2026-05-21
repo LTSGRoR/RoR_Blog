@@ -1,4 +1,15 @@
 module ApplicationHelper
+  def localized_time_tag(value, format: :short, **options)
+    return "" if value.blank?
+
+    text = I18n.l(value, format: format)
+    data = (options.delete(:data) || {}).dup
+    data[:controller] = [ data[:controller], "local-time" ].compact.join(" ")
+    data[:local_time_format_value] = format
+
+    time_tag(value, text, options.merge(datetime: value.iso8601, data: data))
+  end
+
   def btn_link_to(label, path, variant: :primary, **opts)
     classes = btn_classes(variant) + " " + (opts.delete(:class) || "")
     method = opts.delete(:method)
