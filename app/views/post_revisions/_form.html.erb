@@ -70,7 +70,7 @@
       <%= f.label :tags, t("post_revisions.form.tags"), class: "block text-sm font-semibold text-slate-700" %>
       <div class="mt-1 relative">
         <input data-tag-input-target="input"
-               data-action="input->tag-input#search keydown->tag-input#handleKeydown"
+           data-action="input->tag-input#search keydown->tag-input#handleKeydown blur->tag-input#createFromInput"
                name="post_revision[tag_list]"
                type="text"
                placeholder="<%= t('post_revisions.form.tags_placeholder') %>"

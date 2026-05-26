@@ -25,7 +25,7 @@ export default class extends Controller {
 
   search() {
     clearTimeout(this.timer)
-    const q = this.inputTarget.value.trim()
+    const q = this.consumeDelimitedInput().trim()
     if (q.length === 0) {
       this.clearList()
       return
@@ -74,6 +74,14 @@ export default class extends Controller {
       return
     }
 
+    if (e.key === ",") {
+      // keydown happens before comma is inserted, so commit current token now.
+      this.createFromInput()
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
     const items = this.resultItems
     if (!items.length) return
 
@@ -97,26 +105,12 @@ export default class extends Controller {
   }
 
   createFromInput() {
-    const name = this.inputTarget.value.trim()
-    if (!name) return
+    const names = this.extractDelimitedNames(this.inputTarget.value, true)
+    if (!names.length) return
 
-    fetch("/tags", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ name })
-    })
-      .then(r => r.json())
-      .then(tag => {
-        if (tag.id) {
-          this._addChip(String(tag.id), tag.name)
-          this.inputTarget.value = ""
-          this.clearList()
-        }
-      })
+    this.createTagsFromNames(names)
+    this.inputTarget.value = ""
+    this.clearList()
   }
 
   remove(e) {
@@ -165,6 +159,84 @@ export default class extends Controller {
 
     this.chipsTarget.appendChild(span)
     this.chipsTarget.appendChild(hidden)
+  }
+
+  consumeDelimitedInput(options = {}) {
+    const { forceAll = false } = options
+    const raw = this.inputTarget.value
+
+    if (!raw) return ""
+
+    const hasDelimiter = /[,;\n]/.test(raw)
+    if (!hasDelimiter) return raw
+
+    const endsWithDelimiter = /[,;\n]\s*$/.test(raw)
+    const parts = raw.split(/[,;\n]/).map(p => p.trim()).filter(Boolean)
+
+    if (!parts.length) {
+      this.inputTarget.value = ""
+      return ""
+    }
+
+    let namesToCreate = parts
+    let trailing = ""
+
+    // If user is still typing the last token, keep it in the input for search.
+    if (!forceAll && !endsWithDelimiter) {
+      trailing = namesToCreate.pop() || ""
+    }
+
+    if (namesToCreate.length) {
+      this.createTagsFromNames(namesToCreate)
+    }
+
+    this.inputTarget.value = trailing
+    return trailing
+  }
+
+  extractDelimitedNames(value, includeTrailing = false) {
+    const raw = value.toString()
+    const hasDelimiter = /[,;\n]/.test(raw)
+
+    if (!hasDelimiter) {
+      const single = raw.trim()
+      return single ? [single] : []
+    }
+
+    const endsWithDelimiter = /[,;\n]\s*$/.test(raw)
+    const parts = raw.split(/[,;\n]/).map(p => p.trim()).filter(Boolean)
+
+    if (!includeTrailing && !endsWithDelimiter) {
+      parts.pop()
+    }
+
+    return parts
+  }
+
+  createTagsFromNames(names) {
+    const uniqueNames = Array.from(new Set(names.map(n => n.trim().toLowerCase()).filter(Boolean)))
+
+    uniqueNames.forEach(name => {
+      this.createTag(name)
+    })
+  }
+
+  createTag(name) {
+    fetch("/tags", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ name })
+    })
+      .then(r => r.json())
+      .then(tag => {
+        if (tag.id) {
+          this._addChip(String(tag.id), tag.name)
+        }
+      })
   }
 
   ensureEmptyField() {
