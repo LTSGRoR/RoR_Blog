@@ -6,9 +6,45 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+running_rails_server() {
+  local cmd="$*"
+  [[ "$cmd" == *"rails server"* ]]
+}
+
+wait_for_elasticsearch() {
+  local url="${ELASTICSEARCH_URL:-http://elasticsearch:9200}"
+  local retries="${ELASTICSEARCH_WAIT_RETRIES:-30}"
+  local sleep_seconds="${ELASTICSEARCH_WAIT_SLEEP:-2}"
+
+  echo "[entrypoint] Waiting for Elasticsearch at ${url}"
+
+  for _ in $(seq 1 "$retries"); do
+    if curl -sS "${url}" >/dev/null 2>&1; then
+      echo "[entrypoint] Elasticsearch is ready"
+      return 0
+    fi
+    sleep "$sleep_seconds"
+  done
+
+  echo "[entrypoint] Elasticsearch did not become ready in time"
+  return 1
+}
+
+run_startup_maintenance() {
+  echo "[entrypoint] Preparing database"
   ./bin/rails db:prepare
+
+  if [ "${REINDEX_ON_BOOT:-true}" = "true" ]; then
+    wait_for_elasticsearch
+    echo "[entrypoint] Reindexing Tag and Post"
+    ./bin/rails runner "Tag.reindex; Post.reindex"
+    echo "[entrypoint] Reindex complete"
+  fi
+}
+
+# If running the rails server, prepare DB and refresh Searchkick indices.
+if running_rails_server "$@"; then
+  run_startup_maintenance
 fi
 
 exec "${@}"
