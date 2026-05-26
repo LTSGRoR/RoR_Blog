@@ -10,8 +10,9 @@ class Admin::PostsController < ApplicationController
     @filter = normalized_filter(scope: @scope, filter: permitted_filter)
 
     pending_posts_scope = Post.includes(:user, :tags)
-                  .where(status: Post.statuses[:published], verified: false)
-                  .order(created_at: :desc)
+            .where(status: Post.statuses[:published], verified: false)
+            .order(created_at: :desc)
+    awaiting_review_posts_scope = pending_posts_scope.where(unverify_reason: nil)
 
     published_posts_scope = Post.includes(:user, :tags)
                    .where(status: Post.statuses[:published])
@@ -20,6 +21,18 @@ class Admin::PostsController < ApplicationController
     @pending_count = PostRevision.pending_review.count
     @pending_post_count = pending_posts_scope.count
     @draft_count = PostRevision.draft.count
+    @new_post_count = Post.where(created_at: Time.current.beginning_of_day..).count
+    @awaiting_review_count = awaiting_review_posts_scope.count
+    @verified_today_count = Post.where(verified: true).where(verified_at: Time.current.beginning_of_day..).count
+    pending_by_reviewer = PostRevision.pending_review.group(:reviewer_id).count
+    @pending_revisions_by_reviewer = pending_by_reviewer.map do |reviewer_id, cnt|
+      name = if reviewer_id.present?
+        User.find_by(id: reviewer_id)&.name || "User ##{reviewer_id}"
+      else
+        I18n.t("admin.posts.index.stats.unassigned")
+      end
+      { reviewer: name, count: cnt }
+    end
     @reviewed_today_count = PostRevision.where(moderation_status: [ PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected] ])
                                      .where(reviewed_at: Time.current.beginning_of_day..)
                                      .count
@@ -45,8 +58,6 @@ class Admin::PostsController < ApplicationController
       @pending_posts.where(ai_review_status: Post.ai_review_statuses[:auto_approved])
     when "ai_failed"
       @pending_posts.where(ai_review_status: Post.ai_review_statuses[:failed])
-    when "ai_in_progress"
-      @pending_posts.where(ai_review_status: Post.ai_review_statuses[:in_progress])
     when "ai_pending"
       @pending_posts.where(ai_review_status: Post.ai_review_statuses[:pending])
     else
@@ -117,7 +128,6 @@ class Admin::PostsController < ApplicationController
       ai_needs_admin_review
       ai_auto_approved
       ai_failed
-      ai_in_progress
       ai_pending
       pending
       open
@@ -137,7 +147,6 @@ class Admin::PostsController < ApplicationController
         ai_needs_admin_review
         ai_auto_approved
         ai_failed
-        ai_in_progress
         ai_pending
       ].include?(filter) ? filter : "all_posts"
     else

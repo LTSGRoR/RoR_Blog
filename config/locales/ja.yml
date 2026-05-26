@@ -587,9 +587,14 @@ ja:
         reject_note_placeholder: "却下理由（必須）"
         stats:
           pending_posts: "新規投稿"
+          awaiting_review: "確認待ち"
           pending_revisions: "修正レビュー待ち"
+          ai_needs_admin_review: "AI: 管理者レビュー必要"
           open: "編集中ドラフト"
+          verified_today: "本日の確認済み"
           reviewed_today: "本日のレビュー件数"
+          unassigned: "未割り当て"
+          reviewer_load: "レビュアー負荷"
         pending_posts:
           title: "投稿管理"
           subtitle: "公開済み投稿の確認、差し戻し、削除を管理します。"
@@ -603,7 +608,7 @@ ja:
             author: "著者"
             status: "状態"
             ai_review: "AIレビュー"
-            submitted: "投稿日"
+            submitted: "更新日時"
             feedback: "フィードバック"
             actions: "操作"
         pending_revisions:
@@ -620,7 +625,6 @@ ja:
           ai_needs_admin_review: "AI: 管理者レビュー必要"
           ai_auto_approved: "AI: 自動承認"
           ai_failed: "AI: 失敗"
-          ai_in_progress: "AI: 処理中"
           ai_pending: "AI: 保留"
           pending: "レビュー待ち"
           open: "ドラフト"
@@ -630,7 +634,7 @@ ja:
           author: "著者"
           status: "状態"
           ai_review: "AIレビュー"
-          submitted: "提出日時"
+          submitted: "更新日時"
           actions: "操作"
         ai_statuses:
           pending: "保留"

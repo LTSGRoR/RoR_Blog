@@ -587,9 +587,14 @@ vi:
         reject_note_placeholder: "Ghi chú từ chối (bắt buộc)"
         stats:
           pending_posts: "Bài viết mới"
+          awaiting_review: "Chờ xác minh"
           pending_revisions: "Bản sửa chờ duyệt"
+          ai_needs_admin_review: "AI: Cần quản trị duyệt"
           open: "Bản nháp mở"
+          verified_today: "Đã xác minh hôm nay"
           reviewed_today: "Đã xử lý hôm nay"
+          unassigned: "Chưa phân công"
+          reviewer_load: "Khối lượng người duyệt"
         pending_posts:
           title: "Quản Lý Bài Viết"
           subtitle: "Quản lý các bài viết đã xuất bản, bao gồm xác minh, phản hồi và xóa."
@@ -603,7 +608,7 @@ vi:
             author: "Tác giả"
             status: "Trạng thái"
             ai_review: "Duyệt AI"
-            submitted: "Ngày gửi"
+            submitted: "Cập nhật lúc"
             feedback: "Phản hồi"
             actions: "Hành động"
         pending_revisions:
@@ -620,7 +625,6 @@ vi:
           ai_needs_admin_review: "AI: Cần quản trị duyệt"
           ai_auto_approved: "AI: Tự duyệt"
           ai_failed: "AI: Thất bại"
-          ai_in_progress: "AI: Đang xử lý"
           ai_pending: "AI: Đang chờ"
           pending: "Chờ duyệt"
           open: "Bản nháp"
@@ -630,7 +634,7 @@ vi:
           author: "Tác giả"
           status: "Trạng thái"
           ai_review: "Duyệt AI"
-          submitted: "Thời điểm gửi"
+          submitted: "Cập nhật lúc"
           actions: "Hành động"
         ai_statuses:
           pending: "Đang chờ"

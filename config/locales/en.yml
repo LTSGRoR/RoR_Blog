@@ -615,9 +615,13 @@ en:
         reject_note_placeholder: "Required rejection note"
         stats:
           pending_posts: "New posts"
+          awaiting_review: "Awaiting review"
           pending_revisions: "Pending revisions"
-          open: "Open drafts"
+          open: "Open revisions"
           reviewed_today: "Reviewed today"
+          ai_needs_admin_review: "AI: Needs admin review"
+          verified_today: "Verified today"
+          unassigned: "Unassigned"
         pending_posts:
           title: "Post Management"
           subtitle: "Manage published posts, including verification, feedback, and deletion."
@@ -631,7 +635,7 @@ en:
             author: "Author"
             status: "Status"
             ai_review: "AI Review"
-            submitted: "Submitted"
+            submitted: "Updated at"
             feedback: "Feedback"
             actions: "Actions"
         pending_revisions:
@@ -651,14 +655,14 @@ en:
           ai_in_progress: "AI: In Progress"
           ai_pending: "AI: Pending"
           pending: "Pending"
-          open: "Open Drafts"
+          open: "Open Revisions"
           reviewed: "Reviewed"
         columns:
           post: "Post"
           author: "Author"
           status: "Status"
           ai_review: "AI Review"
-          submitted: "Submitted"
+          submitted: "Updated at"
           actions: "Actions"
         ai_statuses:
           pending: "Pending"
