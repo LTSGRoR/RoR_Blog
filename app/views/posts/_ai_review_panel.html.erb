@@ -1,0 +1,15 @@
+<div id="<%= ActionView::RecordIdentifier.dom_id(post, :ai_review_panel) %>">
+  <% if post.ai_review_in_progress? || post.ai_review_pending? %>
+    <div class="ai-review-panel">
+      <strong>AI Review:</strong>
+      <span class="status"><%= post.ai_review_status.to_s.humanize %></span>
+      <% if post.ai_last_error.present? %>
+        <div class="error">Error: <%= post.ai_last_error %></div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="ai-review-panel">
+      <%= render partial: "posts/post_actions", locals: { post: post } %>
+    </div>
+  <% end %>
+</div>
