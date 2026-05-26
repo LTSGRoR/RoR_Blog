@@ -27,14 +27,14 @@ class PostsController < ApplicationController
     end
 
     @draft_posts_count = base_posts.where(status: Post.statuses[:draft]).count
-    @needs_review_posts_count = base_posts.where(status: Post.statuses[:published], verified: false).count
+    @needs_review_posts_count = base_posts.where(status: Post.statuses[:published], verified: false, unverify_reason: nil).count
     @published_posts_count = base_posts.where(status: Post.statuses[:published], verified: true).count
 
     @posts = case @filter
     when "draft"
       base_posts.where(status: Post.statuses[:draft])
     when "awaiting"
-      base_posts.where(status: Post.statuses[:published], verified: false)
+      base_posts.where(status: Post.statuses[:published], verified: false, unverify_reason: nil)
     when "published"
       base_posts.where(status: Post.statuses[:published], verified: true)
     else

@@ -9,18 +9,29 @@
           <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.posts.index.title") %></h1>
           <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.posts.index.subtitle") %></p>
         </div>
-        <%= btn_link_to t("posts.new.title"), new_post_path, variant: :primary %>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <% admin_post_stats(
-          pending_post_count: @pending_post_count,
+          new_post_count: @new_post_count,
+          awaiting_review_count: @awaiting_review_count,
           pending_count: @pending_count,
           draft_count: @draft_count,
-          reviewed_today_count: @reviewed_today_count
+          reviewed_today_count: @reviewed_today_count,
+          verified_today_count: @verified_today_count
         ).each do |stat| %>
           <%= render "stat_card", **stat %>
         <% end %>
+      </div>
+
+      <div class="mt-4">
+        <div class="mt-2 flex flex-wrap gap-2">
+          <% @pending_revisions_by_reviewer.each do |r| %>
+            <div class="rounded-full border px-3 py-1.5 text-xs font-semibold bg-white">
+              <%= r[:reviewer] %>: <span class="font-bold"><%= r[:count] %></span>
+            </div>
+          <% end %>
+        </div>
       </div>
 
       <div class="mt-5 flex flex-wrap items-center gap-2">
@@ -202,7 +213,7 @@
                 <% end %>
               </td>
               <td class="min-w-[150px] px-4 py-4 align-top text-sm text-slate-600 whitespace-nowrap">
-                <%= revision.submitted_at.present? ? localized_time_tag(revision.submitted_at) : "-" %>
+                <%= localized_time_tag(revision.updated_at) %>
               </td>
               <td class="min-w-[220px] px-4 py-4 text-right align-top">
                 <div class="grid grid-cols-2 gap-2">
