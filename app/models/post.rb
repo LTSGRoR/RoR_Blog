@@ -22,6 +22,7 @@ class Post < ApplicationRecord
   validates :title, presence: true
   validate :moderation_feedback_consistency
   has_rich_text :body
+  has_one_attached :thumbnail
 
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }

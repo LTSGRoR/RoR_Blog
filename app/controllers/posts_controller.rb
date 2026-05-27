@@ -242,7 +242,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    permitted = params.require(:post).permit(:title, :body, :status, :tag_list, tag_ids: [])
+    permitted = params.require(:post).permit(:title, :body, :status, :thumbnail, :tag_list, tag_ids: [])
 
     selected_tag_ids = Array(permitted[:tag_ids]).reject(&:blank?)
     typed_tag_names = permitted[:tag_list].to_s.split(",").map(&:strip).reject(&:blank?).uniq

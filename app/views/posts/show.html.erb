@@ -55,7 +55,11 @@
         <span class="re-label text-xs text-slate-500"><%= pluralize((@post.body.to_plain_text.split.size / 220.0).ceil, "min") %> read</span>
       </div>
       <div class="mt-6 overflow-hidden rounded-xl border border-[#e2e8f0] shadow-sm">
-        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80" alt="Technical article hero" class="h-[420px] w-full object-cover" />
+        <% if @post.thumbnail.attached? %>
+          <%= image_tag @post.thumbnail.variant(resize_to_limit: [1600, 420]), alt: @post.title, class: "h-[420px] w-full object-cover" %>
+        <% else %>
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80" alt="Technical article hero" class="h-[420px] w-full object-cover" />
+        <% end %>
       </div>
     </header>
 
@@ -185,7 +189,11 @@
         <% @related_posts.each do |related_post| %>
           <article class="group re-card overflow-hidden p-4">
             <div class="mb-3 aspect-video overflow-hidden rounded-lg border border-[#e2e8f0]">
-              <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" alt="Recommended article" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+              <% if related_post.thumbnail.attached? %>
+                <%= image_tag related_post.thumbnail.variant(resize_to_limit: [800, 450]), alt: related_post.title, class: "h-full w-full object-cover transition duration-300 group-hover:scale-105" %>
+              <% else %>
+                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" alt="Recommended article" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+              <% end %>
             </div>
             <p class="re-label text-[10px] font-semibold uppercase tracking-wider text-[#9e0000]"><%= related_post.tags.first&.name || "Rails" %></p>
             <h3 class="re-heading mt-2 text-xl font-semibold leading-snug text-slate-900 transition group-hover:text-[#9e0000]"><%= link_to related_post.title, post_path(related_post) %></h3>
