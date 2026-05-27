@@ -19,7 +19,11 @@
           <div class="grid gap-0 md:grid-cols-2">
             <div class="h-56 bg-slate-100 md:h-full">
               <%= link_to post_path(featured_post), class: "block h-full" do %>
-                <%= image_tag("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80", alt: featured_post.title, class: "h-full w-full object-cover") %>
+                <% if featured_post.thumbnail.attached? %>
+                  <%= image_tag featured_post.thumbnail.variant(resize_to_limit: [1400, 560]), alt: featured_post.title, class: "h-full w-full object-cover" %>
+                <% else %>
+                  <%= image_tag("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80", alt: featured_post.title, class: "h-full w-full object-cover") %>
+                <% end %>
               <% end %>
             </div>
             <div class="flex flex-col p-6 sm:p-8">

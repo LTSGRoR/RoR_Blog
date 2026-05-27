@@ -6,6 +6,9 @@ class PostRevision < ApplicationRecord
   has_many :post_revision_taggings, dependent: :destroy
   has_many :tags, through: :post_revision_taggings
   has_rich_text :body
+  has_one_attached :thumbnail
+
+  validate :thumbnail_size_under_limit
 
   enum :moderation_status, {
     draft: 0,
@@ -49,12 +52,26 @@ class PostRevision < ApplicationRecord
   def approve!(admin:, note: nil)
     Post.transaction do
       post.apply_approved_revision!(revision: self, admin: admin)
+      apply_thumbnail_to_post
       update!(
         moderation_status: :approved,
         reviewer: admin,
         review_note: note.to_s.strip.presence,
         reviewed_at: Time.current
       )
+    end
+  end
+
+  # When a revision is approved, apply non-textual attributes like thumbnail to the post
+  def apply_thumbnail_to_post
+    # If the revision has a thumbnail, attach that blob to the post.
+    # If the revision has no thumbnail, that represents an explicit removal
+    # (author removed it in the revision) so purge the post's thumbnail.
+    if thumbnail.attached?
+      # Attach the same blob to the post so the image persists on the post
+      post.thumbnail.attach(thumbnail.blob)
+    else
+      post.thumbnail.purge if post.thumbnail.attached?
     end
   end
 
@@ -125,5 +142,12 @@ class PostRevision < ApplicationRecord
     return if author == post&.user
 
     errors.add(:author, "must be the post owner")
+  end
+
+  def thumbnail_size_under_limit
+    return unless thumbnail.attached?
+    if thumbnail.blob.byte_size > 10.megabytes
+      errors.add(:thumbnail, "must be less than 10MB")
+    end
   end
 end
