@@ -11,7 +11,17 @@ class PostRevisionsController < ApplicationController
 
   def create
     authorize @revision
-    @revision.assign_attributes(revision_params)
+    # Process explicit remove flag before assigning attributes so an incoming
+    # `thumbnail` param can't re-attach after we've purged it.
+    remove_flag = params.dig(:post_revision, :remove_thumbnail).to_s == "1"
+    attrs = revision_params.to_h
+    if remove_flag
+      attrs.delete(:thumbnail)
+      attrs.delete("thumbnail")
+      @revision.thumbnail.purge if @revision.thumbnail.attached?
+    end
+
+    @revision.assign_attributes(attrs)
     apply_revision_tags(@revision)
 
     if submit_for_review_request?
@@ -42,7 +52,17 @@ class PostRevisionsController < ApplicationController
 
   def update
     authorize @revision
-    @revision.assign_attributes(revision_params)
+    # Process explicit remove flag before assigning attributes so an incoming
+    # `thumbnail` param can't re-attach after we've purged it.
+    remove_flag = params.dig(:post_revision, :remove_thumbnail).to_s == "1"
+    attrs = revision_params.to_h
+    if remove_flag
+      attrs.delete(:thumbnail)
+      attrs.delete("thumbnail")
+      @revision.thumbnail.purge if @revision.thumbnail.attached?
+    end
+
+    @revision.assign_attributes(attrs)
     apply_revision_tags(@revision)
 
     if submit_for_review_request?
@@ -101,6 +121,13 @@ class PostRevisionsController < ApplicationController
     @revision = @post.post_revisions.build(author: current_user, title: seed_revision&.title || @post.title)
     @revision.body = seed_revision&.body&.to_s || @post.body.to_s
     @revision.tags = seed_revision&.tags || @post.tags
+    # Copy thumbnail from the seed revision if available; otherwise copy the
+    # live post's thumbnail so the editor shows the current post image by default.
+    if seed_revision&.thumbnail&.attached?
+      @revision.thumbnail.attach(seed_revision.thumbnail.blob)
+    elsif @post.thumbnail&.attached?
+      @revision.thumbnail.attach(@post.thumbnail.blob)
+    end
   end
 
   def set_revision
@@ -121,7 +148,7 @@ class PostRevisionsController < ApplicationController
   end
 
   def revision_params
-    params.require(:post_revision).permit(:title, :body)
+    params.require(:post_revision).permit(:title, :body, :thumbnail)
   end
 
   def apply_revision_tags(revision)

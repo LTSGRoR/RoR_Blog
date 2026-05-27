@@ -7,24 +7,24 @@
 #  - FORCE: 'true' to replace existing thumbnails (default: false)
 #  - START_ID: only process posts with id >= START_ID
 
-require 'open-uri'
+require "open-uri"
 
 namespace :posts do
   desc "Backfill thumbnails for posts"
   task backfill_thumbnails: :environment do
-    count = (ENV['COUNT'] || 100).to_i
-    scope = (ENV['SCOPE'] || 'published')
-    force = ENV['FORCE'] == 'true'
-    start_id = ENV['START_ID'] && ENV['START_ID'].to_i
+    count = (ENV["COUNT"] || 100).to_i
+    scope = (ENV["SCOPE"] || "published")
+    force = ENV["FORCE"] == "true"
+    start_id = ENV["START_ID"] && ENV["START_ID"].to_i
 
     posts_scope = case scope
-    when 'all'
+    when "all"
       Post.all
     else
       Post.where(status: Post.statuses[:published], verified: true)
     end
 
-    posts_scope = posts_scope.where('posts.id >= ?', start_id) if start_id
+    posts_scope = posts_scope.where("posts.id >= ?", start_id) if start_id
 
     unless force
       # select posts that do not yet have a thumbnail attached
@@ -47,7 +47,7 @@ namespace :posts do
         filename = "post-#{post.id}.jpg"
 
         URI.open(url) do |image_file|
-          post.thumbnail.attach(io: image_file, filename: filename, content_type: image_file.content_type || 'image/jpeg')
+          post.thumbnail.attach(io: image_file, filename: filename, content_type: image_file.content_type || "image/jpeg")
         end
 
         puts "Attached thumbnail for post ##{post.id} (#{post.title.inspect})"

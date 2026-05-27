@@ -78,6 +78,11 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
+      # Handle explicit thumbnail removal from the form
+      if params.dig(:post, :remove_thumbnail).to_s == "1"
+        @post.thumbnail.purge if @post.thumbnail.attached?
+      end
+
       enqueue_ai_review_for(@post)
       redirect_to @post, notice: "Post was successfully updated."
     else
@@ -92,6 +97,10 @@ class PostsController < ApplicationController
     @post.verified = false
     authorize @post
     if @post.save
+      # If remove flag present, ensure no thumbnail is kept
+      if params.dig(:post, :remove_thumbnail).to_s == "1"
+        @post.thumbnail.purge if @post.thumbnail.attached?
+      end
       enqueue_ai_review_for(@post)
       redirect_to @post, notice: "Post was successfully created."
     else

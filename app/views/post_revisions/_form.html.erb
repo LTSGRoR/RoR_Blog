@@ -2,6 +2,7 @@
               url: post_revision_path(@post),
               method: (@revision.persisted? ? :patch : :post),
               local: true,
+              html: { multipart: true },
               class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200" do |f| %>
   <% readonly_revision = @revision.persisted? && @revision.pending_review? %>
 
@@ -28,6 +29,15 @@
     <p class="mt-1"><%= t("post_revisions.form.live_post_notice_detail") %></p>
   </div>
 
+  <% if @revision.persisted? %>
+    <% badge_classes = @revision.draft? ? "bg-slate-100 text-slate-600" : @revision.pending_review? ? "bg-yellow-100 text-yellow-700" : @revision.approved? ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" %>
+    <div class="mt-4 flex justify-start">
+      <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %>">
+        <%= t("post_revisions.form.statuses.#{@revision.moderation_status}") %>
+      </span>
+    </div>
+  <% end %>
+
   <div> 
     <%= f.label :title, class: "block text-sm font-semibold text-slate-700" %>
     <div class="mt-1">
@@ -36,6 +46,42 @@
       <% else %>
         <%= f.text_field :title, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" %>
       <% end %>
+    </div>
+  </div>
+
+  <div data-controller="avatar-preview" class="mt-4">
+    <%= f.label :thumbnail, class: "block text-sm font-semibold text-slate-700" %>
+    <div class="mt-2 flex items-start gap-4">
+      <div class="w-40 h-28 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+        <% if @revision.thumbnail.attached? %>
+          <%= image_tag @revision.thumbnail.variant(resize_to_limit: [600, 420]), data: { avatar_preview_target: "preview" }, class: "h-full w-full object-cover" , alt: @revision.title %>
+          <div data-avatar-preview-target="placeholder" class="hidden"></div>
+        <% else %>
+          <img data-avatar-preview-target="preview" class="hidden h-full w-full object-cover" alt="preview" />
+          <div data-avatar-preview-target="placeholder" class="flex flex-col items-center justify-center text-sm text-slate-500 px-2">
+            <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3v4M8 3v4m1 9l2.5-3 2 2L17 9l4 6H5l4-6z"></path></svg>
+            <span class="mt-1">No image selected</span>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex-1">
+        <%= f.file_field :thumbnail, accept: "image/*", id: "post_revision_thumbnail", data: { action: "change->avatar-preview#change", avatar_preview_target: "input" }, class: "hidden" %>
+        <%= hidden_field_tag "post_revision[remove_thumbnail]", "0", data: { avatar_preview_target: "removeField" } %>
+
+        <div class="flex items-center gap-3">
+          <label for="post_revision_thumbnail" class="inline-flex items-center gap-2 rounded-md bg-white border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer">
+            <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path></svg>
+            <span>Choose image</span>
+          </label>
+
+          <button type="button" data-action="avatar-preview#remove" class="inline-flex items-center gap-2 rounded-md bg-white border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+            Remove
+          </button>
+        </div>
+
+        <p class="mt-2 text-sm text-slate-500">Recommended: 1400×800px. JPG or PNG, up to 5MB.</p>
+      </div>
     </div>
   </div>
 
@@ -97,25 +143,18 @@
       <%= btn_button_to t("post_revisions.form.withdraw"), withdraw_post_revision_path(@post), method: :post, variant: :danger, data: { turbo_confirm: t("post_revisions.form.confirm_withdraw") } %>
     <% end %>
 
-    <% if @revision.persisted? %>
-      <% badge_classes = @revision.draft? ? "bg-slate-100 text-slate-600" : @revision.pending_review? ? "bg-yellow-100 text-yellow-700" : @revision.approved? ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700" %>
-      <span class="inline-flex items-center self-start whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium <%= badge_classes %> sm:self-auto">
-        <%= t("post_revisions.form.statuses.#{@revision.moderation_status}") %>
-      </span>
-    <% end %>
+    
 
     <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
       <% unless readonly_revision %>
-        <input type="hidden" name="commit_action" id="commit_action_input" value="save_draft" />
-
         <%= btn_submit f, t("post_revisions.form.save_draft"), variant: :secondary,
-            class: "w-full sm:w-auto",
-            onclick: "document.getElementById('commit_action_input').value='save_draft'" %>
+          class: "w-full sm:w-auto",
+          name: "commit_action", value: "save_draft" %>
 
         <%= btn_submit f, t("post_revisions.form.submit_for_review"), variant: :primary,
-            class: "w-full sm:w-auto",
-            onclick: "document.getElementById('commit_action_input').value='submit_for_review'",
-            data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
+          class: "w-full sm:w-auto",
+          name: "commit_action", value: "submit_for_review",
+          data: { turbo_confirm: t("post_revisions.form.confirm_submit") } %>
       <% end %>
     </div>
   </div>

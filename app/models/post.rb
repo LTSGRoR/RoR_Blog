@@ -24,6 +24,8 @@ class Post < ApplicationRecord
   has_rich_text :body
   has_one_attached :thumbnail
 
+  validate :thumbnail_size_under_limit
+
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
 
@@ -199,6 +201,15 @@ class Post < ApplicationRecord
       saved_change_to_ai_model_name? ||
       saved_change_to_ai_provider? ||
       saved_change_to_verified?
+  end
+
+  private
+
+  def thumbnail_size_under_limit
+    return unless thumbnail.attached?
+    if thumbnail.blob.byte_size > 10.megabytes
+      errors.add(:thumbnail, "must be less than 10MB")
+    end
   end
 
   def broadcast_ai_review_updates
