@@ -47,6 +47,7 @@ Rails.application.routes.draw do
         post :verify
         post :unverify
         post :reply_feedback
+        post :chat, to: "chat#create"
       end
     end
 
