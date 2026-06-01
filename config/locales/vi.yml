@@ -525,6 +525,11 @@ vi:
       edit:
         title: "Cài đặt kiểm duyệt AI"
         subtitle: "Cấu hình RubyLLM, prompt kiểm duyệt và ngưỡng an toàn."
+        provider_runtime: "Nhà cung cấp & thời gian chạy"
+        assistant_prompt_help: "Prompt này được dùng làm system prompt cho trợ lý AI khi tạo gợi ý."
+        automation: "Tự động hóa"
+        apply_changes: "Áp dụng thay đổi"
+        apply_changes_help: "Lưu thay đổi sẽ cập nhật ngay hành vi kiểm duyệt cho các bài gửi mới và các lần duyệt."
         save: "Lưu cài đặt"
       fields:
         provider: "Nhà cung cấp"
@@ -542,6 +547,19 @@ vi:
         openai: "OpenAI"
         gemini: "Gemini"
         claude: "Claude"
+        mistral: "Mistral"
+  shared:
+    ai_chat:
+      title: "Trợ lý AI"
+      subtitle: "Gợi ý, bài viết liên quan và đoạn nháp"
+      close: "Đóng"
+      send: "Gửi"
+      empty_state: "Hãy hỏi về cải thiện nội dung, tóm tắt, hoặc gợi ý bài viết liên quan."
+      sign_in_prompt_html: "Vui lòng %{sign_in_link} để xem và bắt đầu trò chuyện."
+      ask_placeholder: "Hỏi trợ lý về ý tưởng, tóm tắt, hoặc bài viết liên quan..."
+      hint_newline: "Shift+Enter để xuống dòng"
+      hint_send: "Enter để gửi"
+      generating: "Đang tạo..."
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."

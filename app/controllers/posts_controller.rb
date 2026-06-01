@@ -162,7 +162,7 @@ class PostsController < ApplicationController
 
   def load_public_posts
     @page = params[:page] || 1
-    @per_page = 10
+    @per_page = 4
     @search_path = posts_path
     public_scope = Post.where(status: Post.statuses[:published], verified: true)
 

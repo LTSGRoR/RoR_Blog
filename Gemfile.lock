@@ -228,6 +228,8 @@ GEM
     msgpack (1.8.0)
     multi_json (1.19.1)
     multipart-post (2.4.1)
+    neighbor (1.1.1)
+      activerecord (>= 7.2)
     net-http (0.9.1)
       uri (>= 0.11.1)
     net-imap (0.6.3)
@@ -274,6 +276,7 @@ GEM
     pg (1.6.3-x86_64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
+    pgvector (0.3.3)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -518,7 +521,9 @@ DEPENDENCIES
   kaminari
   letter_opener
   minitest (~> 5.0)
+  neighbor
   pg
+  pgvector
   propshaft
   pry-byebug
   pry-rails

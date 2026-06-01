@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_21_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_29_200001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -55,6 +56,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_21_000000) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "chat_histories", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "post_id"
+    t.text "user_message"
+    t.text "bot_response"
+    t.string "provider"
+    t.jsonb "provider_meta", default: {}
+    t.jsonb "meta", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_id"], name: "index_chat_histories_on_post_id"
+    t.index ["user_id"], name: "index_chat_histories_on_user_id"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.bigint "post_id", null: false
     t.bigint "user_id", null: false
@@ -79,6 +94,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_21_000000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "api_key"
+    t.text "assistant_prompt"
   end
 
   create_table "post_revision_taggings", force: :cascade do |t|
@@ -142,7 +158,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_21_000000) do
     t.text "ai_last_error"
     t.datetime "ai_reviewed_at"
     t.jsonb "ai_decision_payload", default: {}, null: false
+    t.vector "embedding", limit: 1536
     t.index ["ai_review_status"], name: "index_posts_on_ai_review_status"
+    t.index ["embedding"], name: "index_posts_on_embedding", using: :ivfflat
     t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
     t.index ["status"], name: "index_posts_on_status"
     t.index ["user_id"], name: "index_posts_on_user_id"

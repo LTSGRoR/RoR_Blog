@@ -551,6 +551,11 @@ en:
       edit:
         title: "AI Moderation Settings"
         subtitle: "Configure RubyLLM moderation defaults, prompts, and safety thresholds."
+        provider_runtime: "Provider & Runtime"
+        assistant_prompt_help: "This prompt is used as the system prompt for the AI assistant when generating suggestions."
+        automation: "Automation"
+        apply_changes: "Apply Changes"
+        apply_changes_help: "Saving updates modifies moderation behavior for new submissions and reviews immediately."
         save: "Save settings"
       fields:
         provider: "Provider"
@@ -569,6 +574,18 @@ en:
         gemini: "Gemini"
         claude: "Claude"
         mistral: "Mistral"
+  shared:
+    ai_chat:
+      title: "AI Assistant"
+      subtitle: "Suggestions, related posts, and draft snippets"
+      close: "Close"
+      send: "Send"
+      empty_state: "Ask for improvements, summaries, or related post recommendations."
+      sign_in_prompt_html: "Please %{sign_in_link} to view and start chats."
+      ask_placeholder: "Ask the assistant for ideas, summaries, or related posts..."
+      hint_newline: "Shift+Enter for newline"
+      hint_send: "Enter to send"
+      generating: "Generating..."
     posts:
       flash:
         approved: "Revision approved and published to live post."
