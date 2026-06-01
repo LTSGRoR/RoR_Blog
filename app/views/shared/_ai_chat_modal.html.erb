@@ -16,14 +16,14 @@
           </svg>
         </div>
         <div>
-          <h3 class="m-0 text-sm font-medium leading-tight text-slate-100">AI Assistant</h3>
-          <p class="m-0 text-xs leading-tight text-slate-500">Suggestions, related posts, and draft snippets</p>
+          <h3 class="m-0 text-sm font-medium leading-tight text-slate-100"><%= t("shared.ai_chat.title") %></h3>
+          <p class="m-0 text-xs leading-tight text-slate-500"><%= t("shared.ai_chat.subtitle") %></p>
         </div>
       </div>
       <button type="button"
               class="bg-transparent border-none cursor-pointer text-slate-600 hover:text-slate-400 p-1 rounded-md leading-none mt-0.5"
               data-action="click->ai-modal#close"
-              aria-label="Close">
+              aria-label="<%= t("shared.ai_chat.close") %>">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path d="M6 6l8 8M6 14L14 6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -41,7 +41,7 @@
              class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto bg-slate-950 px-3 py-3 sm:px-4">
           <% if histories.empty? %>
             <div class="m-auto max-w-xs rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-center">
-              <p class="text-xs text-slate-400">Ask for improvements, summaries, or related post recommendations.</p>
+              <p class="text-xs text-slate-400"><%= t("shared.ai_chat.empty_state") %></p>
             </div>
           <% end %>
           <% histories.each do |h| %>
@@ -52,7 +52,7 @@
       <% else %>
         <div class="flex-1 flex items-center justify-center px-4">
           <p class="text-xs text-slate-500 text-center">
-            Please <%= link_to t('nav.sign_in'), new_user_session_path, class: 'text-red-600 underline' %> to view and start chats.
+            <%= t("shared.ai_chat.sign_in_prompt_html", sign_in_link: link_to(t("nav.sign_in"), new_user_session_path, class: "text-red-600 underline")).html_safe %>
           </p>
         </div>
       <% end %>
@@ -64,14 +64,14 @@
           <textarea
             data-ai-modal-target="textarea"
             rows="1"
-            placeholder="Ask the assistant for ideas, summaries, or related posts…"
+            placeholder="<%= t("shared.ai_chat.ask_placeholder") %>"
             class="block box-content h-[2em] min-h-[2em] max-h-[7.5em] flex-1 resize-none overflow-y-hidden border-none bg-transparent p-0 text-[13px] leading-[1.5] text-slate-200 placeholder-slate-500 outline-none"
           ></textarea>
           <button
             type="button"
             data-action="click->ai-modal#submit"
             data-ai-modal-target="submit"
-            aria-label="Send"
+            aria-label="<%= t("shared.ai_chat.send") %>"
             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-none bg-red-700 text-white transition-colors duration-150 hover:bg-red-800 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
             disabled>
             <span data-ai-modal-target="icon">
@@ -89,8 +89,8 @@
           </button>
         </div>
           <div class="mt-2 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Shift+Enter for newline</span>
-            <span>Enter to send</span>
+            <span><%= t("shared.ai_chat.hint_newline") %></span>
+            <span><%= t("shared.ai_chat.hint_send") %></span>
           </div>
         </div>
       </div>

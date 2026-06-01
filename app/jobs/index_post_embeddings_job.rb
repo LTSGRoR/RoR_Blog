@@ -6,7 +6,7 @@ class IndexPostEmbeddingsJob < ApplicationJob
     return unless post
 
     service = AiGeneration::Service.new
-    # build text to embed (title + excerpt)
+      # build text to embed (title + excerpt)
       body_text = if post.respond_to?(:body) && post.body.present?
         if post.body.respond_to?(:to_plain_text)
           post.body.to_plain_text
@@ -19,7 +19,7 @@ class IndexPostEmbeddingsJob < ApplicationJob
 
       excerpt_text = post.respond_to?(:excerpt) ? post.excerpt.to_s.presence : nil
 
-      text = [post.title.to_s, excerpt_text || body_text.to_s.truncate(800)].compact.join("\n\n")
+      text = [ post.title.to_s, excerpt_text || body_text.to_s.truncate(800) ].compact.join("\n\n")
     embedding = service.embed(text: text)
     if embedding.present?
       post.update!(embedding: embedding)
