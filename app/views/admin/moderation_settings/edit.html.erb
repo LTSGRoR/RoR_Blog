@@ -4,7 +4,7 @@
     <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= t("admin.moderation_settings.edit.title") %></h1>
     <p class="mt-2 max-w-3xl text-sm text-slate-600"><%= t("admin.moderation_settings.edit.subtitle") %></p>
 
-    <%= form_with model: @setting, url: admin_moderation_setting_path, method: :patch, class: "mt-6 space-y-6", data: { controller: "provider-settings" } do |f| %>
+    <%= form_with model: @setting, url: admin_moderation_setting_path, method: :patch, class: "mt-6 space-y-6", data: { controller: "provider-settings", provider_settings_stored_api_key_value: @setting.api_key_in_database.present? } do |f| %>
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div class="space-y-6 lg:col-span-8">
           <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
