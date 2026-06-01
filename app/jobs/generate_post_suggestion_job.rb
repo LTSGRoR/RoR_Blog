@@ -1,6 +1,11 @@
 class GeneratePostSuggestionJob < ApplicationJob
   queue_as :default
 
+  MAX_RAG_HITS = ENV.fetch("AI_CHAT_RAG_HITS", "5").to_i
+  ANCHOR_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_ANCHOR_CONTEXT_CHARS", "1000").to_i
+  RELATED_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_RELATED_CONTEXT_CHARS", "800").to_i
+  FALLBACK_SUGGESTED_POST_LIMIT = ENV.fetch("AI_CHAT_FALLBACK_SUGGESTED_POST_LIMIT", "3").to_i
+
   def perform(chat_history_id)
     chat = ChatHistory.find_by(id: chat_history_id)
     return unless chat
@@ -16,7 +21,7 @@ class GeneratePostSuggestionJob < ApplicationJob
       if chat.post.present?
         anchor_body = extract_post_body_text(chat.post)
         candidate_post_ids << chat.post.id
-        prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(1000)}"
+        prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
       end
 
       if chat.user_message.present?
@@ -26,13 +31,13 @@ class GeneratePostSuggestionJob < ApplicationJob
           hits = Post.where.not(embedding: nil)
                      .where(status: Post.statuses[:published], verified: true)
                      .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
-                     .limit(5)
+                     .limit(MAX_RAG_HITS)
           hits.each do |p|
             next if chat.post.present? && p.id == chat.post.id
 
             candidate_post_ids << p.id
             body_text = extract_post_body_text(p)
-            prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(800)}"
+            prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
           end
         end
       end
@@ -156,7 +161,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     ids.concat(extract_ids_from_json_references(raw_text))
     ids.concat(extract_ids_from_text(raw_text))
     ids.concat(extract_ids_from_text(normalized_text))
-    ids = fallback_ids.first(3) if ids.empty?
+    ids = fallback_ids.first(FALLBACK_SUGGESTED_POST_LIMIT) if ids.empty?
 
     visible_posts_by_id = Post.where(id: ids.uniq, status: Post.statuses[:published], verified: true).index_by(&:id)
     ids.uniq.filter_map { |id| visible_posts_by_id[id]&.id }

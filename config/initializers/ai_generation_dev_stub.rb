@@ -6,7 +6,12 @@ if Rails.env.development? && ENV["AI_USE_DEV_STUB"] == "true"
         service_klass.class_eval do
           def embed(text:)
             # return a zero vector matching the expected dimension
-            Array.new(1536, 0.0)
+            dim = if defined?(AiGeneration::Service::TARGET_EMBEDDING_DIM)
+              AiGeneration::Service::TARGET_EMBEDDING_DIM
+            else
+              ENV.fetch("AI_EMBEDDING_DIM", "1536").to_i
+            end
+            Array.new(dim, 0.0)
           end
         end
       end
@@ -22,7 +27,12 @@ if Rails.env.development? && ENV["AI_USE_DEV_STUB"] == "true"
       module AiGeneration
         class Service
           def embed(text:)
-            Array.new(1536, 0.0)
+            dim = if defined?(AiGeneration::Service::TARGET_EMBEDDING_DIM)
+              AiGeneration::Service::TARGET_EMBEDDING_DIM
+            else
+              ENV.fetch("AI_EMBEDDING_DIM", "1536").to_i
+            end
+            Array.new(dim, 0.0)
           end
 
           def generate(prompt:, user:, context: {})
