@@ -1,0 +1,100 @@
+<div id="ai_chat_modal" class="hidden fixed inset-0 z-50" data-controller="ai-modal" data-ai-modal-signed-in-value="<%= user_signed_in? %>">
+  <div class="absolute inset-0 bg-black/40" data-action="click->ai-modal#close"></div>
+  <% if user_signed_in? %>
+    <%= turbo_stream_from "chat_histories_user_#{current_user.id}" %>
+  <% end %>
+
+  <!-- Panel -->
+  <div class="absolute inset-x-3 bottom-4 h-[76vh] max-h-[88vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/20 bg-slate-900 shadow-2xl sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[32rem] lg:w-[38rem]">
+
+    <!-- Header -->
+    <header class="flex items-start justify-between border-b border-slate-700/20 bg-slate-900 px-4 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-red-950">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H4a2 2 0 01-2-2V5z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="m-0 text-sm font-medium leading-tight text-slate-100">AI Assistant</h3>
+          <p class="m-0 text-xs leading-tight text-slate-500">Suggestions, related posts, and draft snippets</p>
+        </div>
+      </div>
+      <button type="button"
+              class="bg-transparent border-none cursor-pointer text-slate-600 hover:text-slate-400 p-1 rounded-md leading-none mt-0.5"
+              data-action="click->ai-modal#close"
+              aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path d="M6 6l8 8M6 14L14 6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Body -->
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <% if user_signed_in? %>
+        <% histories = ChatHistory.for_user(current_user.id).order(created_at: :asc).last(50) %>
+
+        <!-- Chat history -->
+        <div id="<%= "chat_histories_user_#{current_user.id}" %>"
+             data-ai-modal-target="history"
+             class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto bg-slate-950 px-3 py-3 sm:px-4">
+          <% if histories.empty? %>
+            <div class="m-auto max-w-xs rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-center">
+              <p class="text-xs text-slate-400">Ask for improvements, summaries, or related post recommendations.</p>
+            </div>
+          <% end %>
+          <% histories.each do |h| %>
+            <%= render "chat_histories/chat_history_item", chat_history: h %>
+          <% end %>
+        </div>
+
+      <% else %>
+        <div class="flex-1 flex items-center justify-center px-4">
+          <p class="text-xs text-slate-500 text-center">
+            Please <%= link_to t('nav.sign_in'), new_user_session_path, class: 'text-red-600 underline' %> to view and start chats.
+          </p>
+        </div>
+      <% end %>
+
+      <!-- Input row -->
+      <div class="border-t border-slate-700/20 bg-slate-900 px-3 py-3 sm:px-4">
+        <div class="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 transition focus-within:border-red-600/80 focus-within:ring-1 focus-within:ring-red-700/40">
+          <div class="flex items-end gap-2">
+          <textarea
+            data-ai-modal-target="textarea"
+            rows="1"
+            placeholder="Ask the assistant for ideas, summaries, or related posts…"
+            class="block box-content h-[2em] min-h-[2em] max-h-[7.5em] flex-1 resize-none overflow-y-hidden border-none bg-transparent p-0 text-[13px] leading-[1.5] text-slate-200 placeholder-slate-500 outline-none"
+          ></textarea>
+          <button
+            type="button"
+            data-action="click->ai-modal#submit"
+            data-ai-modal-target="submit"
+            aria-label="Send"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-none bg-red-700 text-white transition-colors duration-150 hover:bg-red-800 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+            disabled>
+            <span data-ai-modal-target="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </span>
+            <span data-ai-modal-target="spinner" class="hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                <path d="M22 12a10 10 0 0 1-10 10" stroke-linecap="round"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+          <div class="mt-2 flex items-center justify-between text-[10px] text-slate-500">
+            <span>Shift+Enter for newline</span>
+            <span>Enter to send</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

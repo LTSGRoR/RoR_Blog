@@ -1,34 +1,30 @@
 Rails.application.routes.draw do
   scope "(:locale)", locale: /en|vi|ja/ do
     devise_for :users, controllers: { registrations: "users/registrations", sessions: "users/sessions" }
-    # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-    # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-    # Can be used by load balancers and uptime monitors to verify that the app is live.
     get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+    root "pages#landing"
+    get "blog", to: "posts#index", as: :blog
+    get "team", to: "pages#team", as: :team
 
-  # Public routes
-  root "pages#landing"
-  get "blog", to: "posts#index", as: :blog
-  get "team", to: "pages#team", as: :team
-  resources :tags, only: [ :index, :create ]
-  resources :reactions, only: [ :create ]
-  resources :users, only: [ :show, :index ] do
-    member do
-      post :ban
-      post :unban
-      post :suspend
-      post :unsuspend
+    # Standalone chat (no post context)
+    post "chat", to: "chat#create", as: :chat
+    get "chat/:id", to: "chat#show", as: :chat_status
+
+    resources :tags, only: [ :index, :create ]
+    resources :reactions, only: [ :create ]
+    resources :users, only: [ :show, :index ] do
+      member do
+        post :ban
+        post :unban
+        post :suspend
+        post :unsuspend
+      end
     end
-  end
 
     resources :posts do
       collection do
-        # get :community (removed, merged into index)
         get :mine
       end
 
@@ -38,6 +34,7 @@ Rails.application.routes.draw do
           get :replies
         end
       end
+
       resource :revision, controller: :post_revisions, only: [ :new, :create, :edit, :update ] do
         post :submit
         post :withdraw
@@ -66,7 +63,6 @@ Rails.application.routes.draw do
       end
     end
 
-    # Sidekiq Web UI — admin-only in all environments
     authenticate :user, ->(u) { u.admin? } do
       begin
         require "sidekiq/web"
@@ -75,5 +71,6 @@ Rails.application.routes.draw do
       end
     end
   end
+
   post "/set_locale", to: "locales#create", as: :set_locale
 end

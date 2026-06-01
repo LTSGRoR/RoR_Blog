@@ -60,6 +60,12 @@
             <%= f.label :revision_instruction, t("admin.moderation_settings.fields.revision_instruction"), class: "mb-2 block text-sm font-semibold text-slate-700" %>
             <%= f.text_area :revision_instruction, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
           </div>
+
+          <div class="rounded-xl border border-slate-200 bg-white p-5">
+            <%= f.label :assistant_prompt, t("admin.moderation_settings.fields.assistant_prompt"), class: "mb-2 block text-sm font-semibold text-slate-700" %>
+            <%= f.text_area :assistant_prompt, rows: 8, class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000]" %>
+            <p class="mt-1 text-xs text-slate-500">This prompt is used as the system prompt for the AI assistant when generating suggestions.</p>
+          </div>
         </div>
 
         <aside class="space-y-4 lg:col-span-4">

@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :reviewed_post_revisions, class_name: "PostRevision", foreign_key: :reviewer_id, dependent: :nullify
   has_many :comments, dependent: :destroy
   has_many :reactions, dependent: :destroy
+  has_many :chat_histories, dependent: :destroy
   enum :role, { author: 0, admin: 1 }
   before_validation :normalize_profile_title
   validates :name, presence: true

@@ -1,0 +1,20 @@
+<article class="rounded-lg border border-slate-700 bg-slate-800/70 p-2.5">
+  <%= link_to post_path(post), class: "group flex items-start gap-2.5" do %>
+    <div class="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-slate-700">
+      <% if post.thumbnail.attached? %>
+        <% thumb_path = rails_representation_path(post.thumbnail.variant(resize_to_fill: [96, 96]).processed, only_path: true) %>
+        <%= image_tag thumb_path, class: "h-full w-full object-cover", alt: post.title, loading: "lazy" %>
+      <% else %>
+        <%= image_tag "default_avatar.svg", class: "h-full w-full object-cover", alt: post.title, loading: "lazy" %>
+      <% end %>
+    </div>
+    <div class="min-w-0">
+      <p class="line-clamp-1 text-xs font-semibold text-slate-100 group-hover:text-red-300"><%= post.title %></p>
+      <p class="mt-0.5 line-clamp-2 text-[11px] leading-4 text-slate-300"><%= post_excerpt(post, length: 90) %></p>
+      <p class="mt-1 text-[10px] text-slate-400">
+        <%= t("posts.show.by") %>
+        <%= post.user&.name.presence || post.user&.email || t("common.unknown") %>
+      </p>
+    </div>
+  <% end %>
+</article>

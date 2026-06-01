@@ -1,0 +1,25 @@
+<div id="<%= dom_id(chat_history) %>" class="mb-3 space-y-2">
+  <% if chat_history.user_message.present? %>
+    <div class="flex justify-end">
+      <div class="rounded-lg bg-[#9e0000] text-white px-3 py-2 text-sm max-w-[70%] break-words whitespace-pre-wrap"> <%= simple_format(h(chat_history.user_message)) %> </div>
+    </div>
+  <% end %>
+
+  <% if chat_history.bot_response.present? %>
+    <div class="flex justify-start">
+      <div class="rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-100 max-w-[70%] break-words whitespace-pre-wrap"> <%= simple_format(h(chat_history.bot_response)) %> </div>
+    </div>
+    <% suggested_posts = chat_history.suggested_posts(limit: 3) %>
+    <% if suggested_posts.any? %>
+      <div class="ml-0 sm:ml-2 grid grid-cols-1 gap-2 max-w-[95%]">
+        <% suggested_posts.each do |post| %>
+          <%= render "chat_histories/suggested_post_card", post: post %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="flex justify-start">
+      <div class="rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-400 italic max-w-[70%]">Generating…</div>
+    </div>
+  <% end %>
+</div>

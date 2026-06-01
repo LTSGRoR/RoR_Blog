@@ -33,7 +33,8 @@ class Admin::ModerationSettingsController < ApplicationController
       :max_retries,
       :auto_review_enabled,
       :new_post_instruction,
-      :revision_instruction
+      :revision_instruction,
+      :assistant_prompt
     )
 
     # Keep the currently stored encrypted key when the input is left blank.

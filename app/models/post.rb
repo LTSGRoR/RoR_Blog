@@ -3,6 +3,8 @@ class Post < ApplicationRecord
   after_create_commit :enqueue_search_index
   after_update_commit :enqueue_search_index, if: :search_index_reindex_needed?
   after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
+  # Enqueue embedding indexing when posts are created or updated (only for published posts)
+  after_commit :enqueue_embedding_index_after_commit, on: [ :create, :update ]
 
   belongs_to :user
   belongs_to :reviewed_by, class_name: "User", optional: true
@@ -167,6 +169,26 @@ class Post < ApplicationRecord
   end
 
   private
+
+  def enqueue_embedding_index
+    return unless published? && verified?
+    IndexPostEmbeddingsJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("enqueue_embedding_index failed for Post #{id}: #{e.class} - #{e.message}")
+  end
+
+  def enqueue_embedding_index_after_commit
+    # always index on create; for updates index only when searchable fields changed
+    created = previous_changes.key?("id")
+    changed_relevant_fields = saved_changes_for_embedding?
+    return unless created || changed_relevant_fields
+
+    enqueue_embedding_index
+  end
+
+  def saved_changes_for_embedding?
+    saved_change_to_title? || saved_change_to_status? || saved_change_to_verified? || saved_change_to_user_id? || saved_change_to_updated_at?
+  end
 
   def enqueue_search_index
     PostSearchIndexJob.perform_later(id)
