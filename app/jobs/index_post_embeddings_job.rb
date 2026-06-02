@@ -6,23 +6,13 @@ class IndexPostEmbeddingsJob < ApplicationJob
     return unless post
 
     service = AiGeneration::Service.new
-      # build text to embed (title + excerpt)
-      body_text = if post.respond_to?(:body) && post.body.present?
-        if post.body.respond_to?(:to_plain_text)
-          post.body.to_plain_text
-        else
-          post.body.to_s
-        end
-      else
-        ""
-      end
+    text = embedding_source_text(post)
+    source_digest = embedding_source_digest(text)
+    return if post.embedding.present? && post.embedding_source_digest == source_digest
 
-      excerpt_text = post.respond_to?(:excerpt) ? post.excerpt.to_s.presence : nil
-
-      text = [ post.title.to_s, excerpt_text || body_text.to_s.truncate(800) ].compact.join("\n\n")
     embedding = service.embed(text: text)
     if embedding.present?
-      post.update!(embedding: embedding)
+      post.update!(embedding: embedding, embedding_source_digest: source_digest)
     end
   rescue StandardError => e
     if rate_limit_error?(e) && executions < max_rate_limit_retries
@@ -40,6 +30,26 @@ class IndexPostEmbeddingsJob < ApplicationJob
 
   def rate_limit_error?(error)
     defined?(RubyLLM::RateLimitError) && error.is_a?(RubyLLM::RateLimitError)
+  end
+
+  def embedding_source_text(post)
+    body_text = if post.respond_to?(:body) && post.body.present?
+      if post.body.respond_to?(:to_plain_text)
+        post.body.to_plain_text
+      else
+        post.body.to_s
+      end
+    else
+      ""
+    end
+
+    excerpt_text = post.respond_to?(:excerpt) ? post.excerpt.to_s.presence : nil
+
+    [ post.title.to_s, excerpt_text || body_text.to_s.truncate(800) ].compact.join("\n\n")
+  end
+
+  def embedding_source_digest(text)
+    Digest::SHA256.hexdigest(text.to_s)
   end
 
   def max_rate_limit_retries

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_29_200001) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -66,6 +66,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_29_200001) do
     t.jsonb "meta", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.vector "embedding", limit: 1536
+    t.index ["embedding"], name: "index_chat_histories_on_embedding", using: :ivfflat
     t.index ["post_id"], name: "index_chat_histories_on_post_id"
     t.index ["user_id"], name: "index_chat_histories_on_user_id"
   end
@@ -159,6 +161,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_29_200001) do
     t.datetime "ai_reviewed_at"
     t.jsonb "ai_decision_payload", default: {}, null: false
     t.vector "embedding", limit: 1536
+    t.string "embedding_source_digest"
     t.index ["ai_review_status"], name: "index_posts_on_ai_review_status"
     t.index ["embedding"], name: "index_posts_on_embedding", using: :ivfflat
     t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
