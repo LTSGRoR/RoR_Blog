@@ -2,8 +2,11 @@ class GeneratePostSuggestionJob < ApplicationJob
   queue_as :default
 
   MAX_RAG_HITS = ENV.fetch("AI_CHAT_RAG_HITS", "5").to_i
+  MAX_HISTORY_RAG_HITS = ENV.fetch("AI_CHAT_HISTORY_RAG_HITS", "3").to_i
+  MAX_HISTORY_RAG_POOL = ENV.fetch("AI_CHAT_HISTORY_RAG_POOL", "12").to_i
   ANCHOR_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_ANCHOR_CONTEXT_CHARS", "1000").to_i
   RELATED_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_RELATED_CONTEXT_CHARS", "800").to_i
+  HISTORY_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_HISTORY_CONTEXT_CHARS", "900").to_i
   FALLBACK_SUGGESTED_POST_LIMIT = ENV.fetch("AI_CHAT_FALLBACK_SUGGESTED_POST_LIMIT", "3").to_i
 
   def perform(chat_history_id)
@@ -16,6 +19,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     # Retrieval-Augmented Generation using pgvector embeddings (if available)
     prompt_context = []
     candidate_post_ids = []
+    candidate_chat_history_ids = []
     begin
       # Always anchor on the current post first when available.
       if chat.post.present?
@@ -38,6 +42,38 @@ class GeneratePostSuggestionJob < ApplicationJob
             candidate_post_ids << p.id
             body_text = extract_post_body_text(p)
             prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
+          end
+        end
+      end
+
+      if chat.user_message.present?
+        history_embed = service.embed(text: chat.user_message)
+        if history_embed.present?
+          vector_literal = "[" + history_embed.map { |n| n.to_s }.join(",") + "]"
+          recent_history_ids = ChatHistory.where(user_id: chat.user_id)
+                                          .where.not(id: chat.id)
+                                          .where.not(bot_response: nil)
+                                          .order(created_at: :desc)
+                                          .limit(MAX_HISTORY_RAG_POOL)
+                                          .pluck(:id)
+
+          history_scope = ChatHistory.where(id: recent_history_ids).where.not(embedding: nil)
+          history_hits = if history_scope.exists?
+            history_scope.order(Arel.sql("embedding <-> '#{vector_literal}'::vector")).limit(MAX_HISTORY_RAG_HITS)
+          else
+            ChatHistory.where(user_id: chat.user_id)
+                       .where.not(id: chat.id)
+                       .where.not(embedding: nil)
+                       .where.not(bot_response: nil)
+                       .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
+                       .limit(MAX_HISTORY_RAG_HITS)
+          end
+
+          history_hits.each do |history|
+            next if candidate_chat_history_ids.include?(history.id)
+
+            candidate_chat_history_ids << history.id
+            prompt_context << build_history_context(history)
           end
         end
       end
@@ -85,6 +121,8 @@ class GeneratePostSuggestionJob < ApplicationJob
       provider_meta: provider_meta
     )
 
+    index_chat_history_embedding(chat, service)
+
     # `dom_id` helper isn't available in jobs — build the target id explicitly.
     Turbo::StreamsChannel.broadcast_replace_to(
       "chat_histories_user_#{chat.user_id}",
@@ -108,6 +146,23 @@ class GeneratePostSuggestionJob < ApplicationJob
     else
       post.body.to_s
     end
+  end
+
+  def build_history_context(chat_history)
+    text = chat_history.embedding_text.to_s.squish.truncate(HISTORY_CONTEXT_TRUNCATE_CHARS)
+    "CHAT id=#{chat_history.id} post_id=#{chat_history.post_id || 'nil'}\n#{text}"
+  end
+
+  def index_chat_history_embedding(chat_history, service)
+    embedding_text = chat_history.embedding_text
+    return if embedding_text.blank?
+
+    embedding = service.embed(text: embedding_text)
+    return if embedding.blank?
+
+    chat_history.update_columns(embedding: embedding, updated_at: Time.current)
+  rescue StandardError => e
+    Rails.logger.warn("Chat history embedding index failed for chat_history_id=#{chat_history.id}: #{e.class} - #{e.message}")
   end
 
   def normalize_bot_response(raw_text)

@@ -3,10 +3,15 @@ class ChatHistory < ApplicationRecord
   belongs_to :post, optional: true
 
   validates :user_message, presence: true
-  # `bot_response` is filled asynchronously by a background job, so we allow
-  # records to be created without it and validate presence only on update if needed.
 
   scope :for_user, ->(user_id) { where(user_id: user_id) }
+
+  def embedding_text
+    parts = []
+    parts << "User: #{user_message.to_s.strip}" if user_message.present?
+    parts << "Assistant: #{bot_response.to_s.strip}" if bot_response.present?
+    parts.join("\n\n")
+  end
 
   def suggested_post_ids
     ids = provider_meta_hash[:suggested_post_ids] || provider_meta_hash["suggested_post_ids"]
