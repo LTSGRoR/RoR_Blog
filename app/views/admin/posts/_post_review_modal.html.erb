@@ -6,7 +6,7 @@
   <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl text-center" role="dialog" aria-modal="true" aria-labelledby="post-review-modal-title-<%= post.id %>">
     <div class=" border-b border-slate-200 bg-slate-50 px-5 py-4">
       <div>
-        <h3 id="post-review-modal-title-<%= post.id %>" class="text-base font-semibold text-slate-900"><%= t("shared.posts.index.review") %></h3>
+        <h3 id="post-review-modal-title-<%= post.id %>" class="text-base font-semibold text-slate-900"><%= t("admin.posts.index.review") %></h3>
         <p class="mt-1 text-xs text-slate-500"><%= post.title %></p>
       </div>
     </div>
@@ -17,10 +17,10 @@
 
       <% if post.unverify_reason.present? || post.author_feedback_reply.present? %>
         <div class="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-2.5">
-          <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-600"><%= t("shared.posts.index.pending_posts.conversation") %></p>
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-600"><%= t("admin.posts.index.pending_posts.conversation") %></p>
           <% if post.unverify_reason.present? %>
             <div class="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5">
-              <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700"><%= t("shared.posts.index.pending_posts.admin_feedback") %></p>
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700"><%= t("admin.posts.index.pending_posts.admin_feedback") %></p>
               <p class="mt-1 whitespace-pre-wrap text-xs text-amber-900"><%= post.unverify_reason %></p>
             </div>
           <% end %>
@@ -39,36 +39,36 @@
       <% if post.verified? %>
         <details class="group rounded-lg border border-slate-200">
           <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50">
-            <%= t("shared.posts.index.unverify") %>
+            <%= t("admin.posts.index.unverify") %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 transition group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </summary>
           <div class="border-t border-slate-200 p-3">
             <%= form_with url: unverify_post_path(post), method: :post, class: "space-y-2" do %>
-              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("shared.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
+              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("admin.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
               <%= button_tag type: :submit, class: ui_action_button_classes(tone: :reject, full_width: true, size: :sm_relaxed) do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-rose-500 transition group-hover:text-rose-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M9.707 3.293a1 1 0 00-1.414 0L3.586 8H6a1 1 0 110 2H2a1 1 0 01-1-1V5a1 1 0 112 0v2.414l4.293-4.293a1 1 0 011.414 0l8 8a1 1 0 01-1.414 1.414L9 6.414l-2.293 2.293a1 1 0 11-1.414-1.414l4.414-4.414z" clip-rule="evenodd" /></svg>
-                <span><%= t("shared.posts.index.unverify") %></span>
+                <span><%= t("admin.posts.index.unverify") %></span>
               <% end %>
             <% end %>
           </div>
         </details>
       <% else %>
-        <%= button_to verify_post_path(post), method: :post, class: ui_action_button_classes(tone: :approve, full_width: true, size: :md), data: { turbo_confirm: t("shared.posts.index.confirm_approve") }, form: { class: "w-full" } do %>
+        <%= button_to verify_post_path(post), method: :post, class: ui_action_button_classes(tone: :approve, full_width: true, size: :md), data: { turbo_confirm: t("admin.posts.index.confirm_approve") }, form: { class: "w-full" } do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-emerald-500 transition group-hover:text-emerald-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-          <span><%= t("shared.posts.index.approve") %></span>
+          <span><%= t("admin.posts.index.approve") %></span>
         <% end %>
 
         <details class="group rounded-lg border border-rose-200">
           <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50">
-            <%= t("shared.posts.index.reject") %>
+            <%= t("admin.posts.index.reject") %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-400 transition group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </summary>
           <div class="border-t border-rose-100 p-3">
             <%= form_with url: unverify_post_path(post), method: :post, class: "space-y-2" do %>
-              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("shared.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
+              <%= text_area_tag "post[unverify_reason]", post.unverify_reason, placeholder: t("admin.posts.index.reject_note_placeholder"), required: true, rows: 3, class: "w-full rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-700 focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400" %>
               <%= button_tag type: :submit, class: ui_action_button_classes(tone: :reject, full_width: true, size: :sm_relaxed) do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-rose-500 transition group-hover:text-rose-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                <span><%= t("shared.posts.index.reject") %></span>
+                <span><%= t("admin.posts.index.reject") %></span>
               <% end %>
             <% end %>
           </div>
