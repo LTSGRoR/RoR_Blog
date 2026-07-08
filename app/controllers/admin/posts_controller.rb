@@ -29,7 +29,7 @@ class Admin::PostsController < ApplicationController
       name = if reviewer_id.present?
         User.find_by(id: reviewer_id)&.name || "User ##{reviewer_id}"
       else
-        I18n.t("admin.posts.index.stats.unassigned")
+        I18n.t("shared.posts.index.stats.unassigned")
       end
       { reviewer: name, count: cnt }
     end

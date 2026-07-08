@@ -8,11 +8,11 @@ else "bg-slate-100 text-slate-700"
 end %>
 
 <td id="<%= dom_id(post, :admin_ai_review) %>" class="min-w-[220px] px-4 py-4 align-top text-sm">
-  <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold <%= ai_color %>"><%= t("admin.posts.index.ai_statuses.#{post.ai_review_status}") %></span>
+  <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold <%= ai_color %>"><%= t("shared.posts.index.ai_statuses.#{post.ai_review_status}") %></span>
 
   <% if post.published? && !post.verified? && post.ai_review_failed? %>
     <div class="mt-2">
-      <%= btn_button_to t("admin.posts.index.rerun_ai_review"),
+      <%= btn_button_to t("shared.posts.index.rerun_ai_review"),
                         rerun_ai_review_admin_post_path(post, locale: I18n.locale),
                         variant: :secondary,
                         method: :post,
@@ -23,7 +23,7 @@ end %>
 
   <% if ai_reason.present? %>
     <p class="mt-2 max-w-[22rem] text-xs leading-5 text-slate-600" title="<%= ai_reason %>">
-      <span class="font-semibold text-slate-700"><%= t("admin.posts.index.ai_reason") %>:</span>
+      <span class="font-semibold text-slate-700"><%= t("shared.posts.index.ai_reason") %>:</span>
       <%= truncate(ai_reason, length: 120) %>
     </p>
   <% end %>
@@ -32,12 +32,12 @@ end %>
     <div class="mt-2 flex flex-wrap items-center gap-1.5">
       <% if post.ai_confidence.present? %>
         <span class="inline-flex whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-          <%= t("admin.posts.index.ai_confidence", value: ai_review_percentage(post.ai_confidence)) %>
+          <%= t("shared.posts.index.ai_confidence", value: ai_review_percentage(post.ai_confidence)) %>
         </span>
       <% end %>
       <% if post.ai_risk_score.present? %>
         <span class="inline-flex whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-          <%= t("admin.posts.index.ai_risk", value: ai_review_percentage(post.ai_risk_score)) %>
+          <%= t("shared.posts.index.ai_risk", value: ai_review_percentage(post.ai_risk_score)) %>
         </span>
       <% end %>
     </div>
