@@ -548,18 +548,6 @@ vi:
         gemini: "Gemini"
         claude: "Claude"
         mistral: "Mistral"
-  shared:
-    ai_chat:
-      title: "Trợ lý AI"
-      subtitle: "Gợi ý, bài viết liên quan và đoạn nháp"
-      close: "Đóng"
-      send: "Gửi"
-      empty_state: "Hãy hỏi về cải thiện nội dung, tóm tắt, hoặc gợi ý bài viết liên quan."
-      sign_in_prompt_html: "Vui lòng %{sign_in_link} để xem và bắt đầu trò chuyện."
-      ask_placeholder: "Hỏi trợ lý về ý tưởng, tóm tắt, hoặc bài viết liên quan..."
-      hint_newline: "Shift+Enter để xuống dòng"
-      hint_send: "Enter để gửi"
-      generating: "Đang tạo..."
     posts:
       flash:
         approved: "Đã phê duyệt bản chỉnh sửa và cập nhật bài viết hiển thị."
@@ -688,3 +676,16 @@ vi:
       post:
         create: "Đăng bài"
         update: "Lưu thay đổi"
+
+  shared:
+    ai_chat:
+      title: "Trợ lý AI"
+      subtitle: "Gợi ý, bài viết liên quan và đoạn nháp"
+      close: "Đóng"
+      send: "Gửi"
+      empty_state: "Hãy hỏi về cải thiện nội dung, tóm tắt, hoặc gợi ý bài viết liên quan."
+      sign_in_prompt_html: "Vui lòng %{sign_in_link} để xem và bắt đầu trò chuyện."
+      ask_placeholder: "Hỏi trợ lý về ý tưởng, tóm tắt, hoặc bài viết liên quan..."
+      hint_newline: "Shift+Enter để xuống dòng"
+      hint_send: "Enter để gửi"
+      generating: "Đang tạo..."

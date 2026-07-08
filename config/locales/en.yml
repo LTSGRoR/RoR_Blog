@@ -574,18 +574,6 @@ en:
         gemini: "Gemini"
         claude: "Claude"
         mistral: "Mistral"
-  shared:
-    ai_chat:
-      title: "AI Assistant"
-      subtitle: "Suggestions, related posts, and draft snippets"
-      close: "Close"
-      send: "Send"
-      empty_state: "Ask for improvements, summaries, or related post recommendations."
-      sign_in_prompt_html: "Please %{sign_in_link} to view and start chats."
-      ask_placeholder: "Ask the assistant for ideas, summaries, or related posts..."
-      hint_newline: "Shift+Enter for newline"
-      hint_send: "Enter to send"
-      generating: "Generating..."
     posts:
       flash:
         approved: "Revision approved and published to live post."
@@ -717,3 +705,16 @@ en:
       post:
         create: "Submit"
         update: "Save Changes"
+
+  shared:
+    ai_chat:
+      title: "AI Assistant"
+      subtitle: "Suggestions, related posts, and draft snippets"
+      close: "Close"
+      send: "Send"
+      empty_state: "Ask for improvements, summaries, or related post recommendations."
+      sign_in_prompt_html: "Please %{sign_in_link} to view and start chats."
+      ask_placeholder: "Ask the assistant for ideas, summaries, or related posts..."
+      hint_newline: "Shift+Enter for newline"
+      hint_send: "Enter to send"
+      generating: "Generating..."

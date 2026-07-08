@@ -1,7 +1,7 @@
 <div data-controller="scroll-buttons" class="fixed right-4 bottom-6 z-50 flex flex-col gap-2 transition-opacity duration-200 opacity-0 pointer-events-none">
   <%# Ask AI FAB — visible on all pages. If @post is present, POST to its chat endpoint; otherwise link to the blog index for context. %>
   <% if user_signed_in? %>
-    <% if defined?(@post) && @post %>
+    <% if defined?(@post) && @post && @post.persisted? %>
       <% fab_url = chat_post_path(@post) %>
       <div data-controller="ai-fab" data-ai-fab-url-value="<%= fab_url %>" class="flex items-center justify-center">
     <% else %>

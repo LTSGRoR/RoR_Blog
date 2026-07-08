@@ -548,18 +548,6 @@ ja:
         gemini: "Gemini"
         claude: "Claude"
         mistral: "Mistral"
-  shared:
-    ai_chat:
-      title: "AIアシスタント"
-      subtitle: "提案、関連投稿、下書きスニペット"
-      close: "閉じる"
-      send: "送信"
-      empty_state: "改善案、要約、関連投稿のおすすめを質問してみましょう。"
-      sign_in_prompt_html: "チャットを表示して開始するには %{sign_in_link} してください。"
-      ask_placeholder: "アイデア、要約、関連投稿についてアシスタントに質問してください..."
-      hint_newline: "Shift+Enter で改行"
-      hint_send: "Enter で送信"
-      generating: "生成中..."
     posts:
       flash:
         approved: "修正が承認され、公開投稿に反映されました。"
@@ -688,3 +676,16 @@ ja:
       post:
         create: "投稿する"
         update: "変更を保存"
+
+  shared:
+    ai_chat:
+      title: "AIアシスタント"
+      subtitle: "提案、関連投稿、下書きスニペット"
+      close: "閉じる"
+      send: "送信"
+      empty_state: "改善案、要約、関連投稿のおすすめを質問してみましょう。"
+      sign_in_prompt_html: "チャットを表示して開始するには %{sign_in_link} してください。"
+      ask_placeholder: "アイデア、要約、関連投稿についてアシスタントに質問してください..."
+      hint_newline: "Shift+Enter で改行"
+      hint_send: "Enter で送信"
+      generating: "生成中..."
