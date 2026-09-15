@@ -39,6 +39,10 @@ export default class extends Controller {
   }
 
   #scheduleAutoDismiss(el, idx = 0) {
+    // Errors stay until dismissed so users can read and act on them
+    // (WCAG 2.2.1 — timing adjustable); notices/info auto-dismiss.
+    if (el.dataset.flashKind === "alert") return
+
     const t = this.hasTimeoutValue ? this.timeoutValue : 5000
     setTimeout(() => this.dismiss(el), t + idx * 200)
   }

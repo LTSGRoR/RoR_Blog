@@ -146,6 +146,7 @@ vi:
       join_conversation: "để tham gia cuộc trò chuyện."
       reaction_picker:
         cta: "Bày tỏ cảm xúc"
+        choose_reaction: "Chọn cảm xúc"
         hover_to_choose: "Di chuột để chọn"
         hover_to_preview: "Di chuột để xem"
         reset_to_like: "Chạm để chuyển về thích"
@@ -461,6 +462,7 @@ vi:
         until: "Tạm khóa đến"
         cancel: "Hủy"
         close: "Đóng"
+        time_zone: "Múi giờ"
       flash:
         banned: "%{email} đã bị cấm."
         unbanned: "%{email} đã được bỏ cấm."
@@ -678,6 +680,12 @@ vi:
         update: "Lưu thay đổi"
 
   shared:
+    flash:
+      labels:
+        notice: "Thành công"
+        alert: "Cảnh báo"
+        info: "Thông tin"
+      dismiss: "Đóng"
     ai_chat:
       title: "Trợ lý AI"
       subtitle: "Gợi ý, bài viết liên quan và đoạn nháp"

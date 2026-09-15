@@ -48,6 +48,8 @@ export default class extends Controller {
 
   show(message = '', title = '') {
     return new Promise((resolve) => {
+      this._previouslyFocused = document.activeElement
+
       const overlay = document.createElement('div')
       overlay.setAttribute('role', 'dialog')
       overlay.setAttribute('aria-modal', 'true')
@@ -56,7 +58,7 @@ export default class extends Controller {
       overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4'
 
       const dialog = document.createElement('div')
-      dialog.className = 'w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-lg transform transition-all duration-150 scale-95 opacity-0'
+      dialog.className = 'w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-lg transform transition-[transform,opacity] duration-150 scale-95 opacity-0'
       dialog.innerHTML = `
         <div class="flex flex-col items-center text-center gap-4">
           <div class="flex items-center gap-3">
@@ -75,23 +77,34 @@ export default class extends Controller {
 
       overlay.appendChild(dialog)
 
+      const okBtn = dialog.querySelector('[data-confirm-action="ok"]')
+      const cancelBtn = dialog.querySelector('[data-confirm-action="cancel"]')
+
       const cleanup = () => {
         overlay.remove()
         document.removeEventListener('keydown', onKey)
         document.body.classList.remove('overflow-hidden')
+        // Restore focus to the element that opened the dialog.
+        if (this._previouslyFocused && this._previouslyFocused.isConnected) {
+          this._previouslyFocused.focus()
+        }
+        this._previouslyFocused = null
       }
 
       const onOk = () => { cleanup(); resolve(true) }
       const onCancel = () => { cleanup(); resolve(false) }
 
-      dialog.querySelector('[data-confirm-action="ok"]').addEventListener('click', onOk)
-      dialog.querySelector('[data-confirm-action="cancel"]').addEventListener('click', onCancel)
-      const closeBtn = dialog.querySelector('[data-confirm-action="close"]')
-      if (closeBtn) closeBtn.addEventListener('click', onCancel)
+      okBtn.addEventListener('click', onOk)
+      cancelBtn.addEventListener('click', onCancel)
 
       const onKey = (e) => {
         if (e.key === 'Escape') onCancel()
-        if (e.key === 'Enter') onOk()
+        if (e.key === 'Tab') {
+          // Two-button focus trap: Tab cycles between Cancel and OK.
+          e.preventDefault()
+          const next = document.activeElement === okBtn ? cancelBtn : okBtn
+          next.focus()
+        }
       }
 
       document.addEventListener('keydown', onKey)
@@ -105,8 +118,8 @@ export default class extends Controller {
         dialog.classList.add('scale-100', 'opacity-100')
       })
 
-      // focus OK button
-      dialog.querySelector('[data-confirm-action="ok"]').focus()
+      // Focus "Cancel" by default: Enter must never confirm a destructive action.
+      cancelBtn.focus()
     })
   }
 

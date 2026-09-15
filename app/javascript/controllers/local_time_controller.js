@@ -47,18 +47,14 @@ export default class extends Controller {
     const options = FORMATS[this.formatValue]
     if (!options) return null
 
-    const formatter = new Intl.DateTimeFormat("en-US", { ...options, timeZone })
-    const parts = formatter.formatToParts(timestamp)
-    const values = {}
+    // Respect the page locale (set from I18n.locale on <html lang>) instead
+    // of hardcoding en-US, and let Intl produce a locale-appropriate layout.
+    const locale = document.documentElement.lang || navigator.language || "en"
 
-    parts.forEach(({ type, value }) => {
-      if (type !== "literal") values[type] = value
-    })
-
-    if (!values.month || !values.day || !values.year || !values.hour || !values.minute || !values.dayPeriod) {
+    try {
+      return new Intl.DateTimeFormat(locale, { ...options, timeZone }).format(timestamp)
+    } catch (_error) {
       return null
     }
-
-    return `${values.month} ${values.day}, ${values.year} ${values.hour}:${values.minute} ${values.dayPeriod}`
   }
 }

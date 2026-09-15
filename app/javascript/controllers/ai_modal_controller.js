@@ -6,10 +6,14 @@ export default class extends Controller {
 
   connect() {
     this.url = null
-    this.element.addEventListener('ai:open', (e) => this.open(e))
-    document.addEventListener('keydown', (e) => {
+    this._eventHandler = (e) => this.open(e)
+    this._keyHandler = (e) => {
+      if (this.element.classList.contains('hidden')) return
       if (e.key === 'Escape') this.close()
-    })
+      if (e.key === 'Tab') this._trapFocus(e)
+    }
+    this.element.addEventListener('ai:open', this._eventHandler)
+    document.addEventListener('keydown', this._keyHandler)
 
     if (this.hasTextareaTarget) {
       this.textareaTarget.addEventListener('input', () => {
@@ -28,15 +32,16 @@ export default class extends Controller {
     }
 
     if (this.hasHistoryTarget) {
-      this._observer = new MutationObserver((mutations) => {
+      this._observer = new MutationObserver(() => {
         this._scrollHistoryToBottom()
-        this._checkPendingComplete()
       })
       this._observer.observe(this.historyTarget, { childList: true, subtree: true })
     }
   }
 
   disconnect() {
+    this.element.removeEventListener('ai:open', this._eventHandler)
+    document.removeEventListener('keydown', this._keyHandler)
     if (this._observer) this._observer.disconnect()
     this._clearPendingPoller()
   }
@@ -44,6 +49,7 @@ export default class extends Controller {
   open(event) {
     const detail = event?.detail || {}
     this.url = detail.url || this.url
+    this._previouslyFocused = document.activeElement
     this.element.classList.remove('hidden')
     if (this.signedInValue && this.hasTextareaTarget) {
       this.textareaTarget.removeAttribute('disabled')
@@ -61,6 +67,10 @@ export default class extends Controller {
 
   close() {
     this.element.classList.add('hidden')
+    if (this._previouslyFocused && this._previouslyFocused.isConnected) {
+      this._previouslyFocused.focus()
+    }
+    this._previouslyFocused = null
   }
 
   async submit(e) {
@@ -148,14 +158,27 @@ export default class extends Controller {
     }
   }
 
-  _checkPendingComplete() {
-    if (!this.pendingChatId) return
-    const el = document.getElementById(`chat_history_${this.pendingChatId}`)
-    if (!el) return
-    const text = (el.innerText || '').trim().toLowerCase()
-    // If the placeholder "Generating" is gone, job likely completed.
-    if (!text.includes('generating')) {
-      this._completePending()
+  // Keep keyboard focus cycling inside the open dialog. Completion of a
+  // pending chat is detected solely by the polled `ready` flag (see
+  // _pollPendingStatus) — never by sniffing the rendered text, which breaks
+  // under translated placeholders.
+  _trapFocus(e) {
+    const focusables = Array.from(
+      this.element.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled])')
+    )
+    if (!focusables.length) return
+
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement
+    const inside = this.element.contains(active)
+
+    if (e.shiftKey && (active === first || !inside)) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && (active === last || !inside)) {
+      e.preventDefault()
+      first.focus()
     }
   }
 
@@ -209,7 +232,6 @@ export default class extends Controller {
     if (existing) {
       existing.replaceWith(replacement)
       this._scrollHistoryToBottom()
-      this._checkPendingComplete()
     }
   }
 

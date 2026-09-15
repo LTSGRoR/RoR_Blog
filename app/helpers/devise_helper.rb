@@ -9,7 +9,7 @@ module DeviseHelper
 
     messages = resource.errors.full_messages.map { |msg| content_tag(:li, msg) }.join.html_safe
 
-    content_tag(:div, id: "error_explanation", class: "mb-4 bg-red-50 border border-red-200 p-4 rounded") do
+    content_tag(:div, id: "error_explanation", class: "mb-4 bg-red-50 border border-red-200 p-4 rounded", role: "alert") do
       concat content_tag(:h2, sentence, class: "text-red-800 font-semibold")
       concat content_tag(:ul, messages, class: "mt-2 text-sm text-red-600 list-disc pl-5")
     end

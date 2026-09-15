@@ -35,12 +35,16 @@ export default class extends Controller {
 
   scrollToTop(event) {
     event.preventDefault()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: this.#motionBehavior() })
   }
 
   scrollToBottom(event) {
     event.preventDefault()
     const bottom = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight
-    window.scrollTo({ top: bottom, behavior: 'smooth' })
+    window.scrollTo({ top: bottom, behavior: this.#motionBehavior() })
+  }
+
+  #motionBehavior() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
   }
 }

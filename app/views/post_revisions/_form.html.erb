@@ -3,7 +3,8 @@
               method: (@revision.persisted? ? :patch : :post),
               local: true,
               html: { multipart: true },
-              class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200" do |f| %>
+              class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200",
+              data: { controller: "submit-guard" } do |f| %>
   <% readonly_revision = @revision.persisted? && @revision.pending_review? %>
 
   <% if @revision.errors.any? %>
@@ -57,7 +58,7 @@
           <%= image_tag @revision.thumbnail.variant(resize_to_limit: [600, 420]), data: { avatar_preview_target: "preview" }, class: "h-full w-full object-cover" , alt: @revision.title %>
           <div data-avatar-preview-target="placeholder" class="hidden"></div>
         <% else %>
-          <img data-avatar-preview-target="preview" class="hidden h-full w-full object-cover" alt="preview" />
+          <img data-avatar-preview-target="preview" class="hidden h-full w-full object-cover" alt="" />
           <div data-avatar-preview-target="placeholder" class="flex flex-col items-center justify-center text-sm text-slate-500 px-2">
             <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3v4M8 3v4m1 9l2.5-3 2 2L17 9l4 6H5l4-6z"></path></svg>
             <span class="mt-1">No image selected</span>
@@ -80,7 +81,7 @@
           </button>
         </div>
 
-        <p class="mt-2 text-sm text-slate-500">Recommended: 1400×800px. JPG or PNG, up to 5MB.</p>
+        <p class="mt-2 text-sm text-slate-500">Recommended: 1400×800px. JPG or PNG, up to 10MB.</p>
       </div>
     </div>
   </div>
@@ -129,7 +130,7 @@
         <% @revision.tags.each do |tag| %>
           <span data-tag-id="<%= tag.id %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
             <%= tag.name %>
-            <button type="button" data-action="click->tag-input#remove" data-tag-id="<%= tag.id %>" class="pl-1 text-sm leading-none text-indigo-400 hover:text-indigo-700" aria-label="<%= t('posts.form.remove_tag') %>">&times;</button>
+            <button type="button" data-action="click->tag-input#remove" data-tag-id="<%= tag.id %>" class="inline-flex h-6 w-6 -mr-1.5 items-center justify-center rounded-full text-sm leading-none text-indigo-500 hover:bg-indigo-100 hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400" aria-label="<%= t('posts.form.remove_tag') %>">&times;</button>
           </span>
           <input type="hidden" name="post_revision[tag_ids][]" value="<%= tag.id %>" data-tag-id="<%= tag.id %>" />
         <% end %>

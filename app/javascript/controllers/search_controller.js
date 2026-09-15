@@ -7,10 +7,12 @@ export default class extends Controller {
   connect() {
     this.delayValue = this.delayValue || 300
     this._timer = null
+    this._abort = null
   }
 
   disconnect() {
     if (this._timer) clearTimeout(this._timer)
+    if (this._abort) this._abort.abort()
   }
 
   changed(event) {
@@ -19,20 +21,18 @@ export default class extends Controller {
     this._timer = setTimeout(async () => {
       const base = this.urlValue || '/posts'
       const url = q.length ? `${base}?q=${encodeURIComponent(q)}` : base
-      const jsonUrl = q.length ? `${base}.json?q=${encodeURIComponent(q)}` : `${base}.json`
 
-      // Try to fetch JSON first to log raw JSON response (non-blocking)
-      try {
-        const jres = await fetch(jsonUrl, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
-        if (jres.ok) {
-          const jdata = await jres.json()
-        } else {
-        }
-      } catch (e) {
-      }
+      // Cancel any in-flight search so a slow older response can never
+      // overwrite a newer one.
+      if (this._abort) this._abort.abort()
+      this._abort = new AbortController()
 
       try {
-        const res = await fetch(url, { headers: { Accept: 'text/html' }, credentials: 'same-origin' })
+        const res = await fetch(url, {
+          headers: { Accept: 'text/html' },
+          credentials: 'same-origin',
+          signal: this._abort.signal
+        })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const text = await res.text()
         const parser = new DOMParser()
@@ -49,6 +49,8 @@ export default class extends Controller {
 
         window.history.replaceState({}, '', url)
       } catch (err) {
+        // An aborted request is us superseding ourselves — not an error.
+        if (err?.name === 'AbortError') return
         window.location.href = url
       }
     }, this.delayValue)

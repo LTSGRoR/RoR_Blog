@@ -175,6 +175,7 @@ en:
       join_conversation: "to join the conversation."
       reaction_picker:
         cta: "React"
+        choose_reaction: "Choose a reaction"
         hover_to_choose: "Hover to choose"
         hover_to_preview: "Hover to preview"
         reset_to_like: "Tap to reset to like"
@@ -490,6 +491,7 @@ en:
         until: "Suspend until"
         cancel: "Cancel"
         close: "Close"
+        time_zone: "Time zone"
       flash:
         banned: "%{email} has been banned."
         unbanned: "%{email} has been unbanned."
@@ -707,6 +709,12 @@ en:
         update: "Save Changes"
 
   shared:
+    flash:
+      labels:
+        notice: "Success"
+        alert: "Warning"
+        info: "Info"
+      dismiss: "Dismiss"
     ai_chat:
       title: "AI Assistant"
       subtitle: "Suggestions, related posts, and draft snippets"

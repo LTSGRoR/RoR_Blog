@@ -3,7 +3,7 @@
   <% can_reply = parent_comment.depth < Comment::MAX_REPLY_DEPTH %>
 
   <% if open && can_reply %>
-    <%= form_with model: [post, comment], class: "mt-2 space-y-2" do |f| %>
+    <%= form_with model: [post, comment], class: "mt-2 space-y-2", data: { controller: "submit-guard" } do |f| %>
       <%= f.hidden_field :parent_id, value: parent_comment.id %>
 
       <% if comment.errors.any? %>
@@ -22,7 +22,7 @@
         <%= link_to "Cancel",
               reply_post_comment_path(post, parent_comment, cancel: true),
               data: { turbo_frame: dom_id(parent_comment, :reply_form) },
-              class: "text-sm text-slate-500 hover:text-slate-700" %>
+              class: "text-sm text-slate-500 hover:text-slate-700 focus-visible:underline" %>
       </div>
     <% end %>
   <% else %>
@@ -30,7 +30,7 @@
       <%= link_to "Reply",
             reply_post_comment_path(post, parent_comment),
             data: { turbo_frame: dom_id(parent_comment, :reply_form) },
-            class: "text-xs font-medium text-indigo-600 hover:text-indigo-500" %>
+            class: "text-xs font-medium text-indigo-600 hover:text-indigo-500 focus-visible:underline" %>
     <% end %>
   <% end %>
 <% end %>
