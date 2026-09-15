@@ -1,4 +1,10 @@
-<% ordered_replies = comment.replies.order(created_at: :asc) %>
+<%# Prefer the eager-loaded replies when the caller preloaded them (post show
+    renders a whole comment tree); otherwise fall back to an ordered query. %>
+<% ordered_replies = if comment.association(:replies).loaded?
+     comment.replies.sort_by { |reply| [ reply.created_at, reply.id ] }
+   else
+     comment.replies.order(created_at: :asc)
+   end %>
 <%= turbo_frame_tag dom_id(comment, :replies) do %>
   <% if ordered_replies.any? %>
     <% if current_depth < visible_depth_limit %>

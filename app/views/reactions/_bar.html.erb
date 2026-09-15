@@ -12,20 +12,35 @@
     "sad" => t("posts.show.reaction_picker.labels.sad"),
     "angry" => t("posts.show.reaction_picker.labels.angry")
   } %>
-  <% grouped_counts = reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
-       normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
-         emoji_type
-       else
-         Reaction.emoji_types.key(emoji_type)&.to_s
+  <%# When the caller eager-loaded reactions (comment trees, post show) we can
+      aggregate in memory instead of issuing a GROUP BY per reactable. %>
+  <% reactions_loaded = reactable.association(:reactions).loaded? %>
+  <% grouped_counts = if reactions_loaded
+       reactable.reactions.each_with_object(Hash.new(0)) do |reaction, memo|
+         memo[reaction.emoji_type.to_s] += 1
        end
-       memo[normalized_key] = count if normalized_key.present?
+     else
+       reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
+         normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
+           emoji_type
+         else
+           Reaction.emoji_types.key(emoji_type)&.to_s
+         end
+         memo[normalized_key] = count if normalized_key.present?
+       end
      end %>
   <% reaction_counts = Reaction.emoji_types.keys.map { |key| [key, grouped_counts[key]] }.sort_by { |key, count| [-count, Reaction.emoji_types.keys.index(key)] } %>
   <% visible_counts = reaction_counts.reject { |_, count| count.zero? } %>
   <% top_3_counts = visible_counts.take(3) %>
   <% has_hidden_reactions = visible_counts.length > 3 %>
   <% total_reactions = visible_counts.sum { |_, count| count } %>
-  <% viewer_reaction = viewer_id.present? ? reactable.reactions.find_by(user_id: viewer_id) : nil %>
+  <% viewer_reaction = if viewer_id.blank?
+       nil
+     elsif reactions_loaded
+       reactable.reactions.find { |reaction| reaction.user_id == viewer_id }
+     else
+       reactable.reactions.find_by(user_id: viewer_id)
+     end %>
   <% viewer_reaction_key = viewer_reaction&.emoji_type&.to_s %>
   <% primary_key = viewer_reaction_key || "thumbs_up" %>
   <% primary_label = viewer_reaction_key.present? ? reaction_labels.fetch(primary_key) : t("posts.show.reaction_picker.cta") %>

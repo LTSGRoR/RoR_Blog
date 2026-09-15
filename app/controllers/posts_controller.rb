@@ -28,9 +28,7 @@ class PostsController < ApplicationController
       ).distinct
     end
 
-    @draft_posts_count = base_posts.where(status: Post.statuses[:draft]).count
-    @needs_review_posts_count = base_posts.where(status: Post.statuses[:published], verified: false, unverify_reason: nil).count
-    @published_posts_count = base_posts.where(status: Post.statuses[:published], verified: true).count
+    @draft_posts_count, @needs_review_posts_count, @published_posts_count = posts_status_counts(base_posts)
 
     @posts = case @filter
     when "draft"
@@ -51,7 +49,19 @@ class PostsController < ApplicationController
     @comments_visible = requested_visible_count.positive? ? requested_visible_count : 5
     @comments_increment = 10
 
-    root_comments_scope = @post.comments.root.includes(:user, replies: :user).order(created_at: :asc)
+    # The comment partials walk comment -> user avatar, comment -> post and
+    # reactable -> reactions, so preload those two levels of the reply tree
+    # once instead of letting each node query for itself.
+    comment_includes = {
+      user: { avatar_attachment: :blob },
+      post: [],
+      parent: [],
+      reactions: []
+    }
+    root_comments_scope = @post.comments.root
+                                .includes(comment_includes)
+                                .includes(replies: comment_includes)
+                                .order(created_at: :asc)
     @root_comments_count = root_comments_scope.count
     @has_more_comments = @root_comments_count > @comments_visible
     @comments = root_comments_scope.limit(@comments_visible)
@@ -59,7 +69,7 @@ class PostsController < ApplicationController
     @comment = Comment.new
     @related_posts = Post.where(status: Post.statuses[:published], verified: true)
                          .where.not(id: @post.id)
-                         .includes(:user, :tags)
+                         .includes(:tags, :rich_text_body, :thumbnail_attachment)
                          .order(created_at: :desc)
                          .limit(3)
     @active_revision = if current_user == @post.user
@@ -193,19 +203,32 @@ class PostsController < ApplicationController
         @posts = Post.none.page(@page).per(@per_page)
       end
     else
-      @posts = public_scope.includes(:tags, :user, :comments).order(created_at: :desc).page(@page).per(@per_page)
+      # The feed cards render the excerpt (rich text), the author avatar and the
+      # comment/reaction counts; comment counts come from the counter cache so
+      # we no longer have to load every comment row of every listed post.
+      @posts = public_scope
+               .includes(:tags, :thumbnail_attachment, :rich_text_body, user: { avatar_attachment: :blob })
+               .order(created_at: :desc)
+               .page(@page)
+               .per(@per_page)
     end
   end
 
   def load_blog_feed_panels
     published_verified_scope = Post.where(status: Post.statuses[:published], verified: true)
 
+    # Counting with two LEFT JOINs (comments x reactions) multiplies the rows
+    # and forces COUNT(DISTINCT ...) over that cartesian product. Correlated
+    # sub-selects read the same numbers off the FK indexes without building the
+    # cross product at all.
     @most_read_posts = published_verified_scope
-                       .left_joins(:comments, :reactions)
-                       .select("posts.*, COUNT(DISTINCT comments.id) AS comments_count_metric, COUNT(DISTINCT reactions.id) AS reactions_count_metric")
-                       .group("posts.id")
-                       .order(Arel.sql("COUNT(DISTINCT comments.id) DESC, COUNT(DISTINCT reactions.id) DESC, posts.created_at DESC"))
-                       .includes(:user)
+                       .select(
+                         "posts.*",
+                         "(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comments_count_metric",
+                         "(SELECT COUNT(*) FROM reactions WHERE reactions.reactable_type = 'Post' " \
+                         "AND reactions.reactable_id = posts.id) AS reactions_count_metric"
+                       )
+                       .order(Arel.sql("comments_count_metric DESC, reactions_count_metric DESC, posts.created_at DESC"))
                        .limit(3)
 
     @trending_tags = Tag.joins(:posts)
@@ -250,6 +273,24 @@ class PostsController < ApplicationController
   def set_post
     @post = Post.find_by(id: params[:id])
     redirect_to posts_path, alert: "Post not found." and return unless @post
+  end
+
+  # The author dashboard shows three status counters. Computing them as FILTER
+  # aggregates keeps the definition of each bucket in SQL while costing one
+  # round trip instead of three. Note `scope` includes an ORDER BY that must be
+  # dropped before aggregating (an ordered aggregate would be ill-formed SQL).
+  def posts_status_counts(scope)
+    draft_status = Post.statuses[:draft]
+    published_status = Post.statuses[:published]
+    stats_scope = scope.unscope(:order)
+
+    stats_scope.pick(
+      Arel.sql("COUNT(DISTINCT posts.id) FILTER (WHERE posts.status = #{draft_status})"),
+      Arel.sql("COUNT(DISTINCT posts.id) FILTER (WHERE posts.status = #{published_status} " \
+               "AND posts.verified = FALSE AND posts.unverify_reason IS NULL)"),
+      Arel.sql("COUNT(DISTINCT posts.id) FILTER (WHERE posts.status = #{published_status} " \
+               "AND posts.verified = TRUE)")
+    )
   end
 
   def post_params

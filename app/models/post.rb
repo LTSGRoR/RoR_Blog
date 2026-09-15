@@ -37,7 +37,13 @@ class Post < ApplicationRecord
   end
 
   def active_revision
-    post_revisions.current_state.order(updated_at: :desc).first
+    # Prefer the in-memory collection when the caller eager-loaded revisions
+    # (e.g. the author dashboard) so we don't issue one query per row.
+    if post_revisions.loaded?
+      post_revisions.select { |revision| revision.draft? || revision.pending_review? }.max_by(&:updated_at)
+    else
+      post_revisions.current_state.order(updated_at: :desc).first
+    end
   end
 
   def apply_approved_revision!(revision:, admin:)

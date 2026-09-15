@@ -32,53 +32,51 @@ class GeneratePostSuggestionJob < ApplicationJob
         prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
       end
 
-      if chat.user_message.present?
-        q_embed = service.embed(text: chat.user_message)
-        if q_embed.present?
-          vector_literal = "[" + q_embed.map { |n| n.to_s }.join(",") + "]"
-          hits = Post.where.not(embedding: nil)
-                     .where(status: Post.statuses[:published], verified: true)
-                     .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
-                     .limit(MAX_RAG_HITS)
-          hits.each do |p|
-            next if chat.post.present? && p.id == chat.post.id
+      # Embed the user message once and reuse the vector for both the post and
+      # the chat-history searches (this used to be two identical embed calls).
+      query_embedding = chat.user_message.present? ? service.embed(text: chat.user_message) : nil
 
-            candidate_post_ids << p.id
-            body_text = extract_post_body_text(p)
-            prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
-          end
+      if query_embedding.present?
+        vector_literal = vector_literal_for(query_embedding)
+        hits = Post.where.not(embedding: nil)
+                   .where(status: Post.statuses[:published], verified: true)
+                   .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
+                   .limit(MAX_RAG_HITS)
+        hits.each do |p|
+          next if chat.post.present? && p.id == chat.post.id
+
+          candidate_post_ids << p.id
+          body_text = extract_post_body_text(p)
+          prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
         end
       end
 
-      if chat.user_message.present?
-        history_embed = service.embed(text: chat.user_message)
-        if history_embed.present?
-          vector_literal = "[" + history_embed.map { |n| n.to_s }.join(",") + "]"
-          recent_history_ids = ChatHistory.where(user_id: chat.user_id)
-                                          .where.not(id: chat.id)
-                                          .where.not(bot_response: nil)
-                                          .order(created_at: :desc)
-                                          .limit(MAX_HISTORY_RAG_POOL)
-                                          .pluck(:id)
+      if query_embedding.present?
+        vector_literal = vector_literal_for(query_embedding)
+        recent_history_ids = ChatHistory.where(user_id: chat.user_id)
+                                        .where.not(id: chat.id)
+                                        .where.not(bot_response: nil)
+                                        .order(created_at: :desc)
+                                        .limit(MAX_HISTORY_RAG_POOL)
+                                        .pluck(:id)
 
-          history_scope = ChatHistory.where(id: recent_history_ids).where.not(embedding: nil)
-          history_hits = if history_scope.exists?
-            history_scope.order(Arel.sql("embedding <-> '#{vector_literal}'::vector")).limit(MAX_HISTORY_RAG_HITS)
-          else
-            ChatHistory.where(user_id: chat.user_id)
-                       .where.not(id: chat.id)
-                       .where.not(embedding: nil)
-                       .where.not(bot_response: nil)
-                       .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
-                       .limit(MAX_HISTORY_RAG_HITS)
-          end
+        history_scope = ChatHistory.where(id: recent_history_ids).where.not(embedding: nil)
+        history_hits = if history_scope.exists?
+          history_scope.order(Arel.sql("embedding <-> '#{vector_literal}'::vector")).limit(MAX_HISTORY_RAG_HITS)
+        else
+          ChatHistory.where(user_id: chat.user_id)
+                     .where.not(id: chat.id)
+                     .where.not(embedding: nil)
+                     .where.not(bot_response: nil)
+                     .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
+                     .limit(MAX_HISTORY_RAG_HITS)
+        end
 
-          history_hits.each do |history|
-            next if candidate_chat_history_ids.include?(history.id)
+        history_hits.each do |history|
+          next if candidate_chat_history_ids.include?(history.id)
 
-            candidate_chat_history_ids << history.id
-            prompt_context << build_history_context(history)
-          end
+          candidate_chat_history_ids << history.id
+          prompt_context << build_history_context(history)
         end
       end
     rescue StandardError => e
@@ -129,7 +127,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     broadcast_chat_update(chat)
   rescue StandardError => e
     Rails.logger.error("GeneratePostSuggestionJob failed for chat_history_id=#{chat_history_id}: #{e.class} - #{e.message}")
-    mark_chat_failed(chat, reason: e.message)
+    mark_chat_failed(chat, reason: "LLM_REQUEST_FAILED: #{e.class} - #{e.message}")
   end
 
   private
@@ -161,6 +159,11 @@ class GeneratePostSuggestionJob < ApplicationJob
     end
 
     broadcast_chat_update(chat)
+  end
+
+  # Reused for both the post and the chat-history RAG vector searches.
+  def vector_literal_for(embedding)
+    "[" + embedding.map { |n| n.to_s }.join(",") + "]"
   end
 
   def extract_post_body_text(post)

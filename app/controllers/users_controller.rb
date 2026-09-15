@@ -6,9 +6,10 @@ class UsersController < ApplicationController
   def show
     verified_posts = @user.posts.published.where(verified: true)
 
-    @posts = verified_posts.order(created_at: :desc).limit(3)
-    @posts_count = verified_posts.count
-    @verified_count = verified_posts.count
+    @posts = verified_posts.includes(:rich_text_body).order(created_at: :desc).limit(3)
+    # The "published" and "verified" stats have always rendered the same
+    # verified-posts total; compute it once instead of running COUNT twice.
+    @posts_count = @verified_count = verified_posts.count
   end
 
   def index
@@ -109,7 +110,9 @@ class UsersController < ApplicationController
   private
 
   def set_profile_user
-    @user = User.includes(:posts).find_by(id: params[:id])
+    # NOTE: no `includes(:posts)` — it used to load every post of the profile
+    # owner (plus their attachments) to render at most three of them.
+    @user = User.includes(avatar_attachment: :blob).find_by(id: params[:id])
     unless @user
       redirect_to users_path, alert: "User not found." and return
     end
@@ -143,7 +146,11 @@ class UsersController < ApplicationController
 
   def broadcast_user_and_summary(user)
     begin
+      # The display order and the status counters do not depend on the locale,
+      # but the partials have to be rendered once per locale channel. Compute
+      # them once here instead of repeating the work inside the loop.
       order_ids = User.order(created_at: :desc).pluck(:id)
+      row_index = order_ids.index(user.id)
       status_counts = summarize_status_counts(User.all)
 
       I18n.available_locales.each do |locale|
@@ -151,7 +158,7 @@ class UsersController < ApplicationController
           Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
             target: "user_#{user.id}",
             partial: "users/user_row",
-            locals: { user: user, i: order_ids.index(user.id) }
+            locals: { user: user, i: row_index }
 
           Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
             target: "users_summary",
@@ -170,11 +177,19 @@ class UsersController < ApplicationController
   end
 
   def summarize_status_counts(scope)
-    total = scope.count
-    banned = scope.where.not(banned_at: nil).count
-    suspended = scope.where(banned_at: nil).where(suspended_until: Time.current..).count
-    active = scope.where(banned_at: nil).where(suspended_until: [ nil, ..Time.current ]).count
+    # One round trip instead of four COUNT queries; `active` is derived exactly
+    # like ClearExpiredSuspensionsJob#broadcast_summary does (banned and
+    # suspended are mutually exclusive by validation). The ORDER BY on an
+    # aggregate would be invalid SQL, so drop it here (callers paginate off a
+    # separate, ordered scope).
+    now = scope.connection.quote(Time.current)
 
-    { total: total, banned: banned, suspended: suspended, active: active }
+    total, banned, suspended = scope.unscope(:order).pick(
+      Arel.sql("COUNT(*)"),
+      Arel.sql("COUNT(*) FILTER (WHERE users.banned_at IS NOT NULL)"),
+      Arel.sql("COUNT(*) FILTER (WHERE users.banned_at IS NULL AND users.suspended_until > #{now})")
+    )
+
+    { total: total, banned: banned, suspended: suspended, active: total - banned - suspended }
   end
 end
