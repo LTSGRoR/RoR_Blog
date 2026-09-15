@@ -91,6 +91,11 @@ class UsersController < ApplicationController
     @user.update!(suspended_until: suspended_until, suspended_time_zone: canonical_tz, banned_at: nil)
     broadcast_user_and_summary(@user)
     redirect_to users_path, notice: t("users.admin.flash.suspended", email: @user.email, time: l(suspended_until, format: :short)), status: :see_other
+  rescue ArgumentError
+    # Malformed datetime values raise inside parse_suspended_until; degrade to
+    # a friendly alert instead of a 500.
+    Rails.logger.warn("UsersController#suspend: unparseable suspended_until param #{params[:suspended_until].inspect}")
+    redirect_to users_path, alert: t("users.admin.flash.invalid_suspend_date")
   end
 
   def unsuspend

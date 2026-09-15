@@ -9,7 +9,7 @@ class LocalesController < ApplicationController
       I18n.locale = locale
 
       session[:locale] = locale
-      current_user.update(locale: locale) if current_user
+      persist_user_locale(locale) if current_user
 
       locale_label = t("language_name.#{locale}", default: t("locale_switcher.#{locale}", default: locale.to_s.upcase))
       flash[:notice] = t("locale.changed", locale_name: locale_label)
@@ -24,17 +24,30 @@ class LocalesController < ApplicationController
 
   private
 
+  # Best-effort persistence of the locale preference; a failed save (e.g. the
+  # user record no longer validates) must not break the locale switch itself.
+  def persist_user_locale(locale)
+    return if current_user.update(locale: locale)
+
+    Rails.logger.warn(
+      "LocalesController: failed to persist locale=#{locale} for user=#{current_user.id}: #{current_user.errors.full_messages.to_sentence}"
+    )
+  end
+
   def redirect_back_with_locale(locale)
     fallback = root_path(locale: locale)
     referer  = request.referer
 
-    if referer.present?
+    return redirect_to fallback, status: :see_other if referer.blank?
+
+    begin
       uri = URI.parse(referer)
-      new_path = uri.path.sub(%r{\A/(en|vi|ja)(/|\z)}, "/#{locale}\\2")
-      new_path = "/#{locale}#{uri.path}" unless new_path.start_with?("/#{locale}")
-      redirect_to new_path + (uri.query ? "?#{uri.query}" : ""), status: :see_other
-    else
-      redirect_to fallback, status: :see_other
+    rescue URI::InvalidURIError
+      return redirect_to fallback, status: :see_other
     end
+
+    new_path = uri.path.sub(%r{\A/(en|vi|ja)(/|\z)}, "/#{locale}\\2")
+    new_path = "/#{locale}#{uri.path}" unless new_path.start_with?("/#{locale}")
+    redirect_to new_path + (uri.query ? "?#{uri.query}" : ""), status: :see_other
   end
 end

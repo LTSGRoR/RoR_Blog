@@ -142,11 +142,16 @@ class CommentsController < ApplicationController
   end
 
   def ensure_interactions_enabled!
-    return if @post.interactions_enabled?
+    return if @post&.interactions_enabled?
 
     respond_to do |format|
       format.turbo_stream { head :forbidden }
-      format.html { redirect_to @post, alert: "Comments are disabled for this post." }
+      format.html { redirect_to(@post || posts_path, alert: "Comments are disabled for this post.") }
+      format.json { head :forbidden }
     end
+
+    # A response has already been rendered; halt the filter chain so the
+    # action (and any later filters) never runs against disabled interactions.
+    false
   end
 end

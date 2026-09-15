@@ -104,6 +104,8 @@ class Admin::PostsController < ApplicationController
     ModeratePostJob.perform_later(@post.id)
 
     redirect_back fallback_location: admin_posts_path(locale: I18n.locale), notice: t("admin.posts.flash.rerun_enqueued")
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: admin_posts_path(locale: I18n.locale), alert: e.message
   end
 
   private

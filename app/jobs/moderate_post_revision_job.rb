@@ -1,5 +1,6 @@
 class ModeratePostRevisionJob < ApplicationJob
   queue_as :default
+  include AiRetryPolicy
 
   def perform(post_revision_id)
     log_event("start", post_revision_id: post_revision_id)
@@ -52,31 +53,37 @@ class ModeratePostRevisionJob < ApplicationJob
       revision.mark_ai_needs_admin_review!(reason: decision.reason)
       log_event("needs_admin_review", post_revision_id: revision.id, reason: decision.reason)
     else
-      handle_failure!(revision: revision, config: config, reason: decision.reason)
+      handle_failure!(revision: revision, config: config, reason: decision.reason, error_class: decision_error_class(decision))
     end
   rescue StandardError => e
     log_event("error", post_revision_id: post_revision_id, error_class: e.class.name, error_message: e.message)
     revision&.mark_ai_failed!(reason: e.message)
-    raise e if retryable?(config)
 
+    # Retry only transient infrastructure failures (auth/config errors would
+    # burn provider quota for nothing).
+    raise e if retryable?(config) && transient_error?(e.class.name, e.message)
+
+    # Terminal: give up and hand off to a human reviewer.
     revision&.mark_ai_needs_admin_review!(reason: e.message)
     log_event("fallback_after_retries", post_revision_id: post_revision_id, reason: e.message)
   end
 
   private
 
-  def retryable?(config)
-    max_retries = config&.fetch(:max_retries, 3).to_i
-    executions < max_retries
-  end
-
-  def handle_failure!(revision:, config:, reason:)
+  def handle_failure!(revision:, config:, reason:, error_class: nil)
     revision.mark_ai_failed!(reason: reason)
     log_event("decision_failed", post_revision_id: revision.id, reason: reason)
-    raise StandardError, reason if retryable?(config)
+
+    if retryable?(config) && transient_error?(error_class, reason)
+      raise StandardError, reason
+    end
 
     revision.mark_ai_needs_admin_review!(reason: reason)
     log_event("fallback_after_retries", post_revision_id: revision.id, reason: reason)
+  end
+
+  def decision_error_class(decision)
+    decision.payload.is_a?(Hash) ? decision.payload["error_class"] : nil
   end
 
   def log_event(event, payload = {})

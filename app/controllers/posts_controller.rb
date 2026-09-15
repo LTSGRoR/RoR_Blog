@@ -1,4 +1,6 @@
 class PostsController < ApplicationController
+  include TagResolution
+
   before_action :set_post, only: %i[show edit update destroy verify unverify reply_feedback]
   before_action :authenticate_user!, only: %i[new create edit update destroy verify unverify reply_feedback mine]
   before_action :authorize_show!, only: %i[show]
@@ -121,6 +123,8 @@ class PostsController < ApplicationController
     end
     @post.verify!(current_user)
     redirect_back fallback_location: posts_path, notice: "Post has been verified."
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: posts_path, alert: e.message
   end
 
   def unverify
@@ -245,9 +249,7 @@ class PostsController < ApplicationController
 
   def set_post
     @post = Post.find_by(id: params[:id])
-    unless @post
-      redirect_to posts_path, alert: "Post not found."
-    end
+    redirect_to posts_path, alert: "Post not found." and return unless @post
   end
 
   def post_params
@@ -257,7 +259,7 @@ class PostsController < ApplicationController
     typed_tag_names = permitted[:tag_list].to_s.split(",").map(&:strip).reject(&:blank?).uniq
 
     if typed_tag_names.any?
-      created_tag_ids = typed_tag_names.map { |name| Tag.find_or_create_by!(name: name).id.to_s }
+      created_tag_ids = typed_tag_names.filter_map { |name| find_or_create_tag_id!(name) }
       permitted[:tag_ids] = (selected_tag_ids + created_tag_ids).uniq
     else
       permitted[:tag_ids] = selected_tag_ids

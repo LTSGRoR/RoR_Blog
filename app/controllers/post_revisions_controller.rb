@@ -1,4 +1,6 @@
 class PostRevisionsController < ApplicationController
+  include TagResolution
+
   before_action :authenticate_user!
   before_action :set_post
   before_action :set_or_build_revision, only: %i[new create]
@@ -155,7 +157,7 @@ class PostRevisionsController < ApplicationController
     selected_tag_ids = Array(params.dig(:post_revision, :tag_ids)).reject(&:blank?)
     typed_tag_names = params.dig(:post_revision, :tag_list).to_s.split(",").map(&:strip).reject(&:blank?).uniq
 
-    created_tag_ids = typed_tag_names.map { |name| Tag.find_or_create_by!(name: name).id.to_s }
+    created_tag_ids = typed_tag_names.filter_map { |name| find_or_create_tag_id!(name) }
     tag_ids = (selected_tag_ids + created_tag_ids).uniq
 
     revision.tags = Tag.where(id: tag_ids)

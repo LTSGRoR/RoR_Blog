@@ -27,8 +27,9 @@ class ChatController < ApplicationController
 
   def set_post
     return unless params[:post_id].present?
+
     @post = Post.find_by(id: params[:post_id])
-    render json: { error: "Post not found" }, status: :not_found unless @post
+    render json: { error: "Post not found" }, status: :not_found and return unless @post
   end
 
   def authorize_post!

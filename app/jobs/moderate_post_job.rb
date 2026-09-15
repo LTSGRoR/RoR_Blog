@@ -1,15 +1,6 @@
 class ModeratePostJob < ApplicationJob
   queue_as :default
-
-  TRANSIENT_ERROR_CLASSES = %w[
-    Timeout::Error
-    Net::OpenTimeout
-    Net::ReadTimeout
-    Errno::ECONNRESET
-    Errno::ETIMEDOUT
-    Faraday::TimeoutError
-    Faraday::ConnectionFailed
-  ].freeze
+  include AiRetryPolicy
 
   def perform(post_id)
     log_event("start", post_id: post_id)
@@ -76,15 +67,12 @@ class ModeratePostJob < ApplicationJob
       post&.mark_ai_failed!(reason: e.message)
     end
 
+    # Retry only transient infrastructure failures; anything else stays in the
+    # terminal `failed` state so admins can rerun it from the moderation UI.
     raise e if retryable?(config) && transient_error?(e.class.name, e.message)
   end
 
   private
-
-  def retryable?(config)
-    max_retries = config&.fetch(:max_retries, 3).to_i
-    executions < max_retries
-  end
 
   def handle_failure!(post:, config:, decision:)
     reason = decision.reason
@@ -96,16 +84,6 @@ class ModeratePostJob < ApplicationJob
     if retryable?(config) && transient_error?(error_class, reason)
       raise StandardError, reason
     end
-  end
-
-  def transient_error?(error_class_name, message)
-    error_class = error_class_name.to_s
-    msg = message.to_s
-
-    return true if TRANSIENT_ERROR_CLASSES.include?(error_class)
-
-    # Match transient infrastructure errors that could be retried
-    msg.match?(/timeout|temporarily unavailable|connection reset|broken pipe|retry|temporarily|transient/i)
   end
 
   def log_event(event, payload = {})
