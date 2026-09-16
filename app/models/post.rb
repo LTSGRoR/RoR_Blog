@@ -37,7 +37,13 @@ class Post < ApplicationRecord
   end
 
   def active_revision
-    post_revisions.current_state.order(updated_at: :desc).first
+    # Prefer the in-memory collection when the caller eager-loaded revisions
+    # (e.g. the author dashboard) so we don't issue one query per row.
+    if post_revisions.loaded?
+      post_revisions.select { |revision| revision.draft? || revision.pending_review? }.max_by(&:updated_at)
+    else
+      post_revisions.current_state.order(updated_at: :desc).first
+    end
   end
 
   def apply_approved_revision!(revision:, admin:)
@@ -50,7 +56,7 @@ class Post < ApplicationRecord
   end
 
   def verify!(admin)
-    raise "Cannot verify draft posts" unless published?
+    raise ArgumentError, "Cannot verify draft posts" unless published?
 
     update!(
       verified: true,
@@ -65,7 +71,7 @@ class Post < ApplicationRecord
   end
 
   def unverify!(admin:, reason:)
-    raise "Cannot leave feedback for draft posts" unless published?
+    raise ArgumentError, "Cannot leave feedback for draft posts" unless published?
 
     cleaned_reason = reason.to_s.strip
     raise ArgumentError, "Unverify reason is required" if cleaned_reason.blank?
@@ -83,8 +89,8 @@ class Post < ApplicationRecord
   end
 
   def reply_to_feedback!(author:, reply:)
-    raise "No admin feedback to reply to" if unverify_reason.blank?
-    raise "Only the post author can reply" unless author == user
+    raise ArgumentError, "No admin feedback to reply to" if unverify_reason.blank?
+    raise ArgumentError, "Only the post author can reply" unless author == user
 
     cleaned_reply = reply.to_s.strip
     raise ArgumentError, "Reply is required" if cleaned_reply.blank?

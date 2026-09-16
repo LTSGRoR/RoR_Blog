@@ -1,7 +1,7 @@
 class PagesController < ApplicationController
   def landing
     @featured_posts = Post.where(status: Post.statuses[:published], verified: true)
-                          .includes(:user, :tags)
+                          .includes(:tags, :rich_text_body, user: { avatar_attachment: :blob })
                           .order(created_at: :desc)
                           .limit(2)
 
@@ -10,6 +10,7 @@ class PagesController < ApplicationController
                         .group("users.id")
                         .order(Arel.sql("COUNT(posts.id) DESC"))
                         .limit(3)
+                        .includes(avatar_attachment: :blob)
   end
 
   def team
@@ -19,7 +20,7 @@ class PagesController < ApplicationController
                 .group("users.id")
                 .order(Arel.sql("COUNT(posts.id) DESC, users.created_at ASC"))
 
-    members = team_scope.limit(7).to_a
+    members = team_scope.limit(7).includes(avatar_attachment: :blob).to_a
     @featured_member = members.first
     @team_members = members.drop(1)
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title><%= content_for(:title) || t("app_name") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f7f9fb">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="<%= content_for(:meta_description).presence || t('app_name') %>">
 
@@ -85,6 +85,7 @@
               </svg>
               <%= text_field_tag :q, params[:q],
                     placeholder: t("search.placeholder"),
+                    aria: { label: t("search.placeholder") },
                     class: "h-10 w-full sm:w-64 rounded-md border border-[#e2e8f0] bg-[#f8fafc] pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9e0000]",
                     data: { action: "input->search#changed" } %>
             <% end %>

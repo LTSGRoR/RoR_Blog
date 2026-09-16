@@ -9,33 +9,14 @@ class Admin::PostsController < ApplicationController
     @scope = permitted_scope
     @filter = normalized_filter(scope: @scope, filter: permitted_filter)
 
-    pending_posts_scope = Post.includes(:user, :tags)
-            .where(status: Post.statuses[:published], verified: false)
-            .order(created_at: :desc)
-    awaiting_review_posts_scope = pending_posts_scope.where(unverify_reason: nil)
-
     published_posts_scope = Post.includes(:user, :tags)
                    .where(status: Post.statuses[:published])
                    .order(updated_at: :desc)
 
-    @pending_count = PostRevision.pending_review.count
-    @pending_post_count = pending_posts_scope.count
-    @draft_count = PostRevision.draft.count
-    @new_post_count = Post.where(created_at: Time.current.beginning_of_day..).count
-    @awaiting_review_count = awaiting_review_posts_scope.count
-    @verified_today_count = Post.where(verified: true).where(verified_at: Time.current.beginning_of_day..).count
+    load_review_queue_stats
+
     pending_by_reviewer = PostRevision.pending_review.group(:reviewer_id).count
-    @pending_revisions_by_reviewer = pending_by_reviewer.map do |reviewer_id, cnt|
-      name = if reviewer_id.present?
-        User.find_by(id: reviewer_id)&.name || "User ##{reviewer_id}"
-      else
-        I18n.t("admin.posts.index.stats.unassigned")
-      end
-      { reviewer: name, count: cnt }
-    end
-    @reviewed_today_count = PostRevision.where(moderation_status: [ PostRevision.moderation_statuses[:approved], PostRevision.moderation_statuses[:rejected] ])
-                                     .where(reviewed_at: Time.current.beginning_of_day..)
-                                     .count
+    @pending_revisions_by_reviewer = pending_revisions_by_reviewer(pending_by_reviewer)
 
     @pending_posts = if @query.present?
       published_posts_scope.joins(:user)
@@ -104,9 +85,55 @@ class Admin::PostsController < ApplicationController
     ModeratePostJob.perform_later(@post.id)
 
     redirect_back fallback_location: admin_posts_path(locale: I18n.locale), notice: t("admin.posts.flash.rerun_enqueued")
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: admin_posts_path(locale: I18n.locale), alert: e.message
   end
 
   private
+
+  # The dashboard renders six queue counters. Each bucket used to run its own
+  # COUNT; FILTER aggregates keep the exact same predicates but collapse each
+  # table's counters into a single round trip.
+  def load_review_queue_stats
+    day_start = Post.connection.quote(Time.current.beginning_of_day)
+    published_status = Post.statuses[:published]
+
+    @pending_post_count, @new_post_count, @awaiting_review_count, @verified_today_count = Post.pick(
+      Arel.sql("COUNT(*) FILTER (WHERE status = #{published_status} AND verified = FALSE)"),
+      Arel.sql("COUNT(*) FILTER (WHERE created_at >= #{day_start})"),
+      Arel.sql("COUNT(*) FILTER (WHERE status = #{published_status} AND verified = FALSE AND unverify_reason IS NULL)"),
+      Arel.sql("COUNT(*) FILTER (WHERE verified = TRUE AND verified_at >= #{day_start})")
+    )
+
+    pending_review_status = PostRevision.moderation_statuses[:pending_review]
+    draft_status = PostRevision.moderation_statuses[:draft]
+    reviewed_statuses = [
+      PostRevision.moderation_statuses[:approved],
+      PostRevision.moderation_statuses[:rejected]
+    ].join(", ")
+
+    @pending_count, @draft_count, @reviewed_today_count = PostRevision.pick(
+      Arel.sql("COUNT(*) FILTER (WHERE moderation_status = #{pending_review_status})"),
+      Arel.sql("COUNT(*) FILTER (WHERE moderation_status = #{draft_status})"),
+      Arel.sql("COUNT(*) FILTER (WHERE moderation_status IN (#{reviewed_statuses}) " \
+               "AND reviewed_at >= #{day_start})")
+    )
+  end
+
+  # Reviewer names for the queue chips used to be one User.find_by per reviewer.
+  def pending_revisions_by_reviewer(pending_by_reviewer)
+    reviewer_ids = pending_by_reviewer.keys.compact
+    reviewer_names = reviewer_ids.empty? ? {} : User.where(id: reviewer_ids).pluck(:id, :name).to_h
+
+    pending_by_reviewer.map do |reviewer_id, count|
+      name = if reviewer_id.present?
+        reviewer_names[reviewer_id].presence || "User ##{reviewer_id}"
+      else
+        I18n.t("admin.posts.index.stats.unassigned")
+      end
+      { reviewer: name, count: count }
+    end
+  end
 
   def set_post
     @post = Post.find(params[:id])

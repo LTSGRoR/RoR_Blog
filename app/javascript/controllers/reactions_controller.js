@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["picker", "counts"]
+  static targets = [ "picker", "counts", "toggle" ]
   static values = {
     delay: { type: Number, default: 1000 },
     showAllText: { type: String, default: "show all" },
@@ -17,18 +17,35 @@ export default class extends Controller {
     this.cancelHoverTimer()
   }
 
-  // Show emoji picker after hover delay
+  // Show emoji picker after hover delay (pointer enhancement only).
   showPicker() {
     if (this.isOpen) {
       return
     }
 
     this.startHoverTimer(() => {
-      if (this.hasPickerTarget) {
-        this.pickerTarget.classList.remove("hidden")
-        this.isOpen = true
-      }
+      this.#openPicker()
     })
+  }
+
+  // Toggle the picker from the chevron button — the click, touch, and
+  // keyboard entry point. Hover alone would leave touch and assistive-tech
+  // users stuck on the default like action.
+  togglePicker(event) {
+    event.preventDefault()
+    if (this.isOpen) {
+      this.closePicker()
+    } else {
+      this.#openPicker()
+    }
+  }
+
+  #openPicker() {
+    if (this.hasPickerTarget) {
+      this.pickerTarget.classList.remove("hidden")
+      this.isOpen = true
+      this.#syncToggleState()
+    }
   }
 
   // Hide emoji picker when mouse leaves
@@ -46,6 +63,7 @@ export default class extends Controller {
     }
 
     this.isOpen = false
+    this.#syncToggleState()
   }
 
   closeOnOutsideClick(event) {
@@ -78,6 +96,12 @@ export default class extends Controller {
     if (this.hasCountsTarget) {
       this.countsTarget.classList.toggle("hidden")
       event.target.textContent = this.countsTarget.classList.contains("hidden") ? this.showAllTextValue : this.hideTextValue
+    }
+  }
+
+  #syncToggleState() {
+    if (this.hasToggleTarget) {
+      this.toggleTarget.setAttribute("aria-expanded", this.isOpen ? "true" : "false")
     }
   }
 }

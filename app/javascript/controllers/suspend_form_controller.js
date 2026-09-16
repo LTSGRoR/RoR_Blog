@@ -6,11 +6,46 @@ export default class extends Controller {
   connect() {
     this._submitEndHandler = this.handleSubmitEnd.bind(this)
     document.addEventListener("turbo:submit-end", this._submitEndHandler)
+
+    this._trapHandler = (e) => {
+      if (e.key !== "Tab") return
+      const modal = this.#openModal()
+      if (!modal) return
+      const focusables = Array.from(
+        modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      )
+      if (!focusables.length) return
+
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement
+      const inside = modal.contains(active)
+
+      if (e.shiftKey && (active === first || !inside)) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && (active === last || !inside)) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener("keydown", this._trapHandler)
   }
 
   disconnect() {
     document.removeEventListener("turbo:submit-end", this._submitEndHandler)
+    document.removeEventListener("keydown", this._trapHandler)
     document.body.classList.remove("overflow-hidden")
+  }
+
+  #openModal() {
+    if (this.hasSuspendModalTarget && !this.suspendModalTarget.classList.contains("hidden")) {
+      return this.suspendModalTarget
+    }
+    if (this.hasBanModalTarget && !this.banModalTarget.classList.contains("hidden")) {
+      return this.banModalTarget
+    }
+    return null
   }
 
   handleSubmitEnd(event) {
@@ -35,7 +70,7 @@ export default class extends Controller {
 
       this.suspendTimeZoneTarget.value = tz
       if (this.hasSuspendTimeZoneLabelTarget) {
-        this.suspendTimeZoneLabelTarget.textContent = `Time zone: ${tz}`
+        this.suspendTimeZoneLabelTarget.textContent = tz
       }
     }
     this.showModal(this.suspendModalTarget)
@@ -49,10 +84,13 @@ export default class extends Controller {
     this.banFormTarget.action = url
     this.banUserLabelTarget.textContent = user
     this.showModal(this.banModalTarget)
+    // Land focus inside the dialog, on the safe Cancel control.
+    this.banModalTarget.querySelector("button")?.focus()
   }
 
   showModal(target) {
     this.close()
+    this._previouslyFocused = document.activeElement
     target.classList.remove("hidden")
     target.classList.add("flex")
     document.body.classList.add("overflow-hidden")
@@ -70,6 +108,11 @@ export default class extends Controller {
     }
 
     document.body.classList.remove("overflow-hidden")
+
+    if (this._previouslyFocused && this._previouslyFocused.isConnected) {
+      this._previouslyFocused.focus()
+    }
+    this._previouslyFocused = null
   }
 
   backdropCloseSuspend(event) {

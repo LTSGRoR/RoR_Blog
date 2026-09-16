@@ -279,3 +279,17 @@ trix-editor figure.attachment .attachment__caption-editor {
   color: #4f46e5;
   text-decoration: underline;
 }
+
+/* Honor user motion preferences globally (Vercel Web Interface Guidelines):
+   kill animations/transitions and smooth scrolling for users who ask for
+   reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

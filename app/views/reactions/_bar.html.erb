@@ -12,20 +12,35 @@
     "sad" => t("posts.show.reaction_picker.labels.sad"),
     "angry" => t("posts.show.reaction_picker.labels.angry")
   } %>
-  <% grouped_counts = reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
-       normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
-         emoji_type
-       else
-         Reaction.emoji_types.key(emoji_type)&.to_s
+  <%# When the caller eager-loaded reactions (comment trees, post show) we can
+      aggregate in memory instead of issuing a GROUP BY per reactable. %>
+  <% reactions_loaded = reactable.association(:reactions).loaded? %>
+  <% grouped_counts = if reactions_loaded
+       reactable.reactions.each_with_object(Hash.new(0)) do |reaction, memo|
+         memo[reaction.emoji_type.to_s] += 1
        end
-       memo[normalized_key] = count if normalized_key.present?
+     else
+       reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
+         normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
+           emoji_type
+         else
+           Reaction.emoji_types.key(emoji_type)&.to_s
+         end
+         memo[normalized_key] = count if normalized_key.present?
+       end
      end %>
   <% reaction_counts = Reaction.emoji_types.keys.map { |key| [key, grouped_counts[key]] }.sort_by { |key, count| [-count, Reaction.emoji_types.keys.index(key)] } %>
   <% visible_counts = reaction_counts.reject { |_, count| count.zero? } %>
   <% top_3_counts = visible_counts.take(3) %>
   <% has_hidden_reactions = visible_counts.length > 3 %>
   <% total_reactions = visible_counts.sum { |_, count| count } %>
-  <% viewer_reaction = viewer_id.present? ? reactable.reactions.find_by(user_id: viewer_id) : nil %>
+  <% viewer_reaction = if viewer_id.blank?
+       nil
+     elsif reactions_loaded
+       reactable.reactions.find { |reaction| reaction.user_id == viewer_id }
+     else
+       reactable.reactions.find_by(user_id: viewer_id)
+     end %>
   <% viewer_reaction_key = viewer_reaction&.emoji_type&.to_s %>
   <% primary_key = viewer_reaction_key || "thumbs_up" %>
   <% primary_label = viewer_reaction_key.present? ? reaction_labels.fetch(primary_key) : t("posts.show.reaction_picker.cta") %>
@@ -119,6 +134,18 @@
               <span class="inline-flex min-w-8 items-center justify-center rounded-full bg-slate-900 px-2 py-1 text-xs font-semibold text-white"><%= total_reactions %></span>
             <% end %>
           </span>
+        <% end %>
+
+        <% if render_reaction_buttons %>
+          <button type="button"
+                  data-reactions-target="toggle"
+                  data-action="click->reactions#togglePicker"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  aria-label="<%= t("posts.show.reaction_picker.choose_reaction", default: "Choose a reaction") %>"
+                  class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-500 shadow-sm ring-1 ring-slate-950/5 transition hover:border-slate-300 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.23 8.29a.75.75 0 0 1 0-1.08Z" clip-rule="evenodd" /></svg>
+          </button>
         <% end %>
 
         <div data-reactions-target="picker"

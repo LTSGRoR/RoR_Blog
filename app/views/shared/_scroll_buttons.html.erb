@@ -14,7 +14,7 @@
     </div>
   <% else %>
     <div class="flex items-center justify-center">
-      <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 justify-center" do %>
+      <%= link_to new_user_session_path, aria: { label: t("nav.sign_in") }, class: "inline-flex items-center gap-2 h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 justify-center" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H4a2 2 0 01-2-2V5z"/></svg>
       <% end %>
     </div>

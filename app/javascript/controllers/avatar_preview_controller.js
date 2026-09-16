@@ -7,6 +7,12 @@ export default class extends Controller {
     const file = event.target.files[0]
     if (!file) return
 
+    // A newly chosen file replaces any pending "remove" request; leaving the
+    // remove flag set would make the server purge the fresh upload silently.
+    if (this.hasRemoveFieldTarget) {
+      this.removeFieldTarget.value = "0"
+    }
+
     const reader = new FileReader()
     reader.onload = (e) => {
       this.previewTarget.src = e.target.result

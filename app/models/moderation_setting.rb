@@ -36,7 +36,10 @@ class ModerationSetting < ApplicationRecord
   validates :provider, presence: true
   validates :provider, inclusion: { in: PROVIDERS.values }
   validates :ai_model, presence: true
-  validates :api_key, presence: true, if: :api_key_required?
+  # NOTE: no presence validation on :api_key — the key may legitimately come
+  # from the provider-specific ENV var instead (see AiModeration::Configuration).
+  # A missing key degrades gracefully at call time with a clear ai_last_error
+  # rather than blocking record saves.
   validates :request_timeout_seconds, numericality: { greater_than: 0 }
   validates :max_retries, numericality: { greater_than: 0 }
   validates :auto_approve_threshold, numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 1.0 }
@@ -52,7 +55,6 @@ class ModerationSetting < ApplicationRecord
       request_timeout_seconds: 30,
       max_retries: 3,
       auto_review_enabled: true,
-      api_key: "default",
       new_post_instruction: DEFAULT_NEW_POST_INSTRUCTION,
       revision_instruction: DEFAULT_REVISION_INSTRUCTION,
       assistant_prompt: DEFAULT_ASSISTANT_PROMPT
@@ -64,13 +66,5 @@ class ModerationSetting < ApplicationRecord
   def track_model_change
     @old_model = ai_model_was
     @new_model = ai_model
-  end
-
-  def api_key_required?
-    return false unless provider.present?
-    return false if api_key.present?
-
-    persisted_key = persisted? ? api_key_in_database.to_s : ""
-    persisted_key.blank?
   end
 end

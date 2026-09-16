@@ -3,6 +3,6 @@
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-md bg-indigo-600 text-white font-semibold shadow-sm" aria-current="page"><%= page %></span>
   <% else %>
     <%= link_to page, url, remote: remote, rel: page.rel,
-        class: 'inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors' %>
+        class: 'inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400' %>
   <% end %>
 </li>

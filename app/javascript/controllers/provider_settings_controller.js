@@ -15,14 +15,13 @@ export default class extends Controller {
   toggleApiKey() {
     if (!this.hasProviderSelectTarget || !this.hasApiKeyWrapperTarget) return
 
-    const provider = this.providerSelectTarget.value
-    const requiresApiKey = provider !== "ollama"
-    const shouldRequireApiKey = requiresApiKey && !this.storedApiKeyValue
-
-    this.apiKeyWrapperTarget.classList.toggle("hidden", !requiresApiKey)
+    // Every supported provider (openai, gemini, claude, mistral) needs an API
+    // key. Keep the wrapper visible; only skip *requiring* it when a key is
+    // already stored (a blank input keeps the stored key).
+    this.apiKeyWrapperTarget.classList.remove("hidden")
 
     if (this.hasApiKeyInputTarget) {
-      this.apiKeyInputTarget.required = shouldRequireApiKey
+      this.apiKeyInputTarget.required = !this.storedApiKeyValue
     }
   }
 }

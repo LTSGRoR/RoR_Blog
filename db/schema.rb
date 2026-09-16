@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_15_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
     t.vector "embedding", limit: 1536
     t.index ["embedding"], name: "index_chat_histories_on_embedding", using: :ivfflat
     t.index ["post_id"], name: "index_chat_histories_on_post_id"
+    t.index ["user_id", "created_at"], name: "index_chat_histories_on_user_and_created_at"
     t.index ["user_id"], name: "index_chat_histories_on_user_id"
   end
 
@@ -80,7 +81,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
     t.datetime "updated_at", null: false
     t.bigint "parent_id"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
-    t.index ["post_id"], name: "index_comments_on_post_id"
+    t.index ["post_id", "parent_id", "created_at"], name: "index_comments_on_post_and_parent_created"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
@@ -132,6 +133,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
     t.index ["ai_review_status"], name: "index_post_revisions_on_ai_review_status"
     t.index ["author_id"], name: "index_post_revisions_on_author_id"
     t.index ["moderation_status"], name: "index_post_revisions_on_moderation_status"
+    t.index ["post_id", "moderation_status", "updated_at"], name: "index_post_revisions_on_post_and_status_updated"
     t.index ["post_id", "moderation_status"], name: "index_post_revisions_on_post_id_and_open_status", unique: true, where: "(moderation_status = ANY (ARRAY[0, 1]))"
     t.index ["post_id"], name: "index_post_revisions_on_post_id"
     t.index ["reviewer_id"], name: "index_post_revisions_on_reviewer_id"
@@ -162,10 +164,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
     t.jsonb "ai_decision_payload", default: {}, null: false
     t.vector "embedding", limit: 1536
     t.string "embedding_source_digest"
+    t.integer "comments_count", default: 0, null: false
     t.index ["ai_review_status"], name: "index_posts_on_ai_review_status"
     t.index ["embedding"], name: "index_posts_on_embedding", using: :ivfflat
     t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
+    t.index ["status", "verified", "created_at"], name: "index_posts_on_feed_ordering"
     t.index ["status"], name: "index_posts_on_status"
+    t.index ["user_id", "status", "verified"], name: "index_posts_on_owner_and_visibility"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["verified"], name: "index_posts_on_verified"
   end
@@ -177,7 +182,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_02_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "emoji_type", null: false
-    t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
+    t.index ["reactable_type", "reactable_id", "emoji_type"], name: "index_reactions_on_reactable_and_emoji"
     t.index ["user_id", "reactable_type", "reactable_id"], name: "index_reactions_unique_per_user_target", unique: true
     t.index ["user_id"], name: "index_reactions_on_user_id"
   end

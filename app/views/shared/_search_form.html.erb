@@ -9,6 +9,7 @@
       </div>
       <%= text_field_tag :q, params[:q],
             placeholder: t("search.placeholder"),
+            aria: { label: t("search.placeholder") },
             class: "w-full h-11 pl-10 pr-4 rounded-md border border-[#e2e8f0] bg-white text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9e0000] focus:border-transparent transition",
             data: { action: "input->search#changed" } %>
     </div>
