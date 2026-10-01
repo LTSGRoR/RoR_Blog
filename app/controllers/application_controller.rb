@@ -10,6 +10,12 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
   rescue_from ActionController::ParameterMissing, with: :render_unprocessable
   rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable
+  rescue_from ActiveRecord::StaleObjectError do
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_path, alert: "This content changed. Reload before trying again.", status: :see_other }
+      format.any { head :conflict }
+    end
+  end
 
   before_action :set_locale
   before_action :configure_permitted_parameters, if: :devise_controller?

@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+require "fileutils"
+require "time"
+require "json"
+require "uri"
+
+abort "Usage: PRODUCTION_ENV_FILE=/path/to/production.env bin/backup-production /secure/backup/path" unless ARGV.one? && ENV["PRODUCTION_ENV_FILE"]
+File.umask(0o077)
+root = File.expand_path(ARGV.first)
+FileUtils.mkdir_p(root, mode: 0o700)
+compose = [ "docker", "compose", "--env-file", File.expand_path(ENV.fetch("PRODUCTION_ENV_FILE")), "-f", "docker-compose.yml", "-f", "docker-compose.prod.yml" ]
+Dir.chdir(File.expand_path("..", __dir__)) do
+  configuration = JSON.parse(IO.popen([ *compose, "config", "--format", "json" ], &:read))
+  database_host = URI.parse(configuration.dig("services", "app", "environment", "DATABASE_URL")).host
+  abort "Managed PostgreSQL requires a provider backup; this script backs up the bundled database only" unless %w[db ror_blog_db].include?(database_host)
+  File.open(File.join(root, ".backup.lock"), "w") do |lock|
+    abort "Another backup is running" unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+    destination = File.join(root, Time.now.utc.strftime("%Y%m%dT%H%M%S") + "-#{Process.pid}")
+    FileUtils.mkdir(destination, mode: 0o700)
+    # libpq reads credentials from the already configured database container; no
+    # credentials are placed in shell arguments or printed in command output.
+    File.open(File.join(destination, "database.dump"), "wb") do |output|
+      abort "Database backup failed; incomplete files are in #{destination}" unless system(*compose, "exec", "-T", "ror_blog_db", "sh", "-c", 'PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U "$POSTGRES_USER" -Fc "$POSTGRES_DB"', out: output)
+    end
+    File.open(File.join(destination, "storage.tar.gz"), "wb") do |output|
+      abort "Storage backup failed; incomplete files are in #{destination}" unless system(*compose, "run", "--rm", "--no-deps", "--entrypoint", "tar", "app", "-czf", "-", "-C", "/rails/storage", ".", out: output)
+    end
+    File.write(File.join(destination, "COMPLETE"), "Database and uploads archived at #{Time.now.utc.iso8601}\n")
+    puts "Backup complete: #{destination}"
+  end
+end

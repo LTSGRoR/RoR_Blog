@@ -1,4 +1,5 @@
 class PostRevision < ApplicationRecord
+  include ImageUploadValidation
   belongs_to :post
   belongs_to :author, class_name: "User"
   belongs_to :reviewer, class_name: "User", optional: true
@@ -36,6 +37,7 @@ class PostRevision < ApplicationRecord
   end
 
   def submit!
+    raise ArgumentError, "Only draft revisions can be submitted" unless draft?
     raise ArgumentError, "Title is required" if title.to_s.strip.blank?
     raise ArgumentError, "Body is required" if body.to_plain_text.to_s.strip.blank?
 
@@ -50,15 +52,19 @@ class PostRevision < ApplicationRecord
   end
 
   def approve!(admin:, note: nil)
-    Post.transaction do
-      post.apply_approved_revision!(revision: self, admin: admin)
-      apply_thumbnail_to_post
-      update!(
-        moderation_status: :approved,
-        reviewer: admin,
-        review_note: note.to_s.strip.presence,
-        reviewed_at: Time.current
-      )
+    with_lock do
+      raise ArgumentError, "Only pending revisions can be approved" unless pending_review?
+      post.with_lock do
+        raise ArgumentError, "Post must be published and verified" unless post.published? && post.verified?
+        post.apply_approved_revision!(revision: self, admin: admin)
+        apply_thumbnail_to_post
+        update!(
+          moderation_status: :approved,
+          reviewer: admin,
+          review_note: note.to_s.strip.presence,
+          reviewed_at: Time.current
+        )
+      end
     end
   end
 
@@ -79,12 +85,15 @@ class PostRevision < ApplicationRecord
     cleaned_note = note.to_s.strip
     raise ArgumentError, "Rejection note is required" if cleaned_note.blank?
 
-    update!(
-      moderation_status: :rejected,
-      reviewer: admin,
-      review_note: cleaned_note,
-      reviewed_at: Time.current
-    )
+    with_lock do
+      raise ArgumentError, "Only pending revisions can be rejected" unless pending_review?
+      update!(
+        moderation_status: :rejected,
+        reviewer: admin,
+        review_note: cleaned_note,
+        reviewed_at: Time.current
+      )
+    end
   end
 
   def tag_list
@@ -94,6 +103,7 @@ class PostRevision < ApplicationRecord
   def queue_ai_review!
     update!(
       ai_review_status: :pending,
+      ai_review_token: nil,
       ai_attempts_count: 0,
       ai_last_error: nil,
       ai_decision_payload: {},
@@ -108,6 +118,7 @@ class PostRevision < ApplicationRecord
   def mark_ai_in_progress!
     update!(
       ai_review_status: :in_progress,
+      ai_review_token: SecureRandom.uuid,
       ai_attempts_count: ai_attempts_count + 1,
       ai_last_error: nil
     )
@@ -145,9 +156,6 @@ class PostRevision < ApplicationRecord
   end
 
   def thumbnail_size_under_limit
-    return unless thumbnail.attached?
-    if thumbnail.blob.byte_size > 10.megabytes
-      errors.add(:thumbnail, "must be less than 10MB")
-    end
+    validate_image_upload(:thumbnail, maximum_size: 10.megabytes)
   end
 end

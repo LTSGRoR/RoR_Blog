@@ -12,18 +12,14 @@ class CommentsController < ApplicationController
 
   def replies
     parent_comment = @post.comments.find(params[:id])
-    current_depth = [ params[:depth].to_i, 0 ].max
-    requested_limit = params[:visible_depth_limit].to_i
-    visible_depth_limit = if requested_limit.positive?
-      [ requested_limit, Comment::MAX_VISIBLE_REPLY_DEPTH ].min
-    else
-      Comment::DEFAULT_VISIBLE_REPLY_DEPTH
-    end
-    visible_depth_limit = [ visible_depth_limit, current_depth ].max
+    current_depth = parent_comment.depth
+    visible_depth_limit = current_depth + 1
+    replies_page = [ params[:replies_page].to_i, 1 ].max
 
     render partial: "comments/replies_frame",
            locals: {
              comment: parent_comment,
+             replies_page: replies_page,
              current_depth: current_depth,
              visible_depth_limit: visible_depth_limit
            }

@@ -158,11 +158,14 @@
 
           <% if @has_more_comments %>
             <div class="mt-5">
-              <%= link_to "Load more comments",
-                    post_path(@post, comments_visible: @comments_visible + @comments_increment),
+              <%= link_to "Next comments",
+                    post_path(@post, comments_visible: @comments_visible, comments_page: @comments_page + 1),
                     data: { turbo_frame: dom_id(@post, :comments_section) },
                     class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
             </div>
+          <% end %>
+          <% if @comments_page > 1 %>
+            <%= link_to "Previous comments", post_path(@post, comments_visible: @comments_visible, comments_page: @comments_page - 1), data: { turbo_frame: dom_id(@post, :comments_section) } %>
           <% end %>
         <% end %>
 

@@ -46,12 +46,11 @@ class PostsController < ApplicationController
 
   def show
     requested_visible_count = params[:comments_visible].to_i
-    @comments_visible = requested_visible_count.positive? ? requested_visible_count : 5
-    @comments_increment = 10
+    @comments_visible = requested_visible_count.positive? ? [ requested_visible_count, Comment::ROOT_PAGE_LIMIT ].min : 5
+    @comments_page = [ params[:comments_page].to_i, 1 ].max
+    comments_offset = (@comments_page - 1) * @comments_visible
 
-    # The comment partials walk comment -> user avatar, comment -> post and
-    # reactable -> reactions, so preload those two levels of the reply tree
-    # once instead of letting each node query for itself.
+    # Preload root authors and reactions; reply frames fetch bounded pages.
     comment_includes = {
       user: { avatar_attachment: :blob },
       post: [],
@@ -60,11 +59,10 @@ class PostsController < ApplicationController
     }
     root_comments_scope = @post.comments.root
                                 .includes(comment_includes)
-                                .includes(replies: comment_includes)
                                 .order(created_at: :asc)
     @root_comments_count = root_comments_scope.count
-    @has_more_comments = @root_comments_count > @comments_visible
-    @comments = root_comments_scope.limit(@comments_visible)
+    @has_more_comments = @root_comments_count > comments_offset + @comments_visible
+    @comments = root_comments_scope.offset(comments_offset).limit(@comments_visible)
 
     @comment = Comment.new
     @related_posts = Post.where(status: Post.statuses[:published], verified: true)
@@ -280,8 +278,8 @@ class PostsController < ApplicationController
   # round trip instead of three. Note `scope` includes an ORDER BY that must be
   # dropped before aggregating (an ordered aggregate would be ill-formed SQL).
   def posts_status_counts(scope)
-    draft_status = Post.statuses[:draft]
-    published_status = Post.statuses[:published]
+    draft_status = Post.statuses[:draft].to_i
+    published_status = Post.statuses[:published].to_i
     stats_scope = scope.unscope(:order)
 
     stats_scope.pick(
@@ -294,7 +292,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    permitted = params.require(:post).permit(:title, :body, :status, :thumbnail, :tag_list, tag_ids: [])
+    permitted = params.require(:post).permit(:title, :body, :status, :thumbnail, :tag_list, :lock_version, tag_ids: [])
 
     selected_tag_ids = Array(permitted[:tag_ids]).reject(&:blank?)
     typed_tag_names = permitted[:tag_list].to_s.split(",").map(&:strip).reject(&:blank?).uniq

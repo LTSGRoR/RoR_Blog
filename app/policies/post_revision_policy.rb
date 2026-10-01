@@ -28,11 +28,11 @@ class PostRevisionPolicy < ApplicationPolicy
   end
 
   def approve?
-    user&.admin?
+    user&.admin? && record.pending_review?
   end
 
   def reject?
-    user&.admin?
+    user&.admin? && record.pending_review?
   end
 
   def destroy?

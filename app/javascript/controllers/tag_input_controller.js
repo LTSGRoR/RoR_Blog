@@ -270,11 +270,11 @@ export default class extends Controller {
         <button
           type="button"
           data-action="click->tag-input#choose"
-          data-id="${tag.id}"
-          data-name="${tag.name}"
+          data-id="${this.escapeHtml(String(tag.id))}"
+          data-name="${this.escapeHtml(tag.name)}"
           class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors duration-150 ${activeClasses}"
         >
-          <span class="block min-w-0 truncate text-sm font-medium">${tag.name}</span>
+          <span class="block min-w-0 truncate text-sm font-medium">${this.escapeHtml(tag.name)}</span>
           <span class="h-2 w-2 rounded-full bg-slate-200"></span>
         </button>
       `

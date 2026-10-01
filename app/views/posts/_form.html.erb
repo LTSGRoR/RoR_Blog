@@ -1,4 +1,5 @@
 <%= form_with(model: post, local: true, html: { multipart: true }, class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200", data: { controller: "submit-guard" }) do |f| %>
+  <%= f.hidden_field :lock_version if post.persisted? %>
   
   <% if post.errors.any? %>
     <div class="p-4 mb-6 rounded-lg bg-red-50 border-l-4 border-red-500">

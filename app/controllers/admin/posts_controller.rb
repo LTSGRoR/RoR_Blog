@@ -96,7 +96,7 @@ class Admin::PostsController < ApplicationController
   # table's counters into a single round trip.
   def load_review_queue_stats
     day_start = Post.connection.quote(Time.current.beginning_of_day)
-    published_status = Post.statuses[:published]
+    published_status = Post.statuses[:published].to_i
 
     @pending_post_count, @new_post_count, @awaiting_review_count, @verified_today_count = Post.pick(
       Arel.sql("COUNT(*) FILTER (WHERE status = #{published_status} AND verified = FALSE)"),
@@ -105,17 +105,15 @@ class Admin::PostsController < ApplicationController
       Arel.sql("COUNT(*) FILTER (WHERE verified = TRUE AND verified_at >= #{day_start})")
     )
 
-    pending_review_status = PostRevision.moderation_statuses[:pending_review]
-    draft_status = PostRevision.moderation_statuses[:draft]
-    reviewed_statuses = [
-      PostRevision.moderation_statuses[:approved],
-      PostRevision.moderation_statuses[:rejected]
-    ].join(", ")
+    pending_review_status = PostRevision.moderation_statuses[:pending_review].to_i
+    draft_status = PostRevision.moderation_statuses[:draft].to_i
+    approved_status = PostRevision.moderation_statuses[:approved].to_i
+    rejected_status = PostRevision.moderation_statuses[:rejected].to_i
 
     @pending_count, @draft_count, @reviewed_today_count = PostRevision.pick(
       Arel.sql("COUNT(*) FILTER (WHERE moderation_status = #{pending_review_status})"),
       Arel.sql("COUNT(*) FILTER (WHERE moderation_status = #{draft_status})"),
-      Arel.sql("COUNT(*) FILTER (WHERE moderation_status IN (#{reviewed_statuses}) " \
+      Arel.sql("COUNT(*) FILTER (WHERE moderation_status IN (#{approved_status}, #{rejected_status}) " \
                "AND reviewed_at >= #{day_start})")
     )
   end

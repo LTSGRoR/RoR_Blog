@@ -17,6 +17,10 @@ class GeneratePostSuggestionJob < ApplicationJob
     chat = ChatHistory.find_by(id: chat_history_id)
     return unless chat
     return if chat.bot_response.present?
+    if chat.created_at < ChatHistory::REQUEST_TTL.ago
+      mark_chat_failed(chat, reason: "Request expired before processing")
+      return
+    end
 
     service = AiGeneration::Service.new
 

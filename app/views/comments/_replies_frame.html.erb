@@ -1,10 +1,9 @@
-<%# Prefer the eager-loaded replies when the caller preloaded them (post show
-    renders a whole comment tree); otherwise fall back to an ordered query. %>
-<% ordered_replies = if comment.association(:replies).loaded?
-     comment.replies.sort_by { |reply| [ reply.created_at, reply.id ] }
-   else
-     comment.replies.order(created_at: :asc)
-   end %>
+<% replies_page = local_assigns.fetch(:replies_page, 1) %>
+<% ordered_replies = comment.replies.order(created_at: :asc, id: :asc)
+     .includes(:post, :parent, :reactions, user: { avatar_attachment: :blob })
+     .offset((replies_page - 1) * Comment::REPLY_PAGE_SIZE).limit(Comment::REPLY_PAGE_SIZE + 1).to_a %>
+<% has_more_replies = ordered_replies.size > Comment::REPLY_PAGE_SIZE %>
+<% ordered_replies = ordered_replies.first(Comment::REPLY_PAGE_SIZE) %>
 <%= turbo_frame_tag dom_id(comment, :replies) do %>
   <% if ordered_replies.any? %>
     <% if current_depth < visible_depth_limit %>
@@ -12,9 +11,15 @@
             replies: ordered_replies,
             current_depth: current_depth + 1,
             visible_depth_limit: visible_depth_limit %>
+      <% if has_more_replies %>
+        <%= link_to "Next replies", replies_post_comment_path(comment.post, comment, replies_page: replies_page + 1), data: { turbo_frame: dom_id(comment, :replies) }, class: "text-xs font-medium text-indigo-600" %>
+      <% end %>
+      <% if replies_page > 1 %>
+        <%= link_to "Previous replies", replies_post_comment_path(comment.post, comment, replies_page: replies_page - 1), data: { turbo_frame: dom_id(comment, :replies) }, class: "text-xs font-medium text-indigo-600" %>
+      <% end %>
     <% else %>
       <div class="mt-4 pl-8 border-l-2 border-slate-100">
-        <%= link_to "Load more replies (#{ordered_replies.size})",
+        <%= link_to "Load replies",
               replies_post_comment_path(
                 comment.post,
                 comment,

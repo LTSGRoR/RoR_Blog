@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  include ImageUploadValidation
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -16,6 +17,7 @@ class User < ApplicationRecord
   validates :profile_title, length: { maximum: 120 }, allow_blank: true
   validates :bio, length: { maximum: 600 }, allow_blank: true
   validate :not_banned_and_suspended
+  validate { validate_image_upload(:avatar, maximum_size: 2.megabytes) }
 
   # Scopes for admin user management
   scope :by_name, ->(q) {

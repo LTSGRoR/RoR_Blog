@@ -1,0 +1,136 @@
+services:
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      APP_HOST: ${APP_HOST:?APP_HOST must be set in production}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+  # Production overlay: keep dev defaults in docker-compose.yml and apply this
+  # file on top:
+  #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+  # Provide secrets via shell env or an env_file (see .env.example). Required:
+  # APP_HOST, DB_PASSWORD, ACTIVE_RECORD_ENCRYPTION_*, SECRET_KEY_BASE or
+  # RAILS_MASTER_KEY, REDIS_URL / ELASTICSEARCH_URL if external.
+  app:
+    build:
+      args:
+        APP_ENV: production
+        BUNDLE_WITHOUT: "development:test"
+    command: bundle exec rails server -b 0.0.0.0 -p 3000
+    healthcheck:
+      test: ["CMD", "bundle", "exec", "ruby", "-rnet/http", "-e", "response = Net::HTTP.get_response(URI('http://127.0.0.1:3000/en/up'), {'Host' => ENV.fetch('APP_HOST')}); exit(response.code == '200' ? 0 : 1)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 10
+    # Caddy serves public HTTPS; this endpoint is only for host diagnostics.
+    ports: !override
+      - "127.0.0.1:3000:3000"
+    environment:
+      RAILS_ENV: production
+      APP_HOST: ${APP_HOST:?APP_HOST must be set in production}
+      ADDITIONAL_HOSTS: ${ADDITIONAL_HOSTS:-}
+      FORCE_SSL: ${FORCE_SSL:-true}
+      APP_PROTOCOL: ${APP_PROTOCOL:-https}
+      RAILS_LOG_LEVEL: ${RAILS_LOG_LEVEL:-info}
+      RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-5}
+      SOLID_QUEUE_IN_PUMA: "false"
+      REINDEX_ON_BOOT: ${REINDEX_ON_BOOT:-false}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
+      REDIS_URL: ${PROD_REDIS_URL:-redis://redis:6379/0}
+      ELASTICSEARCH_URL: ${PROD_ELASTICSEARCH_URL:-http://elasticsearch:9200}
+      # In-network URL for the compose db service, built from the DB_* values the
+      # dev service in docker-compose.yml also uses. Three traps to respect here:
+      #   1. Never interpolate the host-side ${DATABASE_URL}: compose reads `.env`
+      #      for `${...}` only, but that value points at 127.0.0.1 (for `bin/dev`),
+      #      which inside the container is the app itself and would override
+      #      DB_HOST, breaking `db:prepare`.
+      #   2. The host must be the `db` alias, not `ror_blog_db`: Ruby's RFC2396 URI
+      #      parser (ActiveRecord::DatabaseConfigurations::ConnectionUrlResolver)
+      #      rejects hostnames containing "_" with
+      #      `URI::InvalidURIError: ... does not accept registry part`.
+      #   3. The value must never be blank: Rails 8 raises
+      #      `Database URL cannot be empty` (`environment_value_for` only checks
+      #      truthiness), so a `${VAR:-}` fallback is not an option.
+      # Point at an external/managed Postgres with PROD_DATABASE_URL (its hostname
+      # must not contain "_" either; percent-encode special characters, e.g. `@`
+      # in the password). The solid_* databases follow DATABASE_URL.
+      DATABASE_URL: ${PROD_DATABASE_URL:-postgresql://${DB_USERNAME:-postgres}:${DB_PASSWORD:?DB_PASSWORD must be set in production}@db:5432/${DB_NAME:-ror_blog_production}}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in production}
+      DB_NAME: ${DB_NAME:-ror_blog_production}
+      ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: ${ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY:?must be set in production}
+      ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: ${ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY:?must be set in production}
+      ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: ${ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT:?must be set in production}
+    depends_on:
+      ror_blog_db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+        required: false
+    volumes: !override
+      - blog_storage:/rails/storage
+
+  sidekiq:
+    build:
+      args:
+        APP_ENV: production
+        BUNDLE_WITHOUT: "development:test"
+    environment:
+      RAILS_ENV: production
+      APP_HOST: ${APP_HOST:?APP_HOST must be set in production}
+      RAILS_LOG_LEVEL: ${RAILS_LOG_LEVEL:-info}
+      RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-5}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
+      REDIS_URL: ${PROD_REDIS_URL:-redis://redis:6379/0}
+      ELASTICSEARCH_URL: ${PROD_ELASTICSEARCH_URL:-http://elasticsearch:9200}
+      # Keep parity with the app service (see comment there): in-network URL via the
+      # `db` alias, or PROD_DATABASE_URL for an external/managed Postgres. Never
+      # interpolate the host-side ${DATABASE_URL} and never leave this blank.
+      DATABASE_URL: ${PROD_DATABASE_URL:-postgresql://${DB_USERNAME:-postgres}:${DB_PASSWORD:?DB_PASSWORD must be set in production}@db:5432/${DB_NAME:-ror_blog_production}}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in production}
+      DB_NAME: ${DB_NAME:-ror_blog_production}
+      ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: ${ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY:?must be set in production}
+      ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: ${ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY:?must be set in production}
+      ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: ${ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT:?must be set in production}
+    depends_on:
+      app:
+        condition: service_healthy
+      ror_blog_db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+        required: false
+    volumes: !override
+      - blog_storage:/rails/storage
+
+  redis:
+    ports: !reset []
+
+  elasticsearch:
+    ports: !reset []
+
+  ror_blog_db:
+    ports: !reset []
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ror_blog_production}
+
+volumes:
+  blog_storage:
+  caddy_data:
+  caddy_config:

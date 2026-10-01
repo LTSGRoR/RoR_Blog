@@ -2,7 +2,31 @@ class ChatHistory < ApplicationRecord
   belongs_to :user
   belongs_to :post, optional: true
 
-  validates :user_message, presence: true
+  MAX_MESSAGE_LENGTH = 4_000
+  REQUEST_TTL = 10.minutes
+  USER_HOURLY_LIMIT = ENV.fetch("AI_CHAT_USER_HOURLY_LIMIT", "20").to_i
+  USER_PENDING_LIMIT = ENV.fetch("AI_CHAT_USER_PENDING_LIMIT", "2").to_i
+  DAILY_LIMIT = ENV.fetch("AI_CHAT_DAILY_LIMIT", "500").to_i
+  class QuotaExceeded < StandardError; end
+
+  validates :user_message, presence: true, length: { maximum: MAX_MESSAGE_LENGTH }
+
+  # Reserve capacity in PostgreSQL so limits hold across web processes, even
+  # when the cache is unavailable. Count accepted requests, including failures.
+  def self.accept_request!(user:, post:, message:)
+    transaction do
+      connection.execute("SELECT pg_advisory_xact_lock(741902001)")
+      now = Time.current
+      history = where(user_id: user.id)
+      if history.where(created_at: (now - 1.hour)..).count >= USER_HOURLY_LIMIT ||
+          history.where(bot_response: nil, created_at: (now - REQUEST_TTL)..).count >= USER_PENDING_LIMIT ||
+          where(created_at: now.beginning_of_day..).count >= DAILY_LIMIT
+        raise QuotaExceeded, "Assistant request limit reached. Please try again later."
+      end
+
+      create!(user: user, post: post, user_message: message)
+    end
+  end
 
   scope :for_user, ->(user_id) { where(user_id: user_id) }
 

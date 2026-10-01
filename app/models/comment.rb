@@ -2,6 +2,8 @@ class Comment < ApplicationRecord
   MAX_REPLY_DEPTH = 5
   DEFAULT_VISIBLE_REPLY_DEPTH = 1
   MAX_VISIBLE_REPLY_DEPTH = 10
+  ROOT_PAGE_LIMIT = 20
+  REPLY_PAGE_SIZE = 10
 
   belongs_to :post, counter_cache: true
   belongs_to :user
@@ -11,7 +13,7 @@ class Comment < ApplicationRecord
 
   scope :root, -> { where(parent_id: nil) }
 
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: 5_000 }
   validate :parent_belongs_to_same_post, if: :parent_id?
   validate :within_max_reply_depth, if: :parent_id?
 
