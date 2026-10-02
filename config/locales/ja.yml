@@ -579,7 +579,7 @@ ja:
       index:
         title: "投稿モデレーション"
         subtitle: "著者の修正内容を確認し、公開投稿への反映を承認します。"
-        search_placeholder: "投稿タイトルまたは著者で検索"
+        search_placeholder: "タイトル・著者・メール・タグで検索"
         search: "検索"
         empty: "このフィルタに一致する修正はありません。"
         no_action: "実行可能な操作はありません"

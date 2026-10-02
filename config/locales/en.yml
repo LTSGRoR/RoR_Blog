@@ -606,7 +606,7 @@ en:
         title: "Post Moderation"
         subtitle: "Review author revisions and approve changes to live posts."
         rerun_ai_review: "Rerun AI review"
-        search_placeholder: "Search by post title or author"
+        search_placeholder: "Search by title, author, email, or tag"
         search: "Search"
         empty: "No revisions found for this filter."
         no_action: "No action available"

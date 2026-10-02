@@ -1,0 +1,14 @@
+<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+  <div class="h-1.5 bg-gradient-to-r from-[#9e0000] via-[#cc0000] to-[#820000]"></div>
+  <div class="bg-[radial-gradient(circle_at_top_left,rgba(255,0,0,0.08),transparent_34%),linear-gradient(180deg,#fff8f8_0%,#f8fafc_68%,#f8fafc_100%)] p-6 sm:p-8">
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900"><%= title %></h1>
+    <p class="mt-2 max-w-2xl text-sm text-slate-600"><%= t("admin.tags.subtitle") %></p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <%= link_to t("admin.posts.index.title"), admin_posts_path, class: "inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+      <% unless action_name == "index" %>
+        <%= link_to t("admin.tags.back"), admin_tags_path, class: "inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+      <% end %>
+    </div>
+    <%= yield %>
+  </div>
+</div>

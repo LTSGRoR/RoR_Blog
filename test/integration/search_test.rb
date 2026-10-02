@@ -172,4 +172,30 @@ class SearchTest < ActionDispatch::IntegrationTest
     assert_select "a", text: record.title
     assert_select "a", text: "No wildcard here", count: 0
   end
+  test "admin rename merge and delete keep post tag search current" do
+    source = Tag.create!(name: "quartzneedle")
+    target = Tag.create!(name: "rubyneedle")
+    record = indexed_post(title: "Tagged entry", tag: source)
+    sign_in create_user(role: :admin)
+    perform_enqueued_jobs only: Searchkick::ReindexV2Job do
+      patch admin_tag_path(source, locale: :en), params: { tag: { name: "renamedneedle" } }
+    end
+    assert_response :see_other
+    @post_index.refresh
+    assert_empty results("quartzneedle")
+    assert_equal [ record.id ], results("renamedneedle").map { |p| p["id"] }
+    perform_enqueued_jobs only: PostSearchIndexJob do
+      post merge_admin_tag_path(source, locale: :en), params: { target_name: target.name }
+    end
+    assert_response :see_other
+    @post_index.refresh
+    assert_empty results("renamedneedle")
+    assert_equal [ record.id ], results("rubyneedle").map { |p| p["id"] }
+    perform_enqueued_jobs only: PostSearchIndexJob do
+      delete admin_tag_path(target, locale: :en)
+    end
+    assert_response :see_other
+    @post_index.refresh
+    assert_empty results("rubyneedle")
+  end
 end
