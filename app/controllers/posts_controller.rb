@@ -21,7 +21,7 @@ class PostsController < ApplicationController
     base_posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
 
     if @query.present?
-      lowered_query = "%#{@query.downcase}%"
+      lowered_query = "%#{ActiveRecord::Base.sanitize_sql_like(@query.downcase)}%"
       base_posts = base_posts.left_outer_joins(:tags).where(
         "LOWER(posts.title) LIKE :query OR LOWER(tags.name) LIKE :query",
         query: lowered_query
@@ -46,12 +46,11 @@ class PostsController < ApplicationController
 
   def show
     requested_visible_count = params[:comments_visible].to_i
-    @comments_visible = requested_visible_count.positive? ? requested_visible_count : 5
-    @comments_increment = 10
+    @comments_visible = requested_visible_count.positive? ? [ requested_visible_count, Comment::ROOT_PAGE_LIMIT ].min : 5
+    @comments_page = [ params[:comments_page].to_i, 1 ].max
+    comments_offset = (@comments_page - 1) * @comments_visible
 
-    # The comment partials walk comment -> user avatar, comment -> post and
-    # reactable -> reactions, so preload those two levels of the reply tree
-    # once instead of letting each node query for itself.
+    # Preload root authors and reactions; reply frames fetch bounded pages.
     comment_includes = {
       user: { avatar_attachment: :blob },
       post: [],
@@ -60,11 +59,10 @@ class PostsController < ApplicationController
     }
     root_comments_scope = @post.comments.root
                                 .includes(comment_includes)
-                                .includes(replies: comment_includes)
                                 .order(created_at: :asc)
     @root_comments_count = root_comments_scope.count
-    @has_more_comments = @root_comments_count > @comments_visible
-    @comments = root_comments_scope.limit(@comments_visible)
+    @has_more_comments = @root_comments_count > comments_offset + @comments_visible
+    @comments = root_comments_scope.offset(comments_offset).limit(@comments_visible)
 
     @comment = Comment.new
     @related_posts = Post.where(status: Post.statuses[:published], verified: true)
@@ -180,38 +178,25 @@ class PostsController < ApplicationController
     @search_path = posts_path
     public_scope = Post.where(status: Post.statuses[:published], verified: true)
 
-    if params[:q].present?
-      query = params[:q].to_s.strip
-      if defined?(Searchkick)
-        begin
-          search_scope = { status: Post.statuses.key(Post.statuses[:published]), verified: true }
-          @posts = Post.search(
-            query,
-            fields: [ "title^5", "tags^3", "body" ],
-            where: search_scope,
-            page: @page,
-            per_page: @per_page,
-            operator: query.include?(" ") ? "and" : "or",
-            misspellings: { below: 5 }
-          )
-          @posts.total_count
-        rescue StandardError => e
-          Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-          @posts = Post.none.page(@page).per(@per_page)
-        end
-      else
-        @posts = Post.none.page(@page).per(@per_page)
+    public_scope = public_scope.where(id: Tagging.where(tag_id: params[:tag_id]).select(:post_id)) if params[:tag_id].present?
+    query = params[:q].to_s.strip
+    @search_unavailable = false
+
+    if query.present?
+      begin
+        public_scope = PublicPostSearch.new(query: query, scope: public_scope).results
+      rescue StandardError => e
+        Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
+        @search_unavailable = true
+        public_scope = public_scope.none
       end
     else
-      # The feed cards render the excerpt (rich text), the author avatar and the
-      # comment/reaction counts; comment counts come from the counter cache so
-      # we no longer have to load every comment row of every listed post.
-      @posts = public_scope
-               .includes(:tags, :thumbnail_attachment, :rich_text_body, user: { avatar_attachment: :blob })
-               .order(created_at: :desc)
-               .page(@page)
-               .per(@per_page)
+      public_scope = public_scope.order(created_at: :desc)
     end
+
+    @posts = public_scope
+             .includes(:tags, :thumbnail_attachment, :rich_text_body, user: { avatar_attachment: :blob })
+             .page(@page).per(@per_page)
   end
 
   def load_blog_feed_panels
@@ -248,8 +233,12 @@ class PostsController < ApplicationController
 
   def respond_with_posts
     respond_to do |format|
-      format.html
+      format.html { render :index, status: @search_unavailable ? :service_unavailable : :ok }
       format.json do
+        if @search_unavailable
+          render json: { error: "Search is temporarily unavailable. Please try again." }, status: :service_unavailable
+          next
+        end
         posts_json = @posts.map do |post|
           {
             id: post.id,
@@ -280,8 +269,8 @@ class PostsController < ApplicationController
   # round trip instead of three. Note `scope` includes an ORDER BY that must be
   # dropped before aggregating (an ordered aggregate would be ill-formed SQL).
   def posts_status_counts(scope)
-    draft_status = Post.statuses[:draft]
-    published_status = Post.statuses[:published]
+    draft_status = Post.statuses[:draft].to_i
+    published_status = Post.statuses[:published].to_i
     stats_scope = scope.unscope(:order)
 
     stats_scope.pick(
@@ -294,7 +283,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    permitted = params.require(:post).permit(:title, :body, :status, :thumbnail, :tag_list, tag_ids: [])
+    permitted = params.require(:post).permit(:title, :body, :status, :thumbnail, :tag_list, :lock_version, tag_ids: [])
 
     selected_tag_ids = Array(permitted[:tag_ids]).reject(&:blank?)
     typed_tag_names = permitted[:tag_list].to_s.split(",").map(&:strip).reject(&:blank?).uniq

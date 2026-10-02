@@ -8,7 +8,7 @@ class ClearExpiredSuspensionsJob < ApplicationJob
               .pluck(:id)
     return if ids.empty?
 
-    User.where(id: ids).update_all(suspended_until: nil, suspended_time_zone: nil)
+    User.where(id: ids, suspended_until: ..now).update_all(suspended_until: nil, suspended_time_zone: nil)
 
     broadcast_user_rows(ids)
     broadcast_summary

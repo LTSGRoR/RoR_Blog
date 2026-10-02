@@ -6,6 +6,8 @@ export default class extends Controller {
 
   connect() {
     this.timer = null
+    this.requestGeneration = (this.requestGeneration || 0) + 1
+    this.abortController = null
     this.activeResultIndex = -1
     // Track selected tag ids to prevent duplicates
     this.selectedIds = new Set(
@@ -20,11 +22,13 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.cancelSearch()
     document.removeEventListener("click", this.boundCloseOnOutsideClick)
   }
 
   search() {
-    clearTimeout(this.timer)
+    this.cancelSearch()
+    const generation = this.requestGeneration
     const q = this.consumeDelimitedInput().trim()
     if (q.length === 0) {
       this.clearList()
@@ -34,9 +38,14 @@ export default class extends Controller {
     this.renderStatus("Searching tags", "Matching tags will appear here.")
 
     this.timer = setTimeout(() => {
-      fetch(`/tags?q=${encodeURIComponent(q)}`, { headers: { "Accept": "application/json" } })
-        .then(r => r.json())
+      this.abortController = new AbortController()
+      fetch(`/tags?q=${encodeURIComponent(q)}`, { headers: { "Accept": "application/json" }, signal: this.abortController.signal })
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`)
+          return r.json()
+        })
         .then(data => {
+          if (generation !== this.requestGeneration) return
           const items = data.filter(t => !this.selectedIds.has(String(t.id)))
 
           if (!items.length) {
@@ -44,10 +53,11 @@ export default class extends Controller {
             return
           }
 
-          this.activeResultIndex = 0
+          this.activeResultIndex = -1
           this.renderResults(items, q)
         })
-        .catch(() => {
+        .catch(error => {
+          if (error.name === "AbortError" || generation !== this.requestGeneration) return
           this.renderStatus("Could not load tags", "Try again in a moment.")
         })
     }, 200)
@@ -94,6 +104,10 @@ export default class extends Controller {
       this.activeResultIndex = Math.max(this.activeResultIndex - 1, 0)
       this.syncActiveResult()
     }
+  }
+
+  keepInputFocus(event) {
+    event.preventDefault()
   }
 
   choose(e) {
@@ -227,15 +241,23 @@ export default class extends Controller {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
       },
       body: JSON.stringify({ name })
     })
-      .then(r => r.json())
+      .then(async response => {
+        const tag = await response.json()
+        if (!response.ok) throw new Error(tag.error || "Please try again.")
+        return tag
+      })
       .then(tag => {
         if (tag.id) {
           this._addChip(String(tag.id), tag.name)
         }
+      })
+      .catch(error => {
+        if (!this.inputTarget.value) this.inputTarget.value = name
+        this.renderStatus("Could not create tag", error.message)
       })
   }
 
@@ -261,7 +283,7 @@ export default class extends Controller {
     }
   }
 
-  renderResults(items, _query) {
+  renderResults(items, query) {
     this.listTarget.innerHTML = items.map((tag, index) => {
       const isActive = index === this.activeResultIndex
       const activeClasses = isActive ? "bg-indigo-50/80 text-indigo-700" : "text-slate-700 hover:bg-slate-50"
@@ -269,26 +291,34 @@ export default class extends Controller {
       return `
         <button
           type="button"
-          data-action="click->tag-input#choose"
-          data-id="${tag.id}"
-          data-name="${tag.name}"
+          data-tag-option
+          data-action="pointerdown->tag-input#keepInputFocus click->tag-input#choose"
+          data-id="${this.escapeHtml(String(tag.id))}"
+          data-name="${this.escapeHtml(tag.name)}"
           class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors duration-150 ${activeClasses}"
         >
-          <span class="block min-w-0 truncate text-sm font-medium">${tag.name}</span>
+          <span class="block min-w-0 truncate text-sm font-medium">${this.escapeHtml(tag.name)}</span>
           <span class="h-2 w-2 rounded-full bg-slate-200"></span>
         </button>
       `
     }).join("")
+
+    const name = query.trim()
+    const exactMatch = items.some(tag => tag.name.toLowerCase() === name.toLowerCase())
+    if (name && !exactMatch) {
+      this.listTarget.insertAdjacentHTML("beforeend", `
+        <button type="button" data-tag-option
+                data-action="pointerdown->tag-input#keepInputFocus click->tag-input#createFromInput"
+                class="flex w-full items-center border-t border-slate-200 px-4 py-3 text-left text-sm font-medium text-indigo-700 hover:bg-indigo-50">
+          Create tag "${this.escapeHtml(name)}"
+        </button>
+      `)
+    }
   }
 
   renderEmptyState(query) {
     this.activeResultIndex = -1
-    this.listTarget.innerHTML = `
-      <div class="px-4 py-5">
-        <p class="text-sm font-medium text-slate-700">No matching tags</p>
-        <p class="mt-1 text-xs text-slate-500">Nothing matched "${this.escapeHtml(query)}".</p>
-      </div>
-    `
+    this.renderResults([], query)
   }
 
   renderStatus(title, subtitle) {
@@ -301,7 +331,14 @@ export default class extends Controller {
     `
   }
 
+  cancelSearch() {
+    clearTimeout(this.timer)
+    this.abortController?.abort()
+    this.requestGeneration = (this.requestGeneration || 0) + 1
+  }
+
   clearList() {
+    this.cancelSearch()
     this.activeResultIndex = -1
     this.listTarget.innerHTML = ""
   }
@@ -328,6 +365,6 @@ export default class extends Controller {
   }
 
   get resultItems() {
-    return Array.from(this.listTarget.querySelectorAll('button[data-action="click->tag-input#choose"]'))
+    return Array.from(this.listTarget.querySelectorAll('button[data-tag-option]'))
   }
 }

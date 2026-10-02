@@ -12,7 +12,7 @@ class PostRevisionsController < ApplicationController
   end
 
   def create
-    authorize @revision
+    authorize @revision, @revision.persisted? ? :update? : :create?
     # Process explicit remove flag before assigning attributes so an incoming
     # `thumbnail` param can't re-attach after we've purged it.
     remove_flag = params.dig(:post_revision, :remove_thumbnail).to_s == "1"
@@ -150,7 +150,7 @@ class PostRevisionsController < ApplicationController
   end
 
   def revision_params
-    params.require(:post_revision).permit(:title, :body, :thumbnail)
+    params.require(:post_revision).permit(:title, :body, :thumbnail, :lock_version)
   end
 
   def apply_revision_tags(revision)

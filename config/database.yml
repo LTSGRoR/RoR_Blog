@@ -15,7 +15,22 @@ default: &default
 
 development:
   <<: *default
-  database: ror_blog_development
+  database: <%= ENV.fetch("DB_NAME") { "ror_blog_development" } %>
+
+  # Rails 8 Solid adapters share the primary DB in development.
+  # Uncomment the blocks below only if you want separate DBs per adapter.
+  # cache:
+  #   <<: *default
+  #   database: <%= ENV.fetch("DB_NAME") { "ror_blog_development" } %>
+  #   migrations_paths: db/cache_migrate
+  # queue:
+  #   <<: *default
+  #   database: <%= ENV.fetch("DB_NAME") { "ror_blog_development" } %>
+  #   migrations_paths: db/queue_migrate
+  # cable:
+  #   <<: *default
+  #   database: <%= ENV.fetch("DB_NAME") { "ror_blog_development" } %>
+  #   migrations_paths: db/cable_migrate
 
 test:
   <<: *default
@@ -23,11 +38,45 @@ test:
 
 production:
   # Prefer `DATABASE_URL` in production (useful for Docker or managed DBs).
+  # When DATABASE_URL is set it takes precedence; the individual DB_* vars
+  # below are still used for the solid_* databases unless their *_DATABASE_URL
+  # overrides are set.
   <% if ENV["DATABASE_URL"].present? %>
-  url: <%= ENV["DATABASE_URL"] %>
+  primary:
+    url: <%= ENV["DATABASE_URL"] %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   <% else %>
-  <<: *default
-  database: ror_blog_production
-  username: <%= ENV["DB_USERNAME"] %>
-  password: <%= ENV["DB_PASSWORD"] %>
+  primary:
+    <<: *default
+    database: <%= ENV.fetch("DB_NAME") { "ror_blog_production" } %>
   <% end %>
+  cache:
+    <% if ENV["CACHE_DATABASE_URL"].present? %>
+    url: <%= ENV["CACHE_DATABASE_URL"] %>
+    <% elsif ENV["DATABASE_URL"].present? %>
+    url: <%= ENV["DATABASE_URL"] %>
+    <% else %>
+    <<: *default
+    database: <%= ENV.fetch("DB_NAME") { "ror_blog_production" } %>
+    <% end %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <% if ENV["QUEUE_DATABASE_URL"].present? %>
+    url: <%= ENV["QUEUE_DATABASE_URL"] %>
+    <% elsif ENV["DATABASE_URL"].present? %>
+    url: <%= ENV["DATABASE_URL"] %>
+    <% else %>
+    <<: *default
+    database: <%= ENV.fetch("DB_NAME") { "ror_blog_production" } %>
+    <% end %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <% if ENV["CABLE_DATABASE_URL"].present? %>
+    url: <%= ENV["CABLE_DATABASE_URL"] %>
+    <% elsif ENV["DATABASE_URL"].present? %>
+    url: <%= ENV["DATABASE_URL"] %>
+    <% else %>
+    <<: *default
+    database: <%= ENV.fetch("DB_NAME") { "ror_blog_production" } %>
+    <% end %>
+    migrations_paths: db/cable_migrate

@@ -11,6 +11,9 @@
 
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
     <div id="posts-results" class="space-y-8 lg:col-span-8">
+      <% if @search_unavailable %>
+        <p role="alert" class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900"><%= t("search.unavailable", default: "Search is temporarily unavailable. Please try again.") %></p>
+      <% end %>
       <% feed_posts = @posts.to_a %>
       <% featured_post = feed_posts.first %>
 
@@ -30,7 +33,7 @@
               <% if featured_post.tags.any? %>
                 <div class="mb-4 flex flex-wrap gap-2">
                   <% featured_post.tags.first(2).each do |tag| %>
-                    <%= link_to "##{tag.name}", blog_path(q: tag.name), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]" %>
+                    <%= link_to "##{tag.name}", blog_path(tag_id: tag.id), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]" %>
                   <% end %>
                 </div>
               <% end %>
@@ -72,7 +75,7 @@
         <% result_count = @posts.size %>
       <% end %>
 
-      <% if params[:q].present? && result_count.to_i == 0 %>
+      <% if !@search_unavailable && params[:q].present? && result_count.to_i == 0 %>
         <div class="mt-4 rounded-md border border-[#e2e8f0] bg-white px-4 py-3 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
       <% end %>
     </div>
@@ -106,7 +109,7 @@
         <h3 class="re-heading text-xl font-semibold text-slate-900"><%= t("posts.index.sidebar.trending_topics.title") %></h3>
         <div class="mt-4 flex flex-wrap gap-2">
           <% @trending_tags.each do |tag| %>
-            <%= link_to "##{tag.name}", blog_path(q: tag.name), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]" %>
+            <%= link_to "##{tag.name}", blog_path(tag_id: tag.id), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]" %>
           <% end %>
         </div>
       </section>

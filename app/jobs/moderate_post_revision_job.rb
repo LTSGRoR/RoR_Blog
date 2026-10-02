@@ -1,6 +1,7 @@
 class ModeratePostRevisionJob < ApplicationJob
   queue_as :default
   include AiRetryPolicy
+  include AiReviewSnapshot
 
   def perform(post_revision_id)
     log_event("start", post_revision_id: post_revision_id)
@@ -22,11 +23,12 @@ class ModeratePostRevisionJob < ApplicationJob
       return
     end
 
-    revision.mark_ai_in_progress!
+    snapshot = start_review(revision)
+    return unless snapshot
 
     decision = AiModeration::Client.new(config: config).review(
       instruction: config.fetch(:revision_instruction),
-      content_payload: AiModeration::ReviewPayloadBuilder.for_revision(revision)
+      content_payload: snapshot[:payload]
     )
 
     log_event(
@@ -37,34 +39,38 @@ class ModeratePostRevisionJob < ApplicationJob
       risk_score: decision.risk_score
     )
 
-    revision.record_ai_decision!(decision: decision, config: config)
+    with_current_review(revision, snapshot) do
+      revision.record_ai_decision!(decision: decision, config: config)
 
-    if decision.status == :auto_approve
-      admin = AiModeration::ActorResolver.admin_user
-      if admin.present?
-        revision.approve!(admin: admin, note: "Auto-approved by AI moderation")
-        revision.mark_ai_auto_approved!
-        log_event("auto_approved", post_revision_id: revision.id, admin_id: admin.id)
+      if decision.status == :auto_approve
+        admin = AiModeration::ActorResolver.admin_user
+        if admin.present?
+          revision.approve!(admin: admin, note: "Auto-approved by AI moderation")
+          revision.mark_ai_auto_approved!
+          log_event("auto_approved", post_revision_id: revision.id, admin_id: admin.id)
+        else
+          revision.mark_ai_needs_admin_review!(reason: "No admin account available for AI auto-approval")
+          log_event("fallback_missing_admin", post_revision_id: revision.id)
+        end
+      elsif decision.status == :needs_admin_review
+        revision.mark_ai_needs_admin_review!(reason: decision.reason)
+        log_event("needs_admin_review", post_revision_id: revision.id, reason: decision.reason)
       else
-        revision.mark_ai_needs_admin_review!(reason: "No admin account available for AI auto-approval")
-        log_event("fallback_missing_admin", post_revision_id: revision.id)
+        handle_failure!(revision: revision, config: config, reason: decision.reason, error_class: decision_error_class(decision))
       end
-    elsif decision.status == :needs_admin_review
-      revision.mark_ai_needs_admin_review!(reason: decision.reason)
-      log_event("needs_admin_review", post_revision_id: revision.id, reason: decision.reason)
-    else
-      handle_failure!(revision: revision, config: config, reason: decision.reason, error_class: decision_error_class(decision))
     end
   rescue StandardError => e
     log_event("error", post_revision_id: post_revision_id, error_class: e.class.name, error_message: e.message)
-    revision&.mark_ai_failed!(reason: e.message)
+    with_current_review(revision, snapshot) do
+      revision.mark_ai_failed!(reason: e.message)
+      revision.mark_ai_needs_admin_review!(reason: e.message) unless retryable?(config) && transient_error?(e.class.name, e.message)
+    end
 
     # Retry only transient infrastructure failures (auth/config errors would
     # burn provider quota for nothing).
     raise e if retryable?(config) && transient_error?(e.class.name, e.message)
 
     # Terminal: give up and hand off to a human reviewer.
-    revision&.mark_ai_needs_admin_review!(reason: e.message)
     log_event("fallback_after_retries", post_revision_id: post_revision_id, reason: e.message)
   end
 

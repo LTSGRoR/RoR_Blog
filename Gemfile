@@ -1,13 +1,13 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails"
+gem "rails", "~> 8.1.0"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use PostgreSQL as the database for Active Record in development
 gem "pg"
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma"
+gem "puma", "~> 7.2.1"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 gem "neighbor"
@@ -44,7 +44,7 @@ gem "solid_cable"
 
 # Background jobs: Sidekiq + Redis (Phase 1)
 gem "sidekiq"
-gem "sidekiq-cron"
+gem "sidekiq-cron", ">= 2.4.0"
 gem "redis"
 
 # Authorization
@@ -62,17 +62,24 @@ gem "thruster", require: false
 # Use Active Storage variants
 gem "image_processing"
 
-gem "dotenv-rails"
-gem "pry-rails"
-gem "pry-byebug"
-gem "ruby_llm"
+# LLM client. Must stay in the default group: production code uses it
+# (AiGeneration::Service, AiModeration::Client, IndexPostEmbeddingsJob and
+# config/initializers/ruby_llm.rb), so it cannot live in :development, :test.
+gem "ruby_llm", ">= 2.0.0.rc1"
+
 
 group :development, :test do
+  gem "pry-rails"
+  gem "pry-byebug"
+
+  gem "dotenv-rails"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
+  gem "bundler-audit", require: false
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false

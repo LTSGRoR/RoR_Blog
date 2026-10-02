@@ -1,6 +1,7 @@
 class ModeratePostJob < ApplicationJob
   queue_as :default
   include AiRetryPolicy
+  include AiReviewSnapshot
 
   def perform(post_id)
     log_event("start", post_id: post_id)
@@ -27,11 +28,12 @@ class ModeratePostJob < ApplicationJob
       return
     end
 
-    post.mark_ai_in_progress!
+    snapshot = start_review(post)
+    return unless snapshot
 
     decision = AiModeration::Client.new(config: config).review(
       instruction: config.fetch(:new_post_instruction),
-      content_payload: AiModeration::ReviewPayloadBuilder.for_post(post)
+      content_payload: snapshot[:payload]
     )
 
     log_event(
@@ -42,29 +44,31 @@ class ModeratePostJob < ApplicationJob
       risk_score: decision.risk_score
     )
 
-    post.record_ai_decision!(decision: decision, config: config)
+    with_current_review(post, snapshot) do
+      post.record_ai_decision!(decision: decision, config: config)
 
-    if decision.status == :auto_approve
-      admin = AiModeration::ActorResolver.admin_user
-      if admin.present?
-        post.verify!(admin)
-        post.mark_ai_auto_approved!
-        log_event("auto_approved", post_id: post.id, admin_id: admin.id)
+      if decision.status == :auto_approve
+        admin = AiModeration::ActorResolver.admin_user
+        if admin.present?
+          post.verify!(admin)
+          post.mark_ai_auto_approved!
+          log_event("auto_approved", post_id: post.id, admin_id: admin.id)
+        else
+          post.mark_ai_needs_admin_review!(reason: "No admin account available for AI auto-approval")
+          log_event("fallback_missing_admin", post_id: post.id)
+        end
+      elsif decision.status == :needs_admin_review
+        post.mark_ai_needs_admin_review!(reason: decision.reason)
+        log_event("needs_admin_review", post_id: post.id, reason: decision.reason)
       else
-        post.mark_ai_needs_admin_review!(reason: "No admin account available for AI auto-approval")
-        log_event("fallback_missing_admin", post_id: post.id)
+        handle_failure!(post: post, config: config, decision: decision)
       end
-    elsif decision.status == :needs_admin_review
-      post.mark_ai_needs_admin_review!(reason: decision.reason)
-      log_event("needs_admin_review", post_id: post.id, reason: decision.reason)
-    else
-      handle_failure!(post: post, config: config, decision: decision)
     end
   rescue StandardError => e
     log_event("error", post_id: post_id, error_class: e.class.name, error_message: e.message)
 
-    unless post&.ai_review_failed?
-      post&.mark_ai_failed!(reason: e.message)
+    with_current_review(post, snapshot) do
+      post.mark_ai_failed!(reason: e.message)
     end
 
     # Retry only transient infrastructure failures; anything else stays in the

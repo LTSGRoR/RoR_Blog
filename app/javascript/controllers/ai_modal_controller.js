@@ -100,7 +100,10 @@ export default class extends Controller {
         body: JSON.stringify({ message: content })
       })
 
-      if (!resp.ok) throw new Error('Request failed')
+      if (!resp.ok) {
+        const failure = await resp.json().catch(() => ({}))
+        throw new Error(failure.error || 'Request failed')
+      }
 
       const json = await resp.json()
 
@@ -126,6 +129,14 @@ export default class extends Controller {
       this._updateSubmitState()
     } catch (err) {
       console.error('[ai-modal] submit failed', err)
+      if (this.hasHistoryTarget) {
+        const errorMessage = document.createElement('p')
+        errorMessage.setAttribute('role', 'alert')
+        errorMessage.className = 'mb-3 text-sm text-red-300'
+        errorMessage.textContent = err.message
+        this.historyTarget.appendChild(errorMessage)
+        this._scrollHistoryToBottom()
+      }
       if (this.hasSubmitTarget) this._enableSubmit()
     } finally {
       // Do not blindly re-enable here — we wait for background job to finish.

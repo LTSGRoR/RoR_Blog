@@ -8,7 +8,7 @@ fi
 
 running_rails_server() {
   local cmd="$*"
-  [[ "$cmd" == *"rails server"* ]]
+  [[ "$cmd" =~ (^|[[:space:]])([^[:space:]]*/)?rails[[:space:]]+server([[:space:]]|$) ]]
 }
 
 wait_for_elasticsearch() {
@@ -34,7 +34,7 @@ run_startup_maintenance() {
   echo "[entrypoint] Preparing database"
   ./bin/rails db:prepare
 
-  if [ "${REINDEX_ON_BOOT:-true}" = "true" ]; then
+  if [ "${REINDEX_ON_BOOT:-false}" = "true" ]; then
     wait_for_elasticsearch
     echo "[entrypoint] Reindexing Tag and Post"
     ./bin/rails runner "Tag.reindex; Post.reindex"

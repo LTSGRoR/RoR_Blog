@@ -1,4 +1,7 @@
 services:
+  # Development stack. For production, use:
+  #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+  # and provide a real production env file / secrets (see .env.example).
   app:
     build:
       context: .
@@ -13,14 +16,43 @@ services:
       - "3000:3000"
     environment:
       RAILS_ENV: development
-      REINDEX_ON_BOOT: ${REINDEX_ON_BOOT:-true}
+      AI_CHAT_USER_HOURLY_LIMIT: ${AI_CHAT_USER_HOURLY_LIMIT:-20}
+      AI_CHAT_USER_PENDING_LIMIT: ${AI_CHAT_USER_PENDING_LIMIT:-2}
+      AI_CHAT_DAILY_LIMIT: ${AI_CHAT_DAILY_LIMIT:-500}
+      REINDEX_ON_BOOT: ${REINDEX_ON_BOOT:-false}
       APP_HOST: ${APP_HOST:-localhost}
       APP_PORT: ${APP_PORT:-3000}
       DB_HOST: ror_blog_db
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
-      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-gemma4:latest}
+      # The container must get a DATABASE_URL of its own: dotenv-rails is in the
+      # dev bundle, so the mounted `.env` would otherwise be picked up and its
+      # host-side DATABASE_URL (127.0.0.1, meant for `bin/dev`) would win over
+      # DB_HOST, breaking `db:prepare` inside the container.
+      # Two rules for the value:
+      #   * Never interpolate the host's ${DATABASE_URL} (the same .env value
+      #     would leak into the container).
+      #   * The host must be the `db` network alias of the ror_blog_db service,
+      #     not the service name itself: Ruby's RFC2396 URI parser
+      #     (ActiveRecord::DatabaseConfigurations::ConnectionUrlResolver) rejects
+      #     hostnames containing "_" with
+      #     `URI::InvalidURIError: ... does not accept registry part`.
+      DATABASE_URL: postgresql://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-ror_blog_development}
+      # Leave unset so the model comes from the ModerationSetting row (admin UI,
+      # "mistral-small-latest" by default); set AI_MODERATION_MODEL in .env to pin
+      # a different model deployment-wide. A stale "gemma4:latest" default here
+      # silently overrode the DB and pointed Mistral at a non-existent model.
+      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-}
+      # Provider API keys. These values (from `.env` or the shell) are the
+      # deployment-wide default only: a key saved in the admin UI
+      # (ModerationSetting#api_key, encrypted) is preferred over them, so keys
+      # can be rotated without redeploying. See
+      # AiModeration::Configuration.provider_api_key.
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_DOMAIN: ${SMTP_DOMAIN:-localhost}
@@ -61,7 +93,18 @@ services:
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-ror_blog_development}
-      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL}
+      # Keep parity with the app service (see comment there): use the `db`
+      # network alias, never the underscore service name.
+      DATABASE_URL: postgresql://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-ror_blog_development}
+      # `:-` keeps the variable defined-but-empty (no compose warning); a blank
+      # value falls back to the ModerationSetting row exactly as before.
+      AI_MODERATION_MODEL: ${AI_MODERATION_MODEL:-}
+      # Keep parity with the app service (see comment there): ENV is the default,
+      # the admin-UI key in the DB wins.
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       SMTP_ADDRESS: ${SMTP_ADDRESS:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_DOMAIN: ${SMTP_DOMAIN:-localhost}
@@ -88,6 +131,13 @@ services:
   ror_blog_db:
     image: pgvector/pgvector:pg16-trixie
     restart: unless-stopped
+    # `db` is a network alias used inside DATABASE_URLs: the service name
+    # `ror_blog_db` contains "_", which Ruby's RFC2396 URI parser rejects
+    # (see the note on the app service's DATABASE_URL).
+    networks:
+      default:
+        aliases:
+          - db
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -95,13 +145,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    command: redis-server --appendonly yes --appendfsync everysec
+    volumes:
+      - redisdata:/data
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
@@ -118,8 +171,8 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
     healthcheck:
       test: ["CMD-SHELL", "curl -sS http://localhost:9200/ >/dev/null || exit 1"]
       interval: 10s
@@ -129,3 +182,4 @@ services:
 volumes:
   pgdata:
   esdata:
+  redisdata:

@@ -2,6 +2,9 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
+# Demo accounts and content must never be provisioned or reset in production.
+return unless Rails.env.development? || Rails.env.test?
+
 puts "Seeding database..."
 
 # ── Users ───────────────────────────────────────────────────────────────────

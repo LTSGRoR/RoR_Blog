@@ -13,7 +13,7 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 ARG RUBY_VERSION=3.3.9
 ARG APP_ENV=production
-ARG BUNDLE_WITHOUT=development
+ARG BUNDLE_WITHOUT=development:test
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Rails app lives here

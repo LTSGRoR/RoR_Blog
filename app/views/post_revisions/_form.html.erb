@@ -5,6 +5,7 @@
               html: { multipart: true },
               class: "space-y-6 max-w-3xl bg-white p-6 sm:p-8 shadow-sm rounded-lg border border-slate-200",
               data: { controller: "submit-guard" } do |f| %>
+  <%= f.hidden_field :lock_version if @revision.persisted? %>
   <% readonly_revision = @revision.persisted? && @revision.pending_review? %>
 
   <% if @revision.errors.any? %>

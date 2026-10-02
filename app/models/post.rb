@@ -1,7 +1,7 @@
 class Post < ApplicationRecord
+  include ImageUploadValidation
   searchkick word_middle: [ :title, :tags ], callbacks: false
-  after_create_commit :enqueue_search_index
-  after_update_commit :enqueue_search_index, if: :search_index_reindex_needed?
+  after_commit :enqueue_search_index, on: [ :create, :update, :destroy ], if: :search_index_sync_needed?
   after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
   # Enqueue embedding indexing when posts are created or updated (only for published posts)
   after_commit :enqueue_embedding_index_after_commit, on: [ :create, :update ]
@@ -81,6 +81,8 @@ class Post < ApplicationRecord
       verified_at: nil,
       verified_by_id: nil,
       unverify_reason: cleaned_reason,
+      ai_review_status: :needs_admin_review,
+      ai_review_token: nil,
       author_feedback_reply: nil,
       author_replied_at: nil,
       reviewed_at: Time.current,
@@ -132,6 +134,7 @@ class Post < ApplicationRecord
   def queue_ai_review!
     update!(
       ai_review_status: :pending,
+      ai_review_token: nil,
       ai_attempts_count: 0,
       ai_last_error: nil,
       ai_decision_payload: {},
@@ -146,6 +149,7 @@ class Post < ApplicationRecord
   def mark_ai_in_progress!
     update!(
       ai_review_status: :in_progress,
+      ai_review_token: SecureRandom.uuid,
       ai_attempts_count: ai_attempts_count + 1,
       ai_last_error: nil
     )
@@ -205,6 +209,10 @@ class Post < ApplicationRecord
     search_index_data_changed? || @removed_tags_for_search_index
   end
 
+  def search_index_sync_needed?
+    destroyed? || previous_changes.key?("id") || search_index_reindex_needed?
+  end
+
   def search_index_data_changed?
     saved_change_to_title? ||
       saved_change_to_status? ||
@@ -234,10 +242,7 @@ class Post < ApplicationRecord
   private
 
   def thumbnail_size_under_limit
-    return unless thumbnail.attached?
-    if thumbnail.blob.byte_size > 10.megabytes
-      errors.add(:thumbnail, "must be less than 10MB")
-    end
+    validate_image_upload(:thumbnail, maximum_size: 10.megabytes)
   end
 
   def broadcast_ai_review_updates

@@ -22,6 +22,9 @@ jobs:
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
 
+      - name: Scan locked Ruby dependencies
+        run: bundle exec bundler-audit check --update
+
   scan_js:
     runs-on: ubuntu-latest
 
@@ -56,12 +59,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # services:
-    #  redis:
-    #    image: redis
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16-trixie
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ror_blog_test
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: "false"
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports:
+          - 9200:9200
+        options: --health-cmd "curl -fsS http://localhost:9200" --health-interval 10s --health-timeout 5s --health-retries 20
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
@@ -75,11 +91,26 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up Node for search regression checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check search request races
+        run: |
+          node test/javascript/tag_suggestion_race.cjs
+          node test/javascript/search_race.cjs
+
       - name: Run tests
         env:
           RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ror_blog_test
+          ELASTICSEARCH_URL: http://127.0.0.1:9200
+          EMBEDDINGS_AUTO_RUN_ON_BOOT: "false"
+        run: |
+          bin/rails db:test:prepare
+          bin/rails test
+          bin/rails test:system
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4

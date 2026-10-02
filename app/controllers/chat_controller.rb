@@ -7,12 +7,15 @@ class ChatController < ApplicationController
     message = params[:message].to_s.strip
     return render json: { error: "Message cannot be blank" }, status: :unprocessable_entity if message.blank?
 
-    chat = ChatHistory.create!(user: current_user, post: @post, user_message: message)
+    chat = ChatHistory.accept_request!(user: current_user, post: @post, message: message)
     GeneratePostSuggestionJob.perform_later(chat.id)
 
     # Render the partial as HTML regardless of the incoming request format
     html = render_to_string(partial: "chat_histories/chat_history_item", locals: { chat_history: chat }, formats: [ :html ])
     render json: { id: chat.id, html: html, status_url: chat_status_path(chat) }, status: :accepted
+  rescue ChatHistory::QuotaExceeded => e
+    response.set_header("Retry-After", "600")
+    render json: { error: e.message }, status: :too_many_requests
   end
 
   def show
@@ -26,13 +29,14 @@ class ChatController < ApplicationController
   private
 
   def set_post
-    return unless params[:post_id].present?
+    post_id = params[:post_id].presence || (params[:id].presence if action_name == "create")
+    return unless post_id
 
-    @post = Post.find_by(id: params[:post_id])
+    @post = Post.find_by(id: post_id)
     render json: { error: "Post not found" }, status: :not_found and return unless @post
   end
 
   def authorize_post!
-    authorize @post
+    authorize @post, :show?
   end
 end

@@ -73,7 +73,7 @@ Centralized configuration for AI moderation behavior.
 | `auto_review_enabled` | `ModerationSetting#auto_review_enabled` or `AI_MODERATION_ENABLED` env | `true` |
 | `new_post_instruction` | `ModerationSetting#new_post_instruction` | Default moderation prompt |
 | `revision_instruction` | `ModerationSetting#revision_instruction` | Default revision prompt |
-| `api_key` | `ModerationSetting#api_key` (encrypted) or provider-specific env var | — |
+| `api_key` | `ModerationSetting#api_key` (encrypted, admin UI) **or** the provider's env var | env var is the deployment default; the admin-UI value wins when both are set (`Configuration.provider_api_key`) |
 
 **Supported providers**
 
