@@ -6,6 +6,7 @@ class Admin::PostsController < ApplicationController
     authorize Post, :moderation_index?
 
     @query = params[:q].to_s.strip
+    tag_query = @query.gsub(/[[:space:]-]+/, " ")
     @scope = permitted_scope
     @filter = normalized_filter(scope: @scope, filter: permitted_filter)
 
@@ -21,8 +22,13 @@ class Admin::PostsController < ApplicationController
     @pending_posts = if @query.present?
       published_posts_scope.joins(:user)
                            .where(
-                             "posts.title ILIKE :q OR users.name ILIKE :q OR users.email ILIKE :q",
-                             q: "%#{@query}%"
+                             "posts.title ILIKE :q OR users.name ILIKE :q OR users.email ILIKE :q OR " \
+                             "EXISTS (SELECT 1 FROM taggings INNER JOIN tags ON tags.id = taggings.tag_id " \
+                             "WHERE taggings.post_id = posts.id AND (tags.name ILIKE :q OR " \
+                             "regexp_replace(tags.name, :tag_separators, ' ', 'g') ILIKE :tag_q))",
+                             q: "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%",
+                             tag_q: "%#{ActiveRecord::Base.sanitize_sql_like(tag_query)}%",
+                             tag_separators: "[[:space:]-]+"
                            )
     else
       published_posts_scope
@@ -65,8 +71,15 @@ class Admin::PostsController < ApplicationController
     if @query.present?
       @revisions = @revisions.joins(:post, :author)
                              .where(
-                               "posts.title ILIKE :q OR users.name ILIKE :q OR users.email ILIKE :q",
-                               q: "%#{@query}%"
+                               "post_revisions.title ILIKE :q OR posts.title ILIKE :q OR " \
+                               "users.name ILIKE :q OR users.email ILIKE :q OR " \
+                               "EXISTS (SELECT 1 FROM post_revision_taggings " \
+                               "INNER JOIN tags ON tags.id = post_revision_taggings.tag_id " \
+                               "WHERE post_revision_taggings.post_revision_id = post_revisions.id AND (tags.name ILIKE :q OR " \
+                               "regexp_replace(tags.name, :tag_separators, ' ', 'g') ILIKE :tag_q))",
+                               q: "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%",
+                             tag_q: "%#{ActiveRecord::Base.sanitize_sql_like(tag_query)}%",
+                             tag_separators: "[[:space:]-]+"
                              )
     end
 

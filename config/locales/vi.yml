@@ -579,7 +579,7 @@ vi:
       index:
         title: "Kiểm duyệt bài viết"
         subtitle: "Duyệt các bản chỉnh sửa từ tác giả trước khi cập nhật bài viết hiển thị."
-        search_placeholder: "Tìm theo tiêu đề hoặc tác giả"
+        search_placeholder: "Tìm theo tiêu đề, tác giả, email hoặc thẻ"
         search: "Tìm"
         empty: "Không có bản chỉnh sửa phù hợp bộ lọc."
         no_action: "Không có hành động"
