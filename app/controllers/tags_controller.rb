@@ -9,7 +9,8 @@ class TagsController < ApplicationController
            .map { |t| { id: t.id, name: t.name } }
       rescue StandardError => e
         Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-        []
+        Tag.where("name LIKE ?", "#{ActiveRecord::Base.sanitize_sql_like(q.downcase)}%")
+           .order(:name).limit(20).pluck(:id, :name).map { |id, name| { id: id, name: name } }
       end
     else
       Tag.order(:name).limit(20).pluck(:id, :name).map { |id, name| { id: id, name: name } }

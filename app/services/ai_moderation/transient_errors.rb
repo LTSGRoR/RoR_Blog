@@ -19,7 +19,7 @@ module AiModeration
       RubyLLM::RateLimitError
     ].freeze
 
-    TRANSIENT_MESSAGE_PATTERN = /timeout|temporarily unavailable|connection reset|broken pipe|retry|temporarily|transient/i
+    TRANSIENT_MESSAGE_PATTERN = /timeout|temporarily unavailable|connection reset|broken pipe|retry|temporarily|transient|rate limit|too many requests|\b429\b/i
 
     class << self
       def transient?(error_class_name, message)

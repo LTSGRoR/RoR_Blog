@@ -21,7 +21,7 @@ class PostsController < ApplicationController
     base_posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
 
     if @query.present?
-      lowered_query = "%#{@query.downcase}%"
+      lowered_query = "%#{ActiveRecord::Base.sanitize_sql_like(@query.downcase)}%"
       base_posts = base_posts.left_outer_joins(:tags).where(
         "LOWER(posts.title) LIKE :query OR LOWER(tags.name) LIKE :query",
         query: lowered_query
@@ -178,38 +178,25 @@ class PostsController < ApplicationController
     @search_path = posts_path
     public_scope = Post.where(status: Post.statuses[:published], verified: true)
 
-    if params[:q].present?
-      query = params[:q].to_s.strip
-      if defined?(Searchkick)
-        begin
-          search_scope = { status: Post.statuses.key(Post.statuses[:published]), verified: true }
-          @posts = Post.search(
-            query,
-            fields: [ "title^5", "tags^3", "body" ],
-            where: search_scope,
-            page: @page,
-            per_page: @per_page,
-            operator: query.include?(" ") ? "and" : "or",
-            misspellings: { below: 5 }
-          )
-          @posts.total_count
-        rescue StandardError => e
-          Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
-          @posts = Post.none.page(@page).per(@per_page)
-        end
-      else
-        @posts = Post.none.page(@page).per(@per_page)
+    public_scope = public_scope.where(id: Tagging.where(tag_id: params[:tag_id]).select(:post_id)) if params[:tag_id].present?
+    query = params[:q].to_s.strip
+    @search_unavailable = false
+
+    if query.present?
+      begin
+        public_scope = PublicPostSearch.new(query: query, scope: public_scope).results
+      rescue StandardError => e
+        Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
+        @search_unavailable = true
+        public_scope = public_scope.none
       end
     else
-      # The feed cards render the excerpt (rich text), the author avatar and the
-      # comment/reaction counts; comment counts come from the counter cache so
-      # we no longer have to load every comment row of every listed post.
-      @posts = public_scope
-               .includes(:tags, :thumbnail_attachment, :rich_text_body, user: { avatar_attachment: :blob })
-               .order(created_at: :desc)
-               .page(@page)
-               .per(@per_page)
+      public_scope = public_scope.order(created_at: :desc)
     end
+
+    @posts = public_scope
+             .includes(:tags, :thumbnail_attachment, :rich_text_body, user: { avatar_attachment: :blob })
+             .page(@page).per(@per_page)
   end
 
   def load_blog_feed_panels
@@ -246,8 +233,12 @@ class PostsController < ApplicationController
 
   def respond_with_posts
     respond_to do |format|
-      format.html
+      format.html { render :index, status: @search_unavailable ? :service_unavailable : :ok }
       format.json do
+        if @search_unavailable
+          render json: { error: "Search is temporarily unavailable. Please try again." }, status: :service_unavailable
+          next
+        end
         posts_json = @posts.map do |post|
           {
             id: post.id,

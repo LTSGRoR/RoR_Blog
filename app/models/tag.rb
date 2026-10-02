@@ -14,7 +14,7 @@ class Tag < ApplicationRecord
     { name: name }
   end
 
-  before_save :normalize_name
+  before_validation :normalize_name
 
   private
 

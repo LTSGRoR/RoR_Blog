@@ -88,4 +88,51 @@ class ModerationTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::StaleObjectError) { stale.update!(title: "Stale edit") }
     assert_equal "Original title", @post.reload.title
   end
+
+  test "retryable post failure survives a rolled-back dirty decision" do
+    @job, @record = ModeratePostJob, @post
+    error = assert_raises(StandardError) do
+      with_ai_review(decision: retryable_failure_decision, max_retries: 3) { }
+    end
+    assert_equal "429 rate limit exceeded", error.message
+    assert @post.reload.ai_review_failed?
+    assert_equal "429 rate limit exceeded", @post.ai_last_error
+    assert_not @post.verified?
+  end
+
+  test "retryable revision failure survives a rolled-back dirty decision" do
+    @post.update!(verified: true)
+    revision = create_revision(post: @post)
+    @job, @record = ModeratePostRevisionJob, revision
+    error = assert_raises(StandardError) do
+      with_ai_review(decision: retryable_failure_decision, max_retries: 3) { }
+    end
+    assert_equal "429 rate limit exceeded", error.message
+    assert revision.reload.ai_review_failed?
+    assert_equal "429 rate limit exceeded", revision.ai_last_error
+    assert revision.pending_review?
+    assert_equal "Original title", @post.reload.title
+  end
+
+  test "recovering a dirty record cannot overwrite a superseding review" do
+    job = ModeratePostJob.new
+    snapshot = job.send(:start_review, @post)
+    @post.ai_last_error = "Unpersisted old error"
+    Post.find(@post.id).queue_ai_review!
+
+    job.send(:with_current_review, @post, snapshot) do
+      flunk "Superseded review must not write failure state"
+    end
+    assert @post.reload.ai_review_pending?
+    assert_nil @post.ai_last_error
+  end
+
+  private
+
+  def retryable_failure_decision
+    AiModeration::DecisionParser::Decision.new(
+      status: :failed, reason: "429 rate limit exceeded",
+      payload: { "error_class" => "RubyLLM::RateLimitError" }
+    )
+  end
 end

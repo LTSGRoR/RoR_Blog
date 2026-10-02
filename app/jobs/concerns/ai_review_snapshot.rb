@@ -17,6 +17,10 @@ module AiReviewSnapshot
   def with_current_review(record, snapshot)
     return unless record && snapshot
 
+    # A failed save or rolled-back decision transaction can leave this object
+    # dirty. Discard those attempted writes before acquiring the recovery lock;
+    # the checks below still reject stale or superseded reviews.
+    record.reload if record.has_changes_to_save?
     record.with_lock do
       return unless reviewable?(record)
       return unless record.ai_review_token == snapshot[:token]

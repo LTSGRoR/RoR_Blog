@@ -91,6 +91,16 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up Node for search regression checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check search request races
+        run: |
+          node test/javascript/tag_suggestion_race.cjs
+          node test/javascript/search_race.cjs
+
       - name: Run tests
         env:
           RAILS_ENV: test

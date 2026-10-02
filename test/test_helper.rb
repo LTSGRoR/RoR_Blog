@@ -21,12 +21,12 @@ class ActiveSupport::TestCase
     PostRevision.create!(post: post, author: post.user, title: "Revision title", body: "Revision body", moderation_status: state)
   end
 
-  def with_ai_review(&review)
+  def with_ai_review(decision: nil, max_retries: 1, &review)
     config = {
       auto_review_enabled: true, new_post_instruction: "Review", revision_instruction: "Review",
-      provider: "mistral", model_name: "test", max_retries: 1
+      provider: "mistral", model_name: "test", max_retries: max_retries
     }
-    decision = AiModeration::DecisionParser::Decision.new(status: :auto_approve, confidence: 0.99, risk_score: 0.01, payload: {})
+    decision ||= AiModeration::DecisionParser::Decision.new(status: :auto_approve, confidence: 0.99, risk_score: 0.01, payload: {})
     client = Object.new
     client.define_singleton_method(:review) { |**_arguments| review.call; decision }
     AiModeration::Configuration.stub(:current, config) do
