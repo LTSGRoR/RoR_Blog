@@ -198,7 +198,7 @@
                 <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" alt="Recommended article" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
               <% end %>
             </div>
-            <p class="re-label text-[10px] font-semibold uppercase tracking-wider text-[#9e0000]"><%= related_post.tags.first&.name || "Rails" %></p>
+            <p class="re-label text-[10px] font-semibold uppercase tracking-wider text-[#9e0000]"><%= related_post.tags.first ? "##{related_post.tags.first.name}" : "Rails" %></p>
             <h3 class="re-heading mt-2 text-xl font-semibold leading-snug text-slate-900 transition group-hover:text-[#9e0000]"><%= link_to related_post.title, post_path(related_post) %></h3>
             <p class="mt-2 text-sm text-slate-600"><%= truncate(related_post.body.to_plain_text, length: 110) %></p>
           </article>

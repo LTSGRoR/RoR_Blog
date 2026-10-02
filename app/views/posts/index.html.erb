@@ -35,6 +35,7 @@
                   <% featured_post.tags.first(2).each do |tag| %>
                     <%= link_to "##{tag.name}", blog_path(tag_id: tag.id), class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-red-100 hover:text-[#9e0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000]" %>
                   <% end %>
+                  <%= render "remaining_tags", tags: featured_post.tags, badge_class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700" %>
                 </div>
               <% end %>
               <h2 class="re-heading text-3xl font-bold text-slate-900 leading-tight">

@@ -1,0 +1,11 @@
+<% remaining_tags = tags.to_a.drop(2) %>
+<% if remaining_tags.any? %>
+  <span data-controller="remaining-tags" style="display: contents">
+    <button type="button" class="<%= badge_class %>" aria-expanded="false"
+            data-remaining-tags-target="button"
+            data-action="click->remaining-tags#toggle">+<%= remaining_tags.size %></button>
+    <% remaining_tags.each do |tag| %>
+      <%= link_to "##{tag.name}", posts_path(tag_id: tag.id), hidden: true, data: { "remaining-tags-target": "tag" }, style: "display: none; overflow-wrap: anywhere", class: "#{badge_class} transition-colors #{badge_class.include?('indigo') ? 'hover:bg-indigo-200 focus-visible:ring-indigo-400' : 'hover:bg-slate-200 focus-visible:ring-slate-400'} focus:outline-none focus-visible:ring-2" %>
+    <% end %>
+  </span>
+<% end %>

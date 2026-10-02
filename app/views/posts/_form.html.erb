@@ -104,7 +104,7 @@
       <input type="hidden" name="post[tag_ids][]" value="" data-empty-tag-ids="true" />
       <% post.tags.each do |tag| %>
         <span data-tag-id="<%= tag.id %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
-          <%= tag.name %>
+          #<%= tag.name %>
           <button type="button" data-action="click->tag-input#remove" data-tag-id="<%= tag.id %>" class="inline-flex h-6 w-6 -mr-1.5 items-center justify-center rounded-full text-sm leading-none text-indigo-500 hover:bg-indigo-100 hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400" aria-label="<%= t('posts.form.remove_tag') %>">&times;</button>
         </span>
         <input type="hidden" name="post[tag_ids][]" value="<%= tag.id %>" data-tag-id="<%= tag.id %>" />

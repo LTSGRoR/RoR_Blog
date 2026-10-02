@@ -86,9 +86,10 @@
                 <p class="text-sm font-semibold text-slate-900 break-words"><%= link_to post.title, post_path(post), class: "hover:text-[#9e0000]" %></p>
                 <% if post.tags.any? %>
                   <div class="mt-2 flex flex-wrap gap-1.5">
-                    <% post.tags.each do |tag| %>
-                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"><%= tag.name %></span>
+                    <% post.tags.first(2).each do |tag| %>
+                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">#<%= tag.name %></span>
                     <% end %>
+                    <%= render "posts/remaining_tags", tags: post.tags, badge_class: "rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600" %>
                   </div>
                 <% end %>
               </td>

@@ -151,7 +151,7 @@ export default class extends Controller {
     span.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200"
     span.style.marginRight = "0.5rem"
 
-    const text = document.createTextNode(name)
+    const text = document.createTextNode(`#${name}`)
 
     const button = document.createElement("button")
     button.type = "button"
@@ -297,7 +297,7 @@ export default class extends Controller {
           data-name="${this.escapeHtml(tag.name)}"
           class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors duration-150 ${activeClasses}"
         >
-          <span class="block min-w-0 truncate text-sm font-medium">${this.escapeHtml(tag.name)}</span>
+          <span class="block min-w-0 truncate text-sm font-medium">#${this.escapeHtml(tag.name)}</span>
           <span class="h-2 w-2 rounded-full bg-slate-200"></span>
         </button>
       `
