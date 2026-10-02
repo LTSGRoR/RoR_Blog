@@ -129,7 +129,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
     index_chat_history_embedding(chat, service)
     broadcast_chat_update(chat)
-  rescue StandardError => e
+  rescue StandardError, SystemStackError => e
     Rails.logger.error("GeneratePostSuggestionJob failed for chat_history_id=#{chat_history_id}: #{e.class} - #{e.message}")
     mark_chat_failed(chat, reason: "LLM_REQUEST_FAILED: #{e.class} - #{e.message}")
   end
@@ -154,6 +154,9 @@ class GeneratePostSuggestionJob < ApplicationJob
   # is present.
   def mark_chat_failed(chat, reason:)
     return unless chat
+
+    chat.reload
+    return if chat.bot_response.present?
 
     updated = chat.update(bot_response: GENERATION_FAILED_MESSAGE, provider_meta: { error: reason })
     unless updated

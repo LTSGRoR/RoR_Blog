@@ -25,7 +25,7 @@ module AiGeneration
       {
         provider: @config.fetch(:provider),
         result: result_text,
-        meta: { raw_response: response }
+        meta: { model: model.to_s }
       }
     rescue StandardError => e
       Rails.logger.error("AiGeneration::Service failed: #{e.class} - #{e.message}")

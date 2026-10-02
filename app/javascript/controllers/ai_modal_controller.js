@@ -59,6 +59,7 @@ export default class extends Controller {
       this.textareaTarget.setAttribute('disabled', '')
       this._setSubmitDisabled(true)
     }
+    if (this.pendingChatId) this._startPendingPoller()
     // scroll history to bottom
     if (this.hasHistoryTarget) {
       this._scrollHistoryToBottom()
@@ -66,6 +67,7 @@ export default class extends Controller {
   }
 
   close() {
+    this._clearPendingPoller()
     this.element.classList.add('hidden')
     if (this._previouslyFocused && this._previouslyFocused.isConnected) {
       this._previouslyFocused.focus()
@@ -201,6 +203,8 @@ export default class extends Controller {
   }
 
   _clearPendingPoller() {
+    this._pollRequest?.abort()
+    this._pollRequest = null
     if (!this._pendingPoller) return
     clearInterval(this._pendingPoller)
     this._pendingPoller = null
@@ -209,27 +213,34 @@ export default class extends Controller {
   async _pollPendingStatus() {
     if (!this.pendingChatId || !this.pendingStatusUrl) return
 
+    if (this.pendingSince && Date.now() - this.pendingSince > 60000) {
+      this._completePending()
+      return
+    }
+    if (this._pollRequest) return
+    const chatId = this.pendingChatId
+    const request = new AbortController()
+    this._pollRequest = request
     try {
       const resp = await fetch(this.pendingStatusUrl, {
         method: 'GET',
-        headers: { Accept: 'application/json' }
+        headers: { Accept: 'application/json' },
+        signal: request.signal
       })
-      if (!resp.ok) return
-
-      const json = await resp.json()
-      if (json?.html) this._replacePendingItemHtml(json.html)
-
-      if (json?.ready) {
-        this._completePending()
+      if (chatId !== this.pendingChatId || request.signal.aborted) return
+      if (!resp.ok) {
+        if ([401, 403, 404].includes(resp.status)) this._completePending()
         return
       }
 
-      if (this.pendingSince && Date.now() - this.pendingSince > 60000) {
-        // Avoid blocking the send action forever if something goes wrong.
-        this._completePending()
-      }
+      const json = await resp.json()
+      if (chatId !== this.pendingChatId || request.signal.aborted) return
+      if (json?.html) this._replacePendingItemHtml(json.html)
+      if (json?.ready) this._completePending()
     } catch (_err) {
-      // Silent fallback: Turbo stream may still deliver the update.
+      // The independent deadline stops polling even when requests fail.
+    } finally {
+      if (this._pollRequest === request) this._pollRequest = null
     }
   }
 
