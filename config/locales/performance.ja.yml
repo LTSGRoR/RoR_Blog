@@ -1,0 +1,7 @@
+ja:
+  posts:
+    index:
+      search_limit: "上位%{limit}件を表示しています。検索条件を絞り込んでください。"
+  shared:
+    ai_chat:
+      older: "以前のメッセージを読み込む"

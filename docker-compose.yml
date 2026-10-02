@@ -76,7 +76,7 @@ services:
     volumes:
       - .:/rails
 
-  sidekiq:
+  sidekiq: &sidekiq_service
     build:
       context: .
       args:
@@ -84,7 +84,7 @@ services:
         BUNDLE_WITHOUT: ""
     image: ror_blog_sidekiq
     restart: unless-stopped
-    command: bundle exec sidekiq -q default -q searchkick
+    command: bundle exec sidekiq -c 3 -q default
     environment:
       RAILS_ENV: development
       APP_HOST: ${APP_HOST:-localhost}
@@ -127,6 +127,10 @@ services:
         condition: service_healthy
     volumes:
       - .:/rails
+
+  indexing:
+    <<: *sidekiq_service
+    command: bundle exec sidekiq -c 2 -q embeddings -q searchkick
 
   ror_blog_db:
     image: pgvector/pgvector:pg16-trixie

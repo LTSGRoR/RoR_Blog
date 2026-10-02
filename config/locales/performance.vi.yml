@@ -1,0 +1,7 @@
+vi:
+  posts:
+    index:
+      search_limit: "Hiển thị %{limit} kết quả phù hợp nhất. Hãy tìm kiếm cụ thể hơn."
+  shared:
+    ai_chat:
+      older: "Tải tin nhắn cũ hơn"

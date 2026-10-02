@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["textarea", "submit", "history", "spinner", "icon"]
-  static values = { signedIn: Boolean }
+  static values = { signedIn: Boolean, historyUrl: String }
 
   connect() {
     this.url = null
@@ -33,7 +33,7 @@ export default class extends Controller {
 
     if (this.hasHistoryTarget) {
       this._observer = new MutationObserver(() => {
-        this._scrollHistoryToBottom()
+        if (!this._historyBefore) this._scrollHistoryToBottom()
       })
       this._observer.observe(this.historyTarget, { childList: true, subtree: true })
     }
@@ -44,6 +44,7 @@ export default class extends Controller {
     document.removeEventListener('keydown', this._keyHandler)
     if (this._observer) this._observer.disconnect()
     this._clearPendingPoller()
+    this._historyRequest?.abort()
   }
 
   open(event) {
@@ -59,10 +60,57 @@ export default class extends Controller {
       this.textareaTarget.setAttribute('disabled', '')
       this._setSubmitDisabled(true)
     }
+    if (this.signedInValue && !this._historyLoaded) this.loadHistory()
     if (this.pendingChatId) this._startPendingPoller()
     // scroll history to bottom
     if (this.hasHistoryTarget) {
       this._scrollHistoryToBottom()
+    }
+  }
+
+  async loadHistory(event) {
+    event?.preventDefault()
+    if (this._historyRequest || !this.historyUrlValue || !this.hasHistoryTarget) return
+    const request = new AbortController()
+    this._historyRequest = request
+    const before = this._historyBefore
+    try {
+      const url = new URL(this.historyUrlValue, window.location.origin)
+      if (before) url.searchParams.set('before', before)
+      const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: request.signal })
+      if (!response.ok) return
+      const json = await response.json()
+      if (request.signal.aborted) return
+      this.historyTarget.querySelector('[data-history-older]')?.remove()
+      // A broadcast or submission may have arrived while history was loading.
+      const wrapper = document.createElement('div')
+      wrapper.innerHTML = json.html
+      Array.from(wrapper.children).reverse().forEach(item => {
+        if (!document.getElementById(item.id)) this.historyTarget.prepend(item)
+      })
+      if (!this.historyTarget.querySelector('[id^="chat_history_"]') && !json.before) {
+        const empty = document.createElement('p')
+        empty.dataset.historyEmpty = ''
+        empty.className = 'm-auto text-xs text-slate-400 text-center'
+        empty.textContent = this.element.dataset.emptyLabel
+        this.historyTarget.appendChild(empty)
+      }
+      this._historyBefore = json.before
+      this._historyLoaded = true
+      if (json.before) {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.textContent = this.element.dataset.olderLabel
+        button.className = 'text-xs text-slate-300 underline py-2'
+        button.dataset.historyOlder = ''
+        button.dataset.action = 'ai-modal#loadHistory'
+        this.historyTarget.prepend(button)
+      }
+      if (!before) this._scrollHistoryToBottom()
+    } catch (_error) {
+      // A later open retries history loading.
+    } finally {
+      if (this._historyRequest === request) this._historyRequest = null
     }
   }
 
@@ -111,6 +159,7 @@ export default class extends Controller {
 
       // If server returned rendered HTML for immediate feedback, append it
       if (json.html && this.hasHistoryTarget) {
+        this.historyTarget.querySelector('[data-history-empty]')?.remove()
         this.historyTarget.insertAdjacentHTML('beforeend', json.html)
         this._scrollHistoryToBottom()
       }

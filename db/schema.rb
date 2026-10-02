@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_090100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
   enable_extension "vector"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
@@ -54,6 +55,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "chat_daily_quotas", force: :cascade do |t|
+    t.date "day", null: false
+    t.integer "requests_count", default: 0, null: false
+    t.index ["day"], name: "index_chat_daily_quotas_on_day", unique: true
   end
 
   create_table "chat_histories", force: :cascade do |t|
@@ -140,6 +147,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
     t.index ["post_id", "moderation_status"], name: "index_post_revisions_on_post_id_and_open_status", unique: true, where: "(moderation_status = ANY (ARRAY[0, 1]))"
     t.index ["post_id"], name: "index_post_revisions_on_post_id"
     t.index ["reviewer_id"], name: "index_post_revisions_on_reviewer_id"
+    t.index ["title"], name: "index_post_revisions_on_title", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "posts", force: :cascade do |t|
@@ -175,6 +183,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
     t.index ["reviewed_by_id"], name: "index_posts_on_reviewed_by_id"
     t.index ["status", "verified", "created_at"], name: "index_posts_on_feed_ordering"
     t.index ["status"], name: "index_posts_on_status"
+    t.index ["title"], name: "index_posts_on_title", opclass: :gin_trgm_ops, using: :gin
     t.index ["user_id", "status", "verified"], name: "index_posts_on_owner_and_visibility"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["verified"], name: "index_posts_on_verified"
@@ -348,7 +357,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index "regexp_replace((name)::text, '[[:space:]-]+'::text, ' '::text, 'g'::text) gin_trgm_ops", name: "index_tags_on_normalized_name_trigram", using: :gin
     t.index ["name"], name: "index_tags_on_name", unique: true
+    t.index ["name"], name: "index_tags_on_name_trigram", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "users", force: :cascade do |t|
@@ -373,7 +384,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000000) do
     t.text "bio"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["email"], name: "index_users_on_email_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["locale"], name: "index_users_on_locale"
+    t.index ["name"], name: "index_users_on_name_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["suspended_time_zone"], name: "index_users_on_suspended_time_zone"
   end

@@ -178,14 +178,14 @@ class Post < ApplicationRecord
     update!(ai_review_status: :failed, ai_last_error: reason.to_s)
   end
 
-  private
-
   def enqueue_embedding_index
     return unless published? && verified?
     IndexPostEmbeddingsJob.perform_later(id)
   rescue StandardError => e
     Rails.logger.error("enqueue_embedding_index failed for Post #{id}: #{e.class} - #{e.message}")
   end
+
+  private
 
   def enqueue_embedding_index_after_commit
     # always index on create; for updates index only when searchable fields changed
@@ -197,7 +197,7 @@ class Post < ApplicationRecord
   end
 
   def saved_changes_for_embedding?
-    saved_change_to_title? || saved_change_to_status? || saved_change_to_verified? || saved_change_to_user_id? || saved_change_to_updated_at?
+    saved_change_to_title? || saved_change_to_status? || saved_change_to_verified? || saved_change_to_user_id?
   end
 
   def enqueue_search_index

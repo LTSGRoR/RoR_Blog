@@ -76,6 +76,10 @@
         <% result_count = @posts.size %>
       <% end %>
 
+      <% if @search_limited %>
+        <p class="mt-3 text-sm text-slate-600"><%= t("posts.index.search_limit", limit: PublicPostSearch::RESULT_LIMIT) %></p>
+      <% end %>
+
       <% if !@search_unavailable && params[:q].present? && result_count.to_i == 0 %>
         <div class="mt-4 rounded-md border border-[#e2e8f0] bg-white px-4 py-3 text-center text-sm text-slate-600"><%= t("posts.index.no_results", query: params[:q]) %></div>
       <% end %>

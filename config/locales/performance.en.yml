@@ -1,0 +1,7 @@
+en:
+  posts:
+    index:
+      search_limit: "Showing the top %{limit} search matches. Refine your search for more specific results."
+  shared:
+    ai_chat:
+      older: "Load older messages"

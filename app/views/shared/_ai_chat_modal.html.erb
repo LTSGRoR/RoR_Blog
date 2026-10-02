@@ -1,4 +1,4 @@
-<div id="ai_chat_modal" class="hidden fixed inset-0 z-50" data-controller="ai-modal" data-ai-modal-signed-in-value="<%= user_signed_in? %>">
+<div id="ai_chat_modal" class="hidden fixed inset-0 z-50" data-controller="ai-modal" data-empty-label="<%= t("shared.ai_chat.empty_state") %>" data-older-label="<%= t("shared.ai_chat.older") %>" data-ai-modal-signed-in-value="<%= user_signed_in? %>" data-ai-modal-history-url-value="<%= chat_history_path %>">
   <div class="absolute inset-0 bg-black/40" data-action="click->ai-modal#close"></div>
   <% if user_signed_in? %>
     <%= turbo_stream_from "chat_histories_user_#{current_user.id}" %>
@@ -34,21 +34,12 @@
     <!-- Body -->
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
       <% if user_signed_in? %>
-        <% histories = ChatHistory.for_user(current_user.id).order(created_at: :asc).last(50) %>
 
         <!-- Chat history -->
         <div id="<%= "chat_histories_user_#{current_user.id}" %>"
              data-ai-modal-target="history"
              aria-live="polite"
              class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain bg-slate-950 px-3 py-3 sm:px-4">
-          <% if histories.empty? %>
-            <div class="m-auto max-w-xs rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-center">
-              <p class="text-xs text-slate-400"><%= t("shared.ai_chat.empty_state") %></p>
-            </div>
-          <% end %>
-          <% histories.each do |h| %>
-            <%= render "chat_histories/chat_history_item", chat_history: h %>
-          <% end %>
         </div>
 
       <% else %>
