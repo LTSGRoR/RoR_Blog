@@ -1,0 +1,48 @@
+<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <%= render layout: "header", locals: { title: t("admin.tags.title") } do %>
+    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <% [[t("admin.tags.total"), @total_count], [t("admin.tags.used"), @total_count - @unused_count], [t("admin.tags.unused"), @unused_count]].each do |label, value| %>
+        <%= render "admin/posts/stat_card", label: label, value: value, container_class: "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm", label_class: "text-slate-500", value_class: "text-slate-900" %>
+      <% end %>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <% %w[all unused].each do |filter| %>
+        <%= link_to t("admin.tags.#{filter}"), admin_tags_path(filter: filter, q: @query), class: "rounded-full border px-4 py-2 text-xs font-semibold #{@filter == filter ? 'border-red-200 bg-red-50 text-[#9e0000]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}" %>
+      <% end %>
+    </div>
+    <%= form_with url: admin_tags_path, method: :get, class: "mt-4 flex flex-col gap-2 sm:flex-row sm:items-center" do |f| %>
+      <%= f.hidden_field :filter, value: @filter %>
+      <%= f.search_field :q, value: @query, placeholder: t("admin.tags.search_placeholder"), aria: { label: t("admin.tags.search_placeholder") }, class: "h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-700 focus:border-[#9e0000] focus:outline-none focus:ring-1 focus:ring-[#9e0000] sm:w-80" %>
+      <%= f.submit t("admin.posts.index.search"), class: "h-10 rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800" %>
+    <% end %>
+  <% end %>
+
+  <section class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-4 py-4 sm:px-6">
+      <h2 class="text-lg font-semibold text-slate-900"><%= t("admin.tags.list") %></h2>
+    </div>
+    <div class="max-h-[60vh] overflow-auto overscroll-x-contain">
+      <table class="w-full min-w-[600px] divide-y divide-slate-200">
+        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+          <tr>
+            <% %w[name posts revisions actions].each do |column| %>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("admin.tags.#{column}") %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% @tags.each_with_index do |tag, i| %>
+            <tr class="<%= i.even? ? 'bg-white' : 'bg-slate-50/40' %> transition hover:bg-red-50/40">
+              <td class="px-4 py-4 text-sm font-semibold text-slate-900"><%= link_to "##{tag.name}", edit_admin_tag_path(tag), class: "break-all hover:text-[#9e0000]" %></td>
+              <td class="px-4 py-4 text-sm text-slate-600"><%= tag.posts_count %></td>
+              <td class="px-4 py-4 text-sm text-slate-600"><%= tag.revisions_count %></td>
+              <td class="px-4 py-4"><%= link_to t("admin.tags.manage"), edit_admin_tag_path(tag), class: "inline-flex rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50", aria: { label: "#{t('admin.tags.manage')} #{tag.name}" } %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% if @tags.empty? %><p class="p-6 text-sm text-slate-500"><%= t("admin.tags.empty") %></p><% end %>
+    </div>
+    <div class="border-t border-slate-200 px-4 py-4 sm:px-6"><%= paginate @tags %></div>
+  </section>
+</section>

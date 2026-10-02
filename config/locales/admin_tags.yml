@@ -1,0 +1,113 @@
+{
+  "en": {
+    "admin": {
+      "tags": {
+        "title": "Manage Tags",
+        "subtitle": "Keep tags consistent across posts and revisions.",
+        "total": "Total tags",
+        "used": "Tags in use",
+        "unused": "Unused tags",
+        "all": "All tags",
+        "back": "Back to tags",
+        "list": "Tags",
+        "search_placeholder": "Search tag names",
+        "name": "Tag name",
+        "posts": "Posts",
+        "revisions": "Revisions",
+        "actions": "Actions",
+        "manage": "Manage",
+        "empty": "No tags found.",
+        "rename": "Rename tag",
+        "merge": "Merge tag",
+        "target": "Existing destination tag name",
+        "merge_help": "Move all posts and revisions to an existing tag. Duplicate assignments are combined and this tag is removed.",
+        "merge_confirm": "Merge \"%{name}\" into the destination tag? This cannot be undone.",
+        "affected": "Affected content",
+        "usage": "%{posts} posts · %{revisions} revisions",
+        "delete": "Delete tag",
+        "delete_help": "Remove this tag from every post and revision. Posts and revisions are kept.",
+        "delete_confirm": "Delete \"%{name}\" from %{posts} posts and %{revisions} revisions? This cannot be undone.",
+        "renamed": "Tag renamed.",
+        "merged": "Tags merged.",
+        "deleted": "Tag deleted.",
+        "choose_target": "Choose a different existing tag.",
+        "search_help": "Type part of a tag name and choose a destination from the results.",
+        "search_error": "Could not load tags. Please try again."
+      }
+    }
+  },
+  "vi": {
+    "admin": {
+      "tags": {
+        "title": "Quản lý thẻ",
+        "subtitle": "Giữ các thẻ nhất quán trong bài viết và bản chỉnh sửa.",
+        "total": "Tổng số thẻ",
+        "used": "Thẻ đang dùng",
+        "unused": "Thẻ chưa dùng",
+        "all": "Tất cả thẻ",
+        "back": "Trở về danh sách thẻ",
+        "list": "Thẻ",
+        "search_placeholder": "Tìm theo tên thẻ",
+        "name": "Tên thẻ",
+        "posts": "Bài viết",
+        "revisions": "Bản chỉnh sửa",
+        "actions": "Thao tác",
+        "manage": "Quản lý",
+        "empty": "Không tìm thấy thẻ.",
+        "rename": "Đổi tên thẻ",
+        "merge": "Gộp thẻ",
+        "target": "Tên thẻ đích đã tồn tại",
+        "merge_help": "Chuyển mọi bài viết và bản chỉnh sửa sang thẻ đã tồn tại. Loại bỏ liên kết trùng lặp và xóa thẻ này.",
+        "merge_confirm": "Gộp thẻ \"%{name}\" vào thẻ đích? Không thể hoàn tác.",
+        "affected": "Nội dung bị ảnh hưởng",
+        "usage": "%{posts} bài viết · %{revisions} bản chỉnh sửa",
+        "delete": "Xóa thẻ",
+        "delete_help": "Gỡ thẻ này khỏi mọi bài viết và bản chỉnh sửa. Nội dung bài viết vẫn được giữ lại.",
+        "delete_confirm": "Xóa thẻ \"%{name}\" khỏi %{posts} bài viết và %{revisions} bản chỉnh sửa? Không thể hoàn tác.",
+        "renamed": "Đã đổi tên thẻ.",
+        "merged": "Đã gộp thẻ.",
+        "deleted": "Đã xóa thẻ.",
+        "choose_target": "Chọn một thẻ đích khác đã tồn tại.",
+        "search_help": "Nhập một phần tên thẻ và chọn thẻ đích trong kết quả.",
+        "search_error": "Không thể tải thẻ. Vui lòng thử lại."
+      }
+    }
+  },
+  "ja": {
+    "admin": {
+      "tags": {
+        "title": "タグ管理",
+        "subtitle": "投稿と改訂のタグを整理します。",
+        "total": "タグ総数",
+        "used": "使用中のタグ",
+        "unused": "未使用のタグ",
+        "all": "すべてのタグ",
+        "back": "タグ一覧へ戻る",
+        "list": "タグ",
+        "search_placeholder": "タグ名を検索",
+        "name": "タグ名",
+        "posts": "投稿",
+        "revisions": "改訂",
+        "actions": "操作",
+        "manage": "管理",
+        "empty": "タグが見つかりません。",
+        "rename": "タグ名を変更",
+        "merge": "タグを統合",
+        "target": "統合先の既存タグ名",
+        "merge_help": "投稿と改訂を既存タグに移します。重複する関連付けをまとめ、このタグを削除します。",
+        "merge_confirm": "「%{name}」を統合先タグに統合しますか？元に戻せません。",
+        "affected": "影響を受ける内容",
+        "usage": "投稿 %{posts} 件 · 改訂 %{revisions} 件",
+        "delete": "タグを削除",
+        "delete_help": "投稿と改訂からこのタグを外します。投稿と改訂の内容は残ります。",
+        "delete_confirm": "「%{name}」を投稿 %{posts} 件と改訂 %{revisions} 件から削除しますか？元に戻せません。",
+        "renamed": "タグ名を変更しました。",
+        "merged": "タグを統合しました。",
+        "deleted": "タグを削除しました。",
+        "choose_target": "別の既存タグを選択してください。",
+        "search_help": "タグ名の一部を入力し、検索結果から統合先を選択してください。",
+        "search_error": "タグを読み込めません。もう一度お試しください。"
+      }
+    }
+  }
+}

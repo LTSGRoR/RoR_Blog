@@ -49,6 +49,10 @@ Rails.application.routes.draw do
     end
 
     namespace :admin do
+      resources :tags, only: [ :index, :edit, :update, :destroy ] do
+        get :search, on: :collection
+        post :merge, on: :member
+      end
       resources :posts, only: [ :index ] do
         member do
           post :rerun_ai_review
