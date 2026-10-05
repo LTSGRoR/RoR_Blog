@@ -1,11 +1,11 @@
-<div id="ai_chat_modal" class="hidden fixed inset-0 z-50" data-controller="ai-modal" data-empty-label="<%= t("shared.ai_chat.empty_state") %>" data-clear-confirm="<%= t("shared.ai_chat.clear_confirm") %>" data-clear-error="<%= t("shared.ai_chat.clear_error") %>" data-older-label="<%= t("shared.ai_chat.older") %>" data-ai-modal-signed-in-value="<%= user_signed_in? %>" data-ai-modal-history-url-value="<%= chat_history_path %>">
+<div id="ai_chat_modal" class="hidden fixed inset-0 z-50" data-controller="ai-modal" data-new-chat-label="<%= t("shared.ai_chat.new_chat") %>" data-show-sidebar-label="<%= t("shared.ai_chat.show_sidebar") %>" data-hide-sidebar-label="<%= t("shared.ai_chat.hide_sidebar") %>" data-no-sessions-label="<%= t("shared.ai_chat.no_sessions") %>" data-empty-label="<%= t("shared.ai_chat.empty_state") %>" data-clear-confirm="<%= t("shared.ai_chat.clear_confirm") %>" data-clear-error="<%= t("shared.ai_chat.clear_error") %>" data-older-label="<%= t("shared.ai_chat.older") %>" data-ai-modal-signed-in-value="<%= user_signed_in? %>" data-ai-modal-sessions-url-value="<%= chat_sessions_path %>" data-ai-modal-storage-key-value="chat-session-<%= current_user&.id %>" data-delete-confirm="<%= t("shared.ai_chat.delete_session_confirm") %>" data-delete-label="<%= t("shared.ai_chat.delete_session") %>" data-sessions-error="<%= t("shared.ai_chat.sessions_error") %>" data-more-sessions-label="<%= t("shared.ai_chat.more_sessions") %>" data-ai-modal-history-url-value="<%= chat_history_path %>">
   <div class="absolute inset-0 bg-black/40" data-action="click->ai-modal#close"></div>
   <% if user_signed_in? %>
     <%= turbo_stream_from "chat_histories_user_#{current_user.id}" %>
   <% end %>
 
   <!-- Panel -->
-  <div class="absolute inset-x-8 bottom-4 h-[76vh] max-h-[88vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/20 bg-slate-900 shadow-2xl sm:inset-x-auto sm:right-14 sm:bottom-24 sm:w-[32rem] lg:w-[38rem]"
+  <div class="absolute inset-x-3 bottom-3 h-[72vh] max-h-[88vh] flex flex-col overflow-hidden rounded-2xl border border-slate-700/20 bg-slate-900 shadow-2xl sm:inset-x-auto sm:right-14 sm:bottom-24 sm:w-[32rem] lg:w-[38rem]"
        role="dialog" aria-modal="true" aria-label="<%= t("shared.ai_chat.title") %>">
 
     <!-- Header -->
@@ -22,7 +22,7 @@
         </div>
       </div>
       <button type="button"
-              class="bg-transparent border-none cursor-pointer text-slate-600 hover:text-slate-400 p-1 rounded-md leading-none mt-0.5"
+              class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
               data-action="click->ai-modal#close"
               aria-label="<%= t("shared.ai_chat.close") %>">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -32,17 +32,34 @@
     </header>
 
     <% if user_signed_in? %>
-      <div class="flex justify-end border-b border-slate-800 px-4 py-1">
-        <button type="button" data-action="ai-modal#clearHistory" data-ai-modal-target="clearHistory" class="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-xs font-medium text-slate-400 transition-colors hover:bg-red-950 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-50">
-          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h12M8 3h4M6 5l1 12h6l1-12M9 8v6m2-6v6" /></svg>
-          <%= t("shared.ai_chat.clear_history") %>
+      <p role="alert" data-ai-modal-target="sessionError" class="hidden border-b border-slate-800 px-4 py-3 text-xs text-red-300"></p>
+      <div class="relative flex min-h-0 flex-1 overflow-hidden">
+      <div class="flex w-12 shrink-0 flex-col items-center border-r border-slate-800 bg-slate-950 pt-2">
+        <button type="button" data-action="ai-modal#toggleSidebar" data-ai-modal-target="back" aria-expanded="false" aria-controls="ai-chat-sidebar" aria-label="<%= t("shared.ai_chat.show_sidebar") %>" title="<%= t("shared.ai_chat.show_sidebar") %>" class="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-50">
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M7 4v12"/></svg>
         </button>
       </div>
+      <aside id="ai-chat-sidebar" data-ai-modal-target="listView" aria-label="<%= t("shared.ai_chat.conversations") %>" class="absolute inset-y-0 left-12 z-20 hidden w-52 max-w-[85%] shrink-0 flex-col border-r border-slate-700 bg-slate-950 shadow-xl sm:static sm:shadow-none">
+        <div class="border-b border-slate-800 px-3 pb-3">
+          <div class="flex min-h-11 items-center gap-1">
+            <h3 class="text-xs font-semibold text-slate-100"><%= t("shared.ai_chat.conversations") %></h3>
+          </div>
+          <button type="button" data-action="ai-modal#newSession" data-ai-modal-target="newSession" class="inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs font-medium text-slate-300 hover:border-slate-500 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-50">
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" d="M10 4v12M4 10h12" /></svg>
+            <%= t("shared.ai_chat.new_chat") %>
+          </button>
+        </div>
+        <div data-ai-modal-target="sessions" class="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3" aria-live="polite"></div>
+      </aside>
     <% end %>
 
     <!-- Body -->
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div data-ai-modal-target="chatView" class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <% if user_signed_in? %>
+        <div class="flex min-w-0 items-center gap-2 border-b border-slate-800 bg-slate-900 px-3 py-2">
+
+          <h3 data-ai-modal-target="sessionTitle" class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-100"><%= t("shared.ai_chat.new_chat") %></h3>
+        </div>
 
         <!-- Chat history -->
         <div id="<%= "chat_histories_user_#{current_user.id}" %>"
@@ -98,6 +115,9 @@
         </div>
       </div>
     </div>
+    <% if user_signed_in? %>
+      </div>
+    <% end %>
 
   </div>
 </div>

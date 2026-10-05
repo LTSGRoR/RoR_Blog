@@ -21,12 +21,7 @@ class ChatHistoryLoadingTest < ApplicationSystemTestCase
     end
     assert_selector '#ai_chat_modal [id^="chat_history_"]', count: 23
     within "#ai_chat_modal" do
-      click_button "Clear history"
+      assert_no_button "Clear history"
     end
-    within "dialog[open]" do
-      find('[data-confirm-action="ok"]').click
-    end
-    assert_no_selector '#ai_chat_modal [id^="chat_history_"]'
-    assert_selector "#ai_chat_modal [data-history-empty]"
   end
 end

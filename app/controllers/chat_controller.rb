@@ -1,10 +1,11 @@
 class ChatController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_chat_session, only: [ :index, :create, :clear_history ]
   before_action :set_post
   before_action :authorize_post!, if: -> { @post.present? }
 
   def index
-    scope = current_user.chat_histories.visible.order(id: :desc)
+    scope = @chat_session.chat_histories.visible.order(id: :desc)
     scope = scope.where("id < ?", params[:before].to_i) if params[:before].present?
     histories = scope.limit(21).to_a
     more = histories.size > 20
@@ -14,13 +15,13 @@ class ChatController < ApplicationController
       render_to_string(partial: "chat_histories/chat_history_item",
         locals: { chat_history: history, suggestion_map: posts }, formats: [ :html ])
     end.join
-    render json: { html: html, before: more ? histories.last.id : nil }
+    pending = @chat_session.chat_histories.visible.where(bot_response: nil, created_at: ChatHistory::REQUEST_TTL.ago..).order(id: :desc).first
+    render json: { html: html, before: more ? histories.last.id : nil,
+      pending: pending ? { id: pending.id, status_url: chat_status_path(pending) } : nil }
   end
 
   def clear_history
-    # Retain usage timestamps so clearing cannot reset AI request quotas.
-    current_user.chat_histories.visible.update_all(cleared_at: Time.current,
-      user_message: "[cleared]", bot_response: "[cleared]", provider_meta: nil, embedding: nil)
+    @chat_session.with_lock { @chat_session.clear_messages! }
     head :no_content
   end
 
@@ -28,12 +29,12 @@ class ChatController < ApplicationController
     message = params[:message].to_s.strip
     return render json: { error: "Message cannot be blank" }, status: :unprocessable_entity if message.blank?
 
-    chat = ChatHistory.accept_request!(user: current_user, post: @post, message: message)
+    chat = ChatHistory.accept_request!(user: current_user, post: @post, message: message, chat_session: @chat_session)
     GeneratePostSuggestionJob.perform_later(chat.id)
 
     # Render the partial as HTML regardless of the incoming request format
     html = render_to_string(partial: "chat_histories/chat_history_item", locals: { chat_history: chat }, formats: [ :html ])
-    render json: { id: chat.id, html: html, status_url: chat_status_path(chat) }, status: :accepted
+    render json: { id: chat.id, html: html, status_url: chat_status_path(chat), session_title: @chat_session.reload.title }, status: :accepted
   rescue ChatHistory::QuotaExceeded => e
     response.set_header("Retry-After", "600")
     render json: { error: e.message }, status: :too_many_requests
@@ -50,6 +51,14 @@ class ChatController < ApplicationController
   end
 
   private
+
+  def set_chat_session
+    @chat_session = if params[:chat_session_id].present?
+      current_user.chat_sessions.active.find(params[:chat_session_id])
+    else
+      ChatSession.default_for(current_user)
+    end
+  end
 
   def set_post
     post_id = params[:post_id].presence || (params[:id].presence if action_name == "create")

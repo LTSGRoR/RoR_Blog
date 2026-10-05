@@ -11,7 +11,7 @@ class GeneratePostSuggestionJob < ApplicationJob
   ANCHOR_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_ANCHOR_CONTEXT_CHARS", "1000").to_i
   RELATED_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_RELATED_CONTEXT_CHARS", "800").to_i
   HISTORY_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_HISTORY_CONTEXT_CHARS", "900").to_i
-  FALLBACK_SUGGESTED_POST_LIMIT = ENV.fetch("AI_CHAT_FALLBACK_SUGGESTED_POST_LIMIT", "3").to_i
+  MIN_POST_SIMILARITY = ENV.fetch("AI_CHAT_MIN_POST_SIMILARITY", "0.35").to_f
 
   def perform(chat_history_id)
     chat = ChatHistory.find_by(id: chat_history_id)
@@ -25,12 +25,14 @@ class GeneratePostSuggestionJob < ApplicationJob
     service = AiGeneration::Service.new
 
     # Retrieval-Augmented Generation using pgvector embeddings (if available)
-    prompt_context = []
+    prompt_context = chat.chat_session.chat_histories.visible.where("id < ?", chat.id)
+                         .where.not(bot_response: nil).order(id: :desc).limit(6).to_a.reverse.map { |history| build_history_context(history) }
+    small_talk = small_talk?(chat.user_message)
     candidate_post_ids = []
     candidate_chat_history_ids = []
     begin
       # Always anchor on the current post first when available.
-      if chat.post.present?
+      if chat.post.present? && !small_talk
         anchor_body = extract_post_body_text(chat.post)
         candidate_post_ids << chat.post.id
         prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
@@ -38,7 +40,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
       # Embed the user message once and reuse the vector for both the post and
       # the chat-history searches (this used to be two identical embed calls).
-      query_embedding = chat.user_message.present? ? service.embed(text: chat.user_message) : nil
+      query_embedding = !small_talk && chat.user_message.present? ? service.embed(text: chat.user_message) : nil
 
       if query_embedding.present?
         vector_literal = vector_literal_for(query_embedding)
@@ -47,6 +49,7 @@ class GeneratePostSuggestionJob < ApplicationJob
                    .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
                    .limit(MAX_RAG_HITS)
         hits.each do |p|
+          next unless relevant_embedding?(query_embedding, p.embedding)
           next if chat.post.present? && p.id == chat.post.id
 
           candidate_post_ids << p.id
@@ -57,7 +60,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
       if query_embedding.present?
         vector_literal = vector_literal_for(query_embedding)
-        recent_history_ids = ChatHistory.visible.where(user_id: chat.user_id)
+        recent_history_ids = ChatHistory.visible.where(user_id: chat.user_id, chat_session_id: chat.chat_session_id).where("id < ?", chat.id)
                                         .where.not(id: chat.id)
                                         .where.not(bot_response: nil)
                                         .order(created_at: :desc)
@@ -68,7 +71,7 @@ class GeneratePostSuggestionJob < ApplicationJob
         history_hits = if history_scope.exists?
           history_scope.order(Arel.sql("embedding <-> '#{vector_literal}'::vector")).limit(MAX_HISTORY_RAG_HITS)
         else
-          ChatHistory.visible.where(user_id: chat.user_id)
+          ChatHistory.visible.where(user_id: chat.user_id, chat_session_id: chat.chat_session_id).where("id < ?", chat.id)
                      .where.not(id: chat.id)
                      .where.not(embedding: nil)
                      .where.not(bot_response: nil)
@@ -91,13 +94,15 @@ class GeneratePostSuggestionJob < ApplicationJob
     system_prompt = setting.assistant_prompt.to_s.presence || ModerationSetting::DEFAULT_ASSISTANT_PROMPT
     grounding_rules = <<~RULES
       Grounding Rules:
-      - Use ONLY facts present in Context.
+      - For greetings, thanks, and small talk, respond naturally without suggesting blog posts.
+      - For factual questions about posts, use ONLY facts present in Context.
       - If Context does not contain enough information, say so explicitly.
       - Do not invent post titles, IDs, metrics, or claims.
       - Keep the response concise, helpful, and user-friendly.
       - Start with a direct answer sentence, then short bullets only if needed.
       - Return plain text (markdown allowed), not JSON.
-      - If useful, mention references inline like: "Based on post #22".
+      - Cite a Context post inline like "Based on post #22" only when you actually use it in your answer.
+      - Never add unrelated blog recommendations.
     RULES
 
     assembled_prompt = [
@@ -116,9 +121,9 @@ class GeneratePostSuggestionJob < ApplicationJob
     suggested_post_ids = extract_suggested_post_ids(
       raw_text: result[:result],
       normalized_text: bot_text,
-      fallback_ids: candidate_post_ids
+      candidate_ids: candidate_post_ids
     )
-    provider_meta = result[:meta].is_a?(Hash) ? result[:meta].dup : {}
+    provider_meta = result[:meta].is_a?(Hash) ? result[:meta].except(:suggested_post_ids, "suggested_post_ids") : {}
     provider_meta[:suggested_post_ids] = suggested_post_ids if suggested_post_ids.any?
 
     chat.with_lock do
@@ -130,7 +135,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     )
     end
 
-    index_chat_history_embedding(chat, service)
+    index_chat_history_embedding(chat, service) unless small_talk
     broadcast_chat_update(chat)
   rescue StandardError, SystemStackError => e
     Rails.logger.error("GeneratePostSuggestionJob failed for chat_history_id=#{chat_history_id}: #{e.class} - #{e.message}")
@@ -251,12 +256,30 @@ class GeneratePostSuggestionJob < ApplicationJob
     cleaned
   end
 
-  def extract_suggested_post_ids(raw_text:, normalized_text:, fallback_ids: [])
+  def small_talk?(message)
+    normalized = message.to_s.downcase.gsub(/[\p{P}\p{S}]/, " ").squish
+    normalized.match?(/\A(?:hi|hi there|hello|hello there|hey|good morning|good afternoon|good evening|good night|how are you|hello how are you|hi how are you|thanks|thank you|thanks a lot|thank you very much|bye|goodbye|xin chào|chào|chào bạn|cảm ơn|cám ơn|tạm biệt|こんにちは|こんばんは|おはよう|おはようございます|ありがとう|ありがとうございます|さようなら)\z/)
+  end
+
+  # Compare directions instead of treating every nearest neighbor as relevant.
+  # Keep the indexed L2 ordering, then apply cosine filtering to the bounded hits.
+  def relevant_embedding?(query, candidate)
+    left = Array(query)
+    right = Array(candidate)
+    return false if left.empty? || left.size != right.size
+
+    dot = left.zip(right).sum { |a, b| a * b }
+    norm = Math.sqrt(left.sum { |a| a * a } * right.sum { |b| b * b })
+    norm.positive? && dot / norm >= MIN_POST_SIMILARITY
+  end
+
+  def extract_suggested_post_ids(raw_text:, normalized_text:, candidate_ids: [])
     ids = []
     ids.concat(extract_ids_from_json_references(raw_text))
     ids.concat(extract_ids_from_text(raw_text))
     ids.concat(extract_ids_from_text(normalized_text))
-    ids = fallback_ids.first(FALLBACK_SUGGESTED_POST_LIMIT) if ids.empty?
+    ids = ids.uniq & candidate_ids
+    return [] if ids.empty?
 
     visible_posts_by_id = Post.where(id: ids.uniq, status: Post.statuses[:published], verified: true).index_by(&:id)
     ids.uniq.filter_map { |id| visible_posts_by_id[id]&.id }
