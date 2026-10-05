@@ -97,8 +97,8 @@
           <% @featured_posts.each do |post| %>
             <article class="group flex gap-4">
               <div class="h-44 w-44 shrink-0 overflow-hidden rounded-lg border border-[#e2e8f0]">
-                <% if post.user&.avatar&.attached? %>
-                  <%= image_tag post.user.avatar.variant(resize_to_fill: [176, 176]), class: "h-full w-full object-cover transition duration-500 group-hover:scale-105", alt: post.user.name.presence || post.user.email %>
+                <% if post.thumbnail.attached? %>
+                  <%= image_tag post.thumbnail.variant(resize_to_fill: [176, 176]), class: "h-full w-full object-cover transition duration-500 group-hover:scale-105", alt: post.title %>
                 <% else %>
                   <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=500&q=80" alt="Featured engineering article" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 <% end %>

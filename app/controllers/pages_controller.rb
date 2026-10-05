@@ -1,7 +1,7 @@
 class PagesController < ApplicationController
   def landing
     @featured_posts = Post.where(status: Post.statuses[:published], verified: true)
-                          .includes(:tags, :rich_text_body, user: { avatar_attachment: :blob })
+                          .includes(:tags, :rich_text_body, :user, thumbnail_attachment: :blob)
                           .order(created_at: :desc)
                           .limit(2)
 
