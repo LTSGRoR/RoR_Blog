@@ -1,0 +1,65 @@
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const Controller = class {};
+const source = fs.readFileSync('app/javascript/controllers/ai_modal_controller.js', 'utf8').replace(/^import .*\n/, '').replace('export default class', 'class AiModalController');
+const Klass = eval(source + '\nAiModalController');
+const window = { location: { origin: 'http://localhost' } };
+const localStorage = { getItem: () => null, setItem() {} };
+const document = { addEventListener() {} };
+let finish;
+const fetch = () => new Promise(resolve => { finish = json => resolve({ ok: true, json: async () => json }); });
+function controller() {
+  const c = new Klass();
+  c.sessionsUrlValue = '/chat_sessions';
+  c.element = { classList: { contains: () => false }, contains: () => true, addEventListener() {} };
+  c.newSessionTarget = {};
+  c.sessionErrorTarget = { classList: { add() {} } };
+  c._requestHeaders = () => ({});
+  c._renderSessions = () => {};
+  return c;
+}
+(async () => {
+  const c = controller();
+  c.activeSessionId = 1;
+  c._sessions = [{ id: 1, title: 'Current' }, { id: 0, title: 'Older page' }];
+  const refresh = c.loadSessions();
+  c._sessions.unshift({ id: 42, title: 'New title' });
+  c.activeSessionId = 42;
+  c._deletedSessionIds = new Set([1]);
+  finish({ sessions: [{ id: 1, title: 'Deleted' }], before: 1 });
+  await refresh;
+  assert.deepEqual(c._sessions.map(s => s.id), [42, 0]);
+  const more = c.loadSessions({ preventDefault() {} });
+  finish({ sessions: [{ id: 0, title: 'Stale title' }], before: null });
+  await more;
+  assert.equal(c._sessions.length, 2);
+  assert.equal(c._sessions[1].title, 'Older page');
+  c._setSidebar = open => { c._sidebarOpen = open; };
+  c.loadSessions = () => { throw new Error('Reopening should preserve loaded pages'); };
+  c.toggleSidebar();
+
+  const draft = controller();
+  draft.textareaTarget = { value: 'Typed before initial load' };
+  draft.historyTarget = { replaceChildren() {} };
+  draft.sessionTitleTarget = {};
+  draft._sessions = [{ id: 7, title: 'Existing chat' }];
+  for (const method of ['_completePending', '_showChat', '_updateSubmitState', 'loadHistory']) draft[method] = () => {};
+  draft.selectSession(7);
+  assert.equal(draft.textareaTarget.value, 'Typed before initial load');
+
+  const listeners = {};
+  const ime = controller();
+  ime.hasTextareaTarget = true;
+  ime.textareaTarget = { addEventListener: (name, fn) => { listeners[name] = fn; } };
+  ime._resize = () => {};
+  ime._updateSubmitState = () => {};
+  let sent = 0;
+  ime.submit = () => { sent++; };
+  ime.connect();
+  listeners.keydown({ key: 'Enter', isComposing: true, preventDefault() {} });
+  listeners.keydown({ key: 'Enter', keyCode: 229, preventDefault() {} });
+  assert.equal(sent, 0);
+  listeners.keydown({ key: 'Enter', preventDefault() {} });
+  assert.equal(sent, 1);
+  console.log('PASS: sidebar preserves mutations/pages/drafts, deduplicates results and ignores IME Enter');
+})();

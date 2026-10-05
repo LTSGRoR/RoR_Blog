@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_091000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -75,11 +75,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_090000) do
     t.datetime "updated_at", null: false
     t.vector "embedding", limit: 1536
     t.datetime "cleared_at"
+    t.bigint "chat_session_id", null: false
+    t.index ["chat_session_id", "cleared_at", "id"], name: "index_chat_histories_on_session_visibility"
+    t.index ["chat_session_id"], name: "index_chat_histories_on_chat_session_id"
     t.index ["created_at"], name: "index_chat_histories_on_created_at"
     t.index ["embedding"], name: "index_chat_histories_on_embedding", using: :ivfflat
     t.index ["post_id"], name: "index_chat_histories_on_post_id"
     t.index ["user_id", "created_at"], name: "index_chat_histories_on_user_and_created_at"
     t.index ["user_id"], name: "index_chat_histories_on_user_id"
+  end
+
+  create_table "chat_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "deleted_at", "id"], name: "index_chat_sessions_on_user_id_and_deleted_at_and_id"
+    t.index ["user_id"], name: "index_chat_sessions_on_user_id"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -392,6 +405,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_090000) do
     t.index ["suspended_time_zone"], name: "index_users_on_suspended_time_zone"
   end
 
+  add_foreign_key "chat_histories", "chat_sessions"
+  add_foreign_key "chat_sessions", "users"
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"

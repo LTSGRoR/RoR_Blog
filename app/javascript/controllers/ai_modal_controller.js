@@ -1,11 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["textarea", "submit", "history", "spinner", "icon", "clearHistory"]
-  static values = { signedIn: Boolean, historyUrl: String }
+  static targets = ["textarea", "submit", "history", "spinner", "icon", "clearHistory", "sessions", "sessionTitle", "listView", "chatView", "back", "sessionError", "newSession"]
+  static values = { signedIn: Boolean, historyUrl: String, sessionsUrl: String, storageKey: String }
 
   connect() {
     this.url = null
+    this._view = 'list'
+    if (this.hasNewSessionTarget) this.newSessionTarget.disabled = true
     this._eventHandler = (e) => this.open(e)
     this._keyHandler = (e) => {
       if (this.element.classList.contains('hidden')) return
@@ -21,7 +23,7 @@ export default class extends Controller {
         this._updateSubmitState()
       })
       this.textareaTarget.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
           e.preventDefault()
           this.submit(e)
         }
@@ -45,6 +47,7 @@ export default class extends Controller {
     if (this._observer) this._observer.disconnect()
     this._clearPendingPoller()
     this._historyRequest?.abort()
+    this._sessionsRequest?.abort()
   }
 
   open(event) {
@@ -54,33 +57,248 @@ export default class extends Controller {
     this.element.classList.remove('hidden')
     if (this.signedInValue && this.hasTextareaTarget) {
       this.textareaTarget.removeAttribute('disabled')
-      this.textareaTarget.focus()
+      if (this._view === 'chat') this.textareaTarget.focus()
+      else this.newSessionTarget.focus()
       this._updateSubmitState()
     } else if (this.hasTextareaTarget) {
       this.textareaTarget.setAttribute('disabled', '')
       this._setSubmitDisabled(true)
     }
-    if (this.signedInValue && !this._historyLoaded) this.loadHistory()
-    if (this.pendingChatId) this._startPendingPoller()
+    if (this.signedInValue && !this._sessionsLoaded) this.loadSessions()
+    else if (this.signedInValue && this._view === 'chat' && !this._historyLoaded) this.loadHistory()
+    if (this.pendingChatId && this._view === 'chat') this._startPendingPoller()
     // scroll history to bottom
     if (this.hasHistoryTarget) {
       this._scrollHistoryToBottom()
     }
   }
 
+  _sessionError(message = this.element.dataset.sessionsError) {
+    if (!this.hasSessionErrorTarget) return
+    this.sessionErrorTarget.textContent = message
+    this.sessionErrorTarget.classList.remove('hidden')
+  }
+
+  _requestHeaders() {
+    return { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']")?.content || '' }
+  }
+
+  async loadSessions(event) {
+    event?.preventDefault()
+    if (this._sessionsRequest) return
+    const request = new AbortController()
+    this._sessionsRequest = request
+    try {
+      const url = new URL(this.sessionsUrlValue, window.location.origin)
+      if (event && this._sessionsBefore) url.searchParams.set('before', this._sessionsBefore)
+      const response = await fetch(url, { headers: this._requestHeaders(), signal: request.signal })
+      if (!response.ok) throw new Error()
+      const json = await response.json()
+      if (request.signal.aborted) return
+      const sessions = [...(this._sessions || []), ...json.sessions]
+      this._sessions = Array.from(new Map(sessions.filter(session => !this._deletedSessionIds?.has(session.id)).reverse().map(session => [session.id, session])).values()).sort((a, b) => b.id - a.id)
+      this._sessionsBefore = json.before
+      this._sessionsLoaded = true
+      this._renderSessions()
+      if (!this.activeSessionId) {
+        let remembered
+        try { remembered = localStorage.getItem(this.storageKeyValue) } catch (_) {}
+        let chosen = this._sessions.find(session => String(session.id) === remembered)
+        // Restore an older conversation even when it is beyond the first list page.
+        if (!chosen && /^\d+$/.test(remembered || '')) {
+          const previous = await fetch(`${this.sessionsUrlValue}/${remembered}`, { headers: this._requestHeaders(), signal: request.signal })
+          if (previous.ok) {
+            chosen = await previous.json()
+            if (!this._deletedSessionIds?.has(chosen.id) && !this._sessions.some(session => session.id === chosen.id)) this._sessions.unshift(chosen)
+          }
+        }
+        if (request.signal.aborted) return
+        chosen ||= this._sessions[0]
+        if (!this.activeSessionId) {
+          if (chosen && !this._deletedSessionIds?.has(chosen.id)) this.selectSession(chosen.id)
+          else this._setSidebar(true)
+        }
+        this._renderSessions()
+      }
+      this.sessionErrorTarget.classList.add('hidden')
+    } catch (_) {
+      if (!request.signal.aborted) this._sessionError()
+    } finally {
+      if (this._sessionsRequest === request) this._sessionsRequest = null
+      if (!this._changingSession) this.newSessionTarget.disabled = false
+      if (this._view === 'list' && !this.element.classList.contains('hidden') && !this.element.contains(document.activeElement)) this.newSessionTarget.focus()
+    }
+  }
+
+  toggleSidebar(event) {
+    event?.preventDefault()
+    this._setSidebar(!this._sidebarOpen)
+    if (this._sidebarOpen && !this._sessionsLoaded) this.loadSessions()
+  }
+
+  _setSidebar(open) {
+    this._sidebarOpen = open
+    this.listViewTarget.classList.toggle('hidden', !open)
+    this.listViewTarget.classList.toggle('flex', open)
+    this.backTarget.setAttribute('aria-expanded', String(open))
+    const label = open ? this.element.dataset.hideSidebarLabel : this.element.dataset.showSidebarLabel
+    this.backTarget.setAttribute('aria-label', label)
+    this.backTarget.title = label
+    this.backTarget.classList.toggle('bg-slate-800', open)
+    this.backTarget.classList.toggle('text-slate-100', open)
+    if (open) this.newSessionTarget.focus()
+    else this.backTarget.focus()
+  }
+
+  _showChat() {
+    this._view = 'chat'
+    this._setSidebar(false)
+    this.textareaTarget.focus()
+    this._resize()
+    if (this.pendingChatId) this._startPendingPoller()
+  }
+
+  _renderSessions() {
+    this.sessionsTarget.replaceChildren()
+    if (!this._sessions?.length) {
+      const empty = document.createElement('p')
+      empty.className = 'px-4 py-10 text-center text-sm leading-6 text-slate-400'
+      empty.textContent = this.element.dataset.noSessionsLabel
+      this.sessionsTarget.appendChild(empty)
+    }
+    for (const session of this._sessions || []) {
+      const row = document.createElement('div')
+      row.className = 'flex min-w-0 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 p-1 hover:border-slate-600'
+      const pick = document.createElement('button')
+      pick.type = 'button'
+      pick.textContent = session.title
+      pick.className = 'min-h-11 min-w-0 flex-1 truncate rounded-lg px-2 text-left text-xs font-medium text-slate-200 focus-visible:ring-2 focus-visible:ring-red-400'
+      pick.setAttribute('aria-pressed', String(session.id === this.activeSessionId))
+      if (session.id === this.activeSessionId) row.classList.add('bg-slate-800')
+      pick.addEventListener('click', () => this.selectSession(session.id))
+      const remove = document.createElement('button')
+      remove.type = 'button'
+      remove.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h12M8 3h4M6 5l1 12h6l1-12M9 8v6m2-6v6" /></svg>'
+      remove.setAttribute('aria-label', `${this.element.dataset.deleteLabel}: ${session.title}`)
+      remove.className = 'inline-flex items-center justify-center h-11 w-11 shrink-0 rounded-lg text-lg text-slate-400 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-red-400'
+      remove.addEventListener('click', () => this.deleteSession(session))
+      row.append(pick, remove)
+      this.sessionsTarget.appendChild(row)
+    }
+    if (this._sessionsBefore) {
+      const more = document.createElement('button')
+      more.type = 'button'
+      more.textContent = this.element.dataset.moreSessionsLabel
+      more.className = 'min-h-11 w-full text-xs text-slate-300 underline'
+      more.addEventListener('click', event => this.loadSessions(event))
+      this.sessionsTarget.appendChild(more)
+    }
+  }
+
+  selectSession(id) {
+    if (this._submitting || this._clearing || this._changingSession) return
+    if (this.activeSessionId === id && this._historyLoaded) {
+      this._showChat()
+      return
+    }
+    this._drafts ||= {}
+    if (this.activeSessionId) this._drafts[this.activeSessionId] = this.textareaTarget.value
+    else if (this.textareaTarget.value) this._drafts[id] = this.textareaTarget.value
+    this._historyRequest?.abort()
+    this._historyRequest = null
+    this._completePending()
+    this.activeSessionId = id
+    this._historyBefore = null
+    this._historyLoaded = false
+    this.historyTarget.replaceChildren()
+    this.textareaTarget.value = this._drafts[id] || ''
+    const session = this._sessions.find(item => item.id === id)
+    this.sessionTitleTarget.textContent = session?.title || ''
+    this._showChat()
+    try { localStorage.setItem(this.storageKeyValue, String(id)) } catch (_) {}
+    this._renderSessions()
+    this._updateSubmitState()
+    this.loadHistory()
+  }
+
+  async newSession(event) {
+    event?.preventDefault()
+    if (this._changingSession || this._submitting || this._clearing) return
+    this._changingSession = true
+    this.newSessionTarget.disabled = true
+    try {
+      const response = await fetch(this.sessionsUrlValue, { method: 'POST', headers: this._requestHeaders() })
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}))
+        throw new Error(failure.error || this.element.dataset.sessionsError)
+      }
+      const session = await response.json()
+      this._sessions = [session, ...(this._sessions || [])]
+      this._changingSession = false
+      this.selectSession(session.id)
+    } catch (error) {
+      this._sessionError(error.message || this.element.dataset.sessionsError)
+    } finally {
+      this._changingSession = false
+      this.newSessionTarget.disabled = false
+    }
+  }
+
+  async deleteSession(session) {
+    if (this._changingSession || this._submitting || this._clearing || this._confirmingClear) return
+    this._confirmingClear = true
+    const accepted = await this._confirmMessage(this.element.dataset.deleteConfirm)
+    this._confirmingClear = false
+    if (!accepted || !this.element.isConnected) return
+    this._changingSession = true
+    try {
+      const response = await fetch(session.delete_url, { method: 'DELETE', headers: this._requestHeaders() })
+      if (!response.ok) throw new Error()
+      this._deletedSessionIds ||= new Set()
+      this._deletedSessionIds.add(session.id)
+      this._sessions = this._sessions.filter(item => item.id !== session.id)
+      this._changingSession = false
+      if (this.activeSessionId === session.id) {
+        this.activeSessionId = null
+        this._historyRequest?.abort()
+        this._historyRequest = null
+        this._completePending()
+        this._historyLoaded = false
+        this.historyTarget.replaceChildren()
+        this.sessionTitleTarget.textContent = this.element.dataset.newChatLabel
+        this._updateSubmitState()
+      }
+      this._renderSessions()
+      this.newSessionTarget.focus()
+    } catch (_) {
+      this._sessionError()
+    } finally {
+      this._changingSession = false
+    }
+  }
+
+  _confirmMessage(message) {
+    return new Promise(resolve => {
+      const event = new CustomEvent('app:confirm', { cancelable: true, detail: { message, resolve } })
+      if (document.dispatchEvent(event)) resolve(false)
+    })
+  }
+
   async loadHistory(event) {
     event?.preventDefault()
-    if (this._historyRequest || !this.historyUrlValue || !this.hasHistoryTarget) return
+    if (this._historyRequest || !this.historyUrlValue || !this.hasHistoryTarget || !this.activeSessionId) return
     const request = new AbortController()
     this._historyRequest = request
+    const sessionId = this.activeSessionId
     const before = this._historyBefore
     try {
       const url = new URL(this.historyUrlValue, window.location.origin)
+      url.searchParams.set('chat_session_id', sessionId)
       if (before) url.searchParams.set('before', before)
       const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: request.signal })
-      if (!response.ok) return
+      if (!response.ok) throw new Error()
       const json = await response.json()
-      if (request.signal.aborted) return
+      if (request.signal.aborted || sessionId !== this.activeSessionId) return
       this.historyTarget.querySelector('[data-history-older]')?.remove()
       // A broadcast or submission may have arrived while history was loading.
       const wrapper = document.createElement('div')
@@ -106,8 +324,16 @@ export default class extends Controller {
         button.dataset.action = 'ai-modal#loadHistory'
         this.historyTarget.prepend(button)
       }
+      if (!before && json.pending) {
+        this.pendingChatId = json.pending.id
+        this.pendingStatusUrl = json.pending.status_url
+        this.pendingSince = Date.now()
+        if (!this.element.classList.contains('hidden') && this._view === 'chat') this._startPendingPoller()
+      }
+      this._updateSubmitState()
       if (!before) this._scrollHistoryToBottom()
     } catch (_error) {
+      if (!request.signal.aborted) this._sessionError()
       // A later open retries history loading.
     } finally {
       if (this._historyRequest === request) this._historyRequest = null
@@ -116,21 +342,16 @@ export default class extends Controller {
 
   async clearHistory(event) {
     event?.preventDefault()
-    if (!this.signedInValue || this._clearing || this._submitting) return
+    if (!this.signedInValue || !this.activeSessionId || this._changingSession || this._clearing || this._submitting) return
     if (this._confirmingClear) return
     this._confirmingClear = true
-    const accepted = await new Promise(resolve => {
-      const event = new CustomEvent('app:confirm', {
-        cancelable: true, detail: { message: this.element.dataset.clearConfirm, resolve }
-      })
-      if (document.dispatchEvent(event)) resolve(false)
-    })
+    const accepted = await this._confirmMessage(this.element.dataset.clearConfirm)
     this._confirmingClear = false
     if (!accepted || !this.element.isConnected) return
     this._clearing = true
-    this.clearHistoryTarget.disabled = true
+    if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = true
     try {
-      const response = await fetch(this.historyUrlValue, {
+      const response = await fetch(`${this.historyUrlValue}?chat_session_id=${this.activeSessionId}`, {
         method: 'DELETE',
         headers: { Accept: 'application/json', 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']")?.content || '' }
       })
@@ -143,10 +364,10 @@ export default class extends Controller {
       this.historyTarget.replaceChildren()
       await this.loadHistory()
     } catch (_error) {
-      window.alert(this.element.dataset.clearError)
+      this._sessionError(this.element.dataset.clearError)
     } finally {
       this._clearing = false
-      this.clearHistoryTarget.disabled = false
+      if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = false
     }
   }
 
@@ -162,7 +383,7 @@ export default class extends Controller {
   async submit(e) {
     e?.preventDefault()
     if (!this.signedInValue || this._clearing || this._submitting) return
-    if (!this.url) return
+    if (!this.url || this._changingSession || this.pendingChatId) return
 
     const content = this.textareaTarget.value.trim()
     if (content.length === 0) return
@@ -178,6 +399,22 @@ export default class extends Controller {
     const token = document.querySelector("meta[name='csrf-token']")?.content
 
     try {
+      if (!this.activeSessionId) {
+        const response = await fetch(this.sessionsUrlValue, { method: 'POST', headers: this._requestHeaders() })
+        if (!response.ok) {
+          const failure = await response.json().catch(() => ({}))
+          throw new Error(failure.error || this.element.dataset.sessionsError)
+        }
+        const session = await response.json()
+        this._sessions = [session, ...(this._sessions || [])]
+        this.activeSessionId = session.id
+        this._historyBefore = null
+        this._historyLoaded = true
+        this.sessionTitleTarget.textContent = session.title
+        try { localStorage.setItem(this.storageKeyValue, String(session.id)) } catch (_) {}
+        this._renderSessions()
+        this._showChat()
+      }
       const resp = await fetch(this.url, {
         method: 'POST',
         headers: {
@@ -185,7 +422,7 @@ export default class extends Controller {
           'X-CSRF-Token': token || '',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ message: content })
+        body: JSON.stringify({ message: content, chat_session_id: this.activeSessionId })
       })
 
       if (!resp.ok) {
@@ -194,6 +431,12 @@ export default class extends Controller {
       }
 
       const json = await resp.json()
+      const session = this._sessions.find(item => item.id === this.activeSessionId)
+      if (session && json.session_title) {
+        session.title = json.session_title
+        this.sessionTitleTarget.textContent = session.title
+        this._renderSessions()
+      }
 
       // If server returned rendered HTML for immediate feedback, append it
       if (json.html && this.hasHistoryTarget) {
@@ -229,6 +472,7 @@ export default class extends Controller {
       if (this.hasSubmitTarget) this._enableSubmit()
     } finally {
       this._submitting = false
+      this._updateSubmitState()
       if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = false
       // Do not blindly re-enable here — we wait for background job to finish.
     }
@@ -266,8 +510,8 @@ export default class extends Controller {
   // under translated placeholders.
   _trapFocus(e) {
     const focusables = Array.from(
-      this.element.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled])')
-    )
+      this.element.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), summary')
+    ).filter(element => element.getClientRects().length > 0)
     if (!focusables.length) return
 
     const first = focusables[0]
@@ -371,8 +615,9 @@ export default class extends Controller {
   }
 
   _updateSubmitState() {
+    if (this.hasBackTarget) this.backTarget.disabled = !!(this._submitting || this._clearing)
     if (!this.hasSubmitTarget) return
-    if (!this.signedInValue || !this.hasTextareaTarget || this.textareaTarget.hasAttribute('disabled')) {
+    if (!this.signedInValue || this._submitting || this.pendingChatId || this._changingSession || this._clearing || !this.hasTextareaTarget || this.textareaTarget.hasAttribute('disabled')) {
       this._setSubmitDisabled(true)
       return
     }

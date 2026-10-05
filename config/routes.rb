@@ -8,6 +8,8 @@ Rails.application.routes.draw do
     get "blog", to: "posts#index", as: :blog
     get "team", to: "pages#team", as: :team
 
+    resources :chat_sessions, only: [ :index, :show, :create, :destroy ]
+
     # Standalone chat (no post context)
     post "chat", to: "chat#create", as: :chat
     delete "chat/history", to: "chat#clear_history", as: :clear_chat_history
