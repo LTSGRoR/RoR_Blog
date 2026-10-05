@@ -1,135 +1,82 @@
 import { Controller } from "@hotwired/stimulus"
+import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
   static targets = ["container"]
 
   connect() {
-    this.container = this.hasContainerTarget ? this.containerTarget : document.body
-    this.translations = {
-      title: document.body.dataset.confirmTitle || "Are you sure?",
-      ok: document.body.dataset.confirmOk || "OK",
-      cancel: document.body.dataset.confirmCancel || "Cancel",
+    this._previousConfirm = Turbo.config.forms.confirm
+    this._confirm = (message) => this.show(message)
+    Turbo.config.forms.confirm = this._confirm
+    this._request = (event) => {
+      event.preventDefault()
+      this.show(event.detail.message).then(event.detail.resolve)
     }
-
-    // Delegate clicks for elements using `data-confirm` or `data-turbo-confirm` attributes
-    this._clickHandler = (e) => {
-      const el = e.target.closest && e.target.closest('[data-confirm],[data-turbo-confirm]')
-      if (!el) return
-      e.preventDefault()
-      const message = el.getAttribute('data-confirm') || el.getAttribute('data-turbo-confirm') || ''
-      this.show(message).then((ok) => {
-        if (!ok) return
-        // proceed with original action
-        if (el.tagName === 'A' && el.href && !el.dataset.turboMethod) {
-          window.location.href = el.href
-          return
-        }
-        const form = el.closest && el.closest('form')
-        if (form) {
-          // remove data-confirm to avoid re-interception, then submit via Turbo
-          el.removeAttribute('data-confirm')
-          el.removeAttribute('data-turbo-confirm')
-          form.requestSubmit ? form.requestSubmit(el.type === 'submit' ? el : null) : form.submit()
-          return
-        }
-        // fallback: remove attribute and re-dispatch click (handles data-turbo-method links)
-        el.removeAttribute('data-confirm')
-        el.removeAttribute('data-turbo-confirm')
-        el.click()
-      })
-    }
-
-    document.addEventListener('click', this._clickHandler, true)
+    this._beforeCache = () => this._finish?.(false)
+    document.addEventListener('app:confirm', this._request)
+    document.addEventListener('turbo:before-cache', this._beforeCache)
   }
 
   disconnect() {
-    document.removeEventListener('click', this._clickHandler, true)
+    this._finish?.(false)
+    if (Turbo.config.forms.confirm === this._confirm) Turbo.config.forms.confirm = this._previousConfirm
+    document.removeEventListener('app:confirm', this._request)
+    document.removeEventListener('turbo:before-cache', this._beforeCache)
   }
 
-  show(message = '', title = '') {
-    return new Promise((resolve) => {
-      this._previouslyFocused = document.activeElement
-
-      const overlay = document.createElement('div')
-      overlay.setAttribute('role', 'dialog')
-      overlay.setAttribute('aria-modal', 'true')
-      overlay.setAttribute('aria-labelledby', 'confirm-dialog-title')
-      overlay.setAttribute('aria-describedby', 'confirm-dialog-message')
-      overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4'
-
-      const dialog = document.createElement('div')
-      dialog.className = 'w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-lg transform transition-[transform,opacity] duration-150 scale-95 opacity-0'
+  show(message) {
+    if (this._finish) return Promise.resolve(false)
+    return new Promise(resolve => {
+      const previousFocus = document.activeElement
+      const previousOverflow = document.body.style.overflow
+      const dialog = document.createElement('dialog')
+      dialog.className = 'm-auto w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-sm'
+      dialog.setAttribute('aria-labelledby', 'confirm-dialog-title')
+      dialog.setAttribute('aria-describedby', 'confirm-dialog-message')
       dialog.innerHTML = `
-        <div class="flex flex-col items-center text-center gap-4">
-          <div class="flex items-center gap-3">
-            <svg class="h-8 w-8 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.721-1.36 3.486 0l5.454 9.691c.75 1.333-.213 2.99-1.742 2.99H4.545c-1.529 0-2.492-1.657-1.742-2.99L8.257 3.1zM9 7a1 1 0 112 0v3a1 1 0 11-2 0V7zm1 7a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z" clip-rule="evenodd" />
-            </svg>
-            <h3 id="confirm-dialog-title" class="text-lg font-semibold text-slate-900">${this._escapeHtml(title || this.translations.title)}</h3>
+        <div class="border-t-4 border-[#9e0000] px-6 pt-6 pb-5">
+          <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-[#9e0000]">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 3h.01M10.3 4.9 3.5 17a2 2 0 0 0 1.7 3h13.6a2 2 0 0 0 1.7-3L13.7 4.9a2 2 0 0 0-3.4 0Z"/></svg>
           </div>
-          ${message ? `<p id="confirm-dialog-message" class="text-sm text-slate-600">${this._escapeHtml(message)}</p>` : ''}
-          <div class="mt-4 flex items-center justify-center gap-3">
-            <button data-confirm-action="cancel" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">${this._escapeHtml(this.translations.cancel)}</button>
-            <button data-confirm-action="ok" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">${this._escapeHtml(this.translations.ok)}</button>
-          </div>
+          <h2 id="confirm-dialog-title" class="text-lg font-semibold"></h2>
+          <p id="confirm-dialog-message" class="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-600"></p>
         </div>
-      `
-
-      overlay.appendChild(dialog)
-
-      const okBtn = dialog.querySelector('[data-confirm-action="ok"]')
-      const cancelBtn = dialog.querySelector('[data-confirm-action="cancel"]')
-
-      const cleanup = () => {
-        overlay.remove()
-        document.removeEventListener('keydown', onKey)
-        document.body.classList.remove('overflow-hidden')
-        // Restore focus to the element that opened the dialog.
-        if (this._previouslyFocused && this._previouslyFocused.isConnected) {
-          this._previouslyFocused.focus()
-        }
-        this._previouslyFocused = null
+        <div class="flex flex-wrap justify-end gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4">
+          <button type="button" data-confirm-action="cancel" class="min-h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000] focus-visible:ring-offset-2"></button>
+          <button type="button" data-confirm-action="ok" class="min-h-11 rounded-xl bg-[#9e0000] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#820000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9e0000] focus-visible:ring-offset-2"></button>
+        </div>`
+      dialog.querySelector('#confirm-dialog-title').textContent = this.element.dataset.confirmTitle
+      dialog.querySelector('#confirm-dialog-message').textContent = message
+      const cancel = dialog.querySelector('[data-confirm-action="cancel"]')
+      const ok = dialog.querySelector('[data-confirm-action="ok"]')
+      cancel.textContent = this.element.dataset.confirmCancel
+      ok.textContent = this.element.dataset.confirmOk
+      this._finish = (accepted) => {
+        this._finish = null
+        dialog.close()
+        dialog.remove()
+        document.body.style.overflow = previousOverflow
+        if (previousFocus?.isConnected) previousFocus.focus()
+        resolve(accepted)
       }
-
-      const onOk = () => { cleanup(); resolve(true) }
-      const onCancel = () => { cleanup(); resolve(false) }
-
-      okBtn.addEventListener('click', onOk)
-      cancelBtn.addEventListener('click', onCancel)
-
-      const onKey = (e) => {
-        if (e.key === 'Escape') onCancel()
-        if (e.key === 'Tab') {
-          // Two-button focus trap: Tab cycles between Cancel and OK.
-          e.preventDefault()
-          const next = document.activeElement === okBtn ? cancelBtn : okBtn
-          next.focus()
-        }
-      }
-
-      document.addEventListener('keydown', onKey)
-
-      this.container.appendChild(overlay)
-      document.body.classList.add('overflow-hidden')
-
-      // trigger enter animation
-      requestAnimationFrame(() => {
-        dialog.classList.remove('scale-95', 'opacity-0')
-        dialog.classList.add('scale-100', 'opacity-100')
+      cancel.addEventListener('click', () => this._finish?.(false))
+      ok.addEventListener('click', () => this._finish?.(true))
+      dialog.addEventListener('cancel', (event) => {
+        event.preventDefault()
+        this._finish?.(false)
       })
-
-      // Focus "Cancel" by default: Enter must never confirm a destructive action.
-      cancelBtn.focus()
+      // Let the native dialog contain focus; keep the underlying chat modal
+      // and page Escape handlers from handling this dialog's key events.
+      dialog.addEventListener('keydown', (event) => event.stopPropagation())
+      dialog.addEventListener('click', (event) => {
+        if (event.target !== dialog) return
+        const box = dialog.getBoundingClientRect()
+        if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) this._finish?.(false)
+      })
+      this.containerTarget.appendChild(dialog)
+      document.body.style.overflow = 'hidden'
+      dialog.showModal()
+      cancel.focus()
     })
-  }
-
-  _escapeHtml(str) {
-    if (!str) return ''
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
   }
 }

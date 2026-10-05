@@ -117,7 +117,16 @@ export default class extends Controller {
   async clearHistory(event) {
     event?.preventDefault()
     if (!this.signedInValue || this._clearing || this._submitting) return
-    if (!window.confirm(this.element.dataset.clearConfirm)) return
+    if (this._confirmingClear) return
+    this._confirmingClear = true
+    const accepted = await new Promise(resolve => {
+      const event = new CustomEvent('app:confirm', {
+        cancelable: true, detail: { message: this.element.dataset.clearConfirm, resolve }
+      })
+      if (document.dispatchEvent(event)) resolve(false)
+    })
+    this._confirmingClear = false
+    if (!accepted || !this.element.isConnected) return
     this._clearing = true
     this.clearHistoryTarget.disabled = true
     try {
