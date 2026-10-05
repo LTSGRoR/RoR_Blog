@@ -83,4 +83,36 @@ class ChatSessionsTest < ActionDispatch::IntegrationTest
     assert first.reload.cleared_at
     assert_nil second.reload.cleared_at
   end
+
+  test "creation limits count deleted sessions and localize errors" do
+    (ChatSession::CREATION_HOURLY_LIMIT - 2).times { @user.chat_sessions.create!(deleted_at: Time.current) }
+    %i[en vi ja].each do |locale|
+      assert_no_difference "ChatSession.count" do
+        post chat_sessions_path(locale: locale), as: :json
+      end
+      assert_response :too_many_requests
+      assert_equal I18n.t("shared.ai_chat.session_limit", locale: locale), response.parsed_body["error"]
+      assert_equal "3600", response.headers["Retry-After"]
+      post chat_path(locale: locale), params: { message: "", chat_session_id: @first.id }, as: :json
+      assert_response :unprocessable_entity
+      assert_equal I18n.t("shared.ai_chat.message_blank", locale: locale), response.parsed_body["error"]
+    end
+  end
+
+  test "creation removes only old deleted empty sessions and queues the request locale" do
+    empty = @user.chat_sessions.create!(deleted_at: 31.days.ago, created_at: 32.days.ago)
+    retained = @user.chat_sessions.create!(deleted_at: 31.days.ago, created_at: 32.days.ago)
+    # Existing message records preserve quota and accounting information.
+    retained.update!(deleted_at: nil)
+    ChatHistory.create!(user: @user, chat_session: retained, user_message: "Keep accounting", bot_response: "Done")
+    retained.update!(deleted_at: 31.days.ago)
+    post chat_sessions_path(locale: :ja), as: :json
+    assert_response :created
+    assert_not ChatSession.exists?(empty.id)
+    assert ChatSession.exists?(retained.id)
+    assert_enqueued_with(job: GeneratePostSuggestionJob, args: ->(args) { args.first.is_a?(Integer) && args.last == "ja" }) do
+      post chat_path(locale: :ja), params: { message: "こんにちは", chat_session_id: @first.id }, as: :json
+    end
+    assert_response :accepted
+  end
 end

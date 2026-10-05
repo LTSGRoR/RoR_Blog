@@ -23,7 +23,7 @@ export default class extends Controller {
         this._updateSubmitState()
       })
       this.textareaTarget.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
           e.preventDefault()
           this.submit(e)
         }
@@ -95,7 +95,8 @@ export default class extends Controller {
       if (!response.ok) throw new Error()
       const json = await response.json()
       if (request.signal.aborted) return
-      this._sessions = event ? [...(this._sessions || []), ...json.sessions] : json.sessions
+      const sessions = [...(this._sessions || []), ...json.sessions]
+      this._sessions = Array.from(new Map(sessions.filter(session => !this._deletedSessionIds?.has(session.id)).reverse().map(session => [session.id, session])).values()).sort((a, b) => b.id - a.id)
       this._sessionsBefore = json.before
       this._sessionsLoaded = true
       this._renderSessions()
@@ -108,13 +109,15 @@ export default class extends Controller {
           const previous = await fetch(`${this.sessionsUrlValue}/${remembered}`, { headers: this._requestHeaders(), signal: request.signal })
           if (previous.ok) {
             chosen = await previous.json()
-            this._sessions.unshift(chosen)
+            if (!this._deletedSessionIds?.has(chosen.id) && !this._sessions.some(session => session.id === chosen.id)) this._sessions.unshift(chosen)
           }
         }
         if (request.signal.aborted) return
         chosen ||= this._sessions[0]
-        if (chosen) this.selectSession(chosen.id)
-        else this._setSidebar(true)
+        if (!this.activeSessionId) {
+          if (chosen && !this._deletedSessionIds?.has(chosen.id)) this.selectSession(chosen.id)
+          else this._setSidebar(true)
+        }
         this._renderSessions()
       }
       this.sessionErrorTarget.classList.add('hidden')
@@ -130,7 +133,7 @@ export default class extends Controller {
   toggleSidebar(event) {
     event?.preventDefault()
     this._setSidebar(!this._sidebarOpen)
-    if (this._sidebarOpen) this.loadSessions()
+    if (this._sidebarOpen && !this._sessionsLoaded) this.loadSessions()
   }
 
   _setSidebar(open) {
@@ -200,6 +203,7 @@ export default class extends Controller {
     }
     this._drafts ||= {}
     if (this.activeSessionId) this._drafts[this.activeSessionId] = this.textareaTarget.value
+    else if (this.textareaTarget.value) this._drafts[id] = this.textareaTarget.value
     this._historyRequest?.abort()
     this._historyRequest = null
     this._completePending()
@@ -224,13 +228,16 @@ export default class extends Controller {
     this.newSessionTarget.disabled = true
     try {
       const response = await fetch(this.sessionsUrlValue, { method: 'POST', headers: this._requestHeaders() })
-      if (!response.ok) throw new Error()
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}))
+        throw new Error(failure.error || this.element.dataset.sessionsError)
+      }
       const session = await response.json()
       this._sessions = [session, ...(this._sessions || [])]
       this._changingSession = false
       this.selectSession(session.id)
-    } catch (_) {
-      this._sessionError()
+    } catch (error) {
+      this._sessionError(error.message || this.element.dataset.sessionsError)
     } finally {
       this._changingSession = false
       this.newSessionTarget.disabled = false
@@ -247,6 +254,8 @@ export default class extends Controller {
     try {
       const response = await fetch(session.delete_url, { method: 'DELETE', headers: this._requestHeaders() })
       if (!response.ok) throw new Error()
+      this._deletedSessionIds ||= new Set()
+      this._deletedSessionIds.add(session.id)
       this._sessions = this._sessions.filter(item => item.id !== session.id)
       this._changingSession = false
       if (this.activeSessionId === session.id) {
@@ -392,7 +401,10 @@ export default class extends Controller {
     try {
       if (!this.activeSessionId) {
         const response = await fetch(this.sessionsUrlValue, { method: 'POST', headers: this._requestHeaders() })
-        if (!response.ok) throw new Error(this.element.dataset.sessionsError || 'Request failed')
+        if (!response.ok) {
+          const failure = await response.json().catch(() => ({}))
+          throw new Error(failure.error || this.element.dataset.sessionsError)
+        }
         const session = await response.json()
         this._sessions = [session, ...(this._sessions || [])]
         this.activeSessionId = session.id

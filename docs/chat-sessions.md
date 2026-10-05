@@ -2,6 +2,10 @@
 
 The AI chatbox stores conversations on the signed-in user's account. The chatbox uses one message view with a collapsible conversation sidebar. A persistent sidebar icon hides or shows the sidebar; it sits beside messages on desktop and overlays them on mobile. The list shows saved conversations; New chat creates an empty conversation, and each row has a delete button using the app's confirmation dialog. Titles come from the first message.
 
+New conversations are limited to 30 per account per rolling hour, including conversations deleted during that hour. The legacy default-conversation path uses the same limit. On creation, up to 100 deleted empty conversations older than 30 days are removed; conversations containing message records remain for quota accounting. Sending the first message automatically creates a conversation when none is selected.
+
+Sidebar responses merge by ID, preserve loaded pages and drafts, and exclude conversations deleted in the current browser view. Enter during Japanese/other IME composition does not send. Validation, quota, and generation failure messages support English, Vietnamese, and Japanese; generation jobs carry the request locale.
+
 Conversation and message lists load lazily in pages of 20. The browser remembers the selected conversation ID as a convenience; messages and conversations are stored in PostgreSQL and remain available across devices. Older selections outside the first list page can be restored directly. Controls support English, Vietnamese, and Japanese, including mobile layouts.
 
 All conversation lookups are scoped to the current account. Message creation validates the conversation owner and locks the conversation against concurrent deletion. AI memory and vector retrieval include only earlier messages from the current conversation. Switching conversations aborts stale history/status requests, and unsent drafts are preserved during navigation; reopening a conversation resumes polling its pending reply.

@@ -1,5 +1,9 @@
 class ChatController < ApplicationController
   before_action :authenticate_user!
+  rescue_from ChatSession::CreationLimitExceeded do
+    response.set_header("Retry-After", "3600")
+    render json: { error: t("shared.ai_chat.session_limit") }, status: :too_many_requests
+  end
   before_action :set_chat_session, only: [ :index, :create, :clear_history ]
   before_action :set_post
   before_action :authorize_post!, if: -> { @post.present? }
@@ -27,22 +31,22 @@ class ChatController < ApplicationController
 
   def create
     message = params[:message].to_s.strip
-    return render json: { error: "Message cannot be blank" }, status: :unprocessable_entity if message.blank?
+    return render json: { error: t("shared.ai_chat.message_blank") }, status: :unprocessable_entity if message.blank?
 
     chat = ChatHistory.accept_request!(user: current_user, post: @post, message: message, chat_session: @chat_session)
-    GeneratePostSuggestionJob.perform_later(chat.id)
+    GeneratePostSuggestionJob.perform_later(chat.id, I18n.locale.to_s)
 
     # Render the partial as HTML regardless of the incoming request format
     html = render_to_string(partial: "chat_histories/chat_history_item", locals: { chat_history: chat }, formats: [ :html ])
     render json: { id: chat.id, html: html, status_url: chat_status_path(chat), session_title: @chat_session.reload.title }, status: :accepted
-  rescue ChatHistory::QuotaExceeded => e
+  rescue ChatHistory::QuotaExceeded
     response.set_header("Retry-After", "600")
-    render json: { error: e.message }, status: :too_many_requests
+    render json: { error: t("shared.ai_chat.request_limit") }, status: :too_many_requests
   end
 
   def show
     chat = current_user.chat_histories.visible.find_by(id: params[:id])
-    return render json: { error: "Chat not found" }, status: :not_found unless chat
+    return render json: { error: t("shared.ai_chat.chat_missing") }, status: :not_found unless chat
 
     return render json: { id: chat.id, ready: false } unless chat.bot_response.present?
 
@@ -65,7 +69,7 @@ class ChatController < ApplicationController
     return unless post_id
 
     @post = Post.find_by(id: post_id)
-    render json: { error: "Post not found" }, status: :not_found and return unless @post
+    render json: { error: t("shared.ai_chat.post_missing") }, status: :not_found and return unless @post
   end
 
   def authorize_post!

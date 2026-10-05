@@ -1,5 +1,9 @@
 class ChatSessionsController < ApplicationController
   before_action :authenticate_user!
+  rescue_from ChatSession::CreationLimitExceeded do
+    response.set_header("Retry-After", "3600")
+    render json: { error: t("shared.ai_chat.session_limit") }, status: :too_many_requests
+  end
 
   def index
     sessions = current_user.chat_sessions.active.order(id: :desc)
@@ -15,7 +19,7 @@ class ChatSessionsController < ApplicationController
   end
 
   def create
-    session = current_user.chat_sessions.create!
+    session = ChatSession.create_for!(current_user)
     render json: session_data(session), status: :created
   end
 

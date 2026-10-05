@@ -13,7 +13,15 @@ class GeneratePostSuggestionJob < ApplicationJob
   HISTORY_CONTEXT_TRUNCATE_CHARS = ENV.fetch("AI_CHAT_HISTORY_CONTEXT_CHARS", "900").to_i
   MIN_POST_SIMILARITY = ENV.fetch("AI_CHAT_MIN_POST_SIMILARITY", "0.35").to_f
 
-  def perform(chat_history_id)
+  def perform(chat_history_id, locale = nil)
+    requested_locale = locale.presence || ChatHistory.find_by(id: chat_history_id)&.user&.locale
+    selected_locale = I18n.available_locales.map(&:to_s).include?(requested_locale.to_s) ? requested_locale : I18n.default_locale
+    I18n.with_locale(selected_locale) { generate_response(chat_history_id) }
+  end
+
+  private
+
+  def generate_response(chat_history_id)
     chat = ChatHistory.find_by(id: chat_history_id)
     return unless chat
     return if chat.bot_response.present?
@@ -168,7 +176,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     chat.reload
     return if chat.bot_response.present?
 
-    updated = chat.update(bot_response: GENERATION_FAILED_MESSAGE, provider_meta: { error: reason })
+    updated = chat.update(bot_response: I18n.t("shared.ai_chat.generation_failed"), provider_meta: { error: reason })
     unless updated
       Rails.logger.error(
         "GeneratePostSuggestionJob: could not persist failure for chat_history_id=#{chat.id}: #{chat.errors.full_messages.to_sentence}"
@@ -251,7 +259,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
   def ensure_user_friendly_response(text)
     cleaned = text.to_s.strip
-    return "I could not find enough context to make a confident suggestion yet. Please share a bit more detail so I can help better." if cleaned.blank?
+    return I18n.t("shared.ai_chat.context_missing") if cleaned.blank?
 
     cleaned
   end

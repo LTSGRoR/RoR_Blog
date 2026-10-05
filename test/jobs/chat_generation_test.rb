@@ -5,6 +5,19 @@ class ChatGenerationTest < ActiveSupport::TestCase
     @chat = ChatHistory.create!(user: create_user, user_message: "Help me")
   end
 
+  test "generation failures use the queued request locale and restore worker locale" do
+    service = Object.new
+    service.define_singleton_method(:embed) { |**_| nil }
+    service.define_singleton_method(:generate) { |**_| raise "Provider unavailable" }
+    %i[en vi ja].each do |locale|
+      chat = ChatHistory.create!(user: @chat.user, user_message: "Hello")
+      previous_locale = I18n.locale
+      AiGeneration::Service.stub(:new, service) { GeneratePostSuggestionJob.perform_now(chat.id, locale.to_s) }
+      assert_equal I18n.t("shared.ai_chat.generation_failed", locale: locale), chat.reload.bot_response
+      assert_equal previous_locale, I18n.locale
+    end
+  end
+
   test "conversation context excludes messages from other sessions" do
     ChatHistory.create!(user: @chat.user, chat_session: @chat.chat_session,
       user_message: "Remember purple bicycles", bot_response: "Purple bicycles remembered")
