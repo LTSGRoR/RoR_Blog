@@ -1,0 +1,10 @@
+ja:
+  posts:
+    index:
+      search_limit: "上位%{limit}件を表示しています。検索条件を絞り込んでください。"
+  shared:
+    ai_chat:
+      older: "以前のメッセージを読み込む"
+      clear_history: "履歴を消去"
+      clear_confirm: "すべてのチャット履歴を消去しますか？元に戻せません。"
+      clear_error: "履歴を消去できませんでした。もう一度お試しください。"

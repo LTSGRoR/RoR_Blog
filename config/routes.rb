@@ -10,6 +10,8 @@ Rails.application.routes.draw do
 
     # Standalone chat (no post context)
     post "chat", to: "chat#create", as: :chat
+    delete "chat/history", to: "chat#clear_history", as: :clear_chat_history
+    get "chat/history", to: "chat#index", as: :chat_history
     get "chat/:id", to: "chat#show", as: :chat_status
 
     resources :tags, only: [ :index, :create ]

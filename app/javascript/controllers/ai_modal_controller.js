@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["textarea", "submit", "history", "spinner", "icon"]
-  static values = { signedIn: Boolean }
+  static targets = ["textarea", "submit", "history", "spinner", "icon", "clearHistory"]
+  static values = { signedIn: Boolean, historyUrl: String }
 
   connect() {
     this.url = null
@@ -33,7 +33,7 @@ export default class extends Controller {
 
     if (this.hasHistoryTarget) {
       this._observer = new MutationObserver(() => {
-        this._scrollHistoryToBottom()
+        if (!this._historyBefore) this._scrollHistoryToBottom()
       })
       this._observer.observe(this.historyTarget, { childList: true, subtree: true })
     }
@@ -44,6 +44,7 @@ export default class extends Controller {
     document.removeEventListener('keydown', this._keyHandler)
     if (this._observer) this._observer.disconnect()
     this._clearPendingPoller()
+    this._historyRequest?.abort()
   }
 
   open(event) {
@@ -59,13 +60,89 @@ export default class extends Controller {
       this.textareaTarget.setAttribute('disabled', '')
       this._setSubmitDisabled(true)
     }
+    if (this.signedInValue && !this._historyLoaded) this.loadHistory()
+    if (this.pendingChatId) this._startPendingPoller()
     // scroll history to bottom
     if (this.hasHistoryTarget) {
       this._scrollHistoryToBottom()
     }
   }
 
+  async loadHistory(event) {
+    event?.preventDefault()
+    if (this._historyRequest || !this.historyUrlValue || !this.hasHistoryTarget) return
+    const request = new AbortController()
+    this._historyRequest = request
+    const before = this._historyBefore
+    try {
+      const url = new URL(this.historyUrlValue, window.location.origin)
+      if (before) url.searchParams.set('before', before)
+      const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: request.signal })
+      if (!response.ok) return
+      const json = await response.json()
+      if (request.signal.aborted) return
+      this.historyTarget.querySelector('[data-history-older]')?.remove()
+      // A broadcast or submission may have arrived while history was loading.
+      const wrapper = document.createElement('div')
+      wrapper.innerHTML = json.html
+      Array.from(wrapper.children).reverse().forEach(item => {
+        if (!document.getElementById(item.id)) this.historyTarget.prepend(item)
+      })
+      if (!this.historyTarget.querySelector('[id^="chat_history_"]') && !json.before) {
+        const empty = document.createElement('p')
+        empty.dataset.historyEmpty = ''
+        empty.className = 'm-auto text-xs text-slate-400 text-center'
+        empty.textContent = this.element.dataset.emptyLabel
+        this.historyTarget.appendChild(empty)
+      }
+      this._historyBefore = json.before
+      this._historyLoaded = true
+      if (json.before) {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.textContent = this.element.dataset.olderLabel
+        button.className = 'text-xs text-slate-300 underline py-2'
+        button.dataset.historyOlder = ''
+        button.dataset.action = 'ai-modal#loadHistory'
+        this.historyTarget.prepend(button)
+      }
+      if (!before) this._scrollHistoryToBottom()
+    } catch (_error) {
+      // A later open retries history loading.
+    } finally {
+      if (this._historyRequest === request) this._historyRequest = null
+    }
+  }
+
+  async clearHistory(event) {
+    event?.preventDefault()
+    if (!this.signedInValue || this._clearing || this._submitting) return
+    if (!window.confirm(this.element.dataset.clearConfirm)) return
+    this._clearing = true
+    this.clearHistoryTarget.disabled = true
+    try {
+      const response = await fetch(this.historyUrlValue, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json', 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']")?.content || '' }
+      })
+      if (!response.ok) throw new Error(this.element.dataset.clearError)
+      this._historyRequest?.abort()
+      this._historyRequest = null
+      this._completePending()
+      this._historyBefore = null
+      this._historyLoaded = false
+      this.historyTarget.replaceChildren()
+      await this.loadHistory()
+    } catch (_error) {
+      window.alert(this.element.dataset.clearError)
+    } finally {
+      this._clearing = false
+      this.clearHistoryTarget.disabled = false
+    }
+  }
+
   close() {
+    this._clearPendingPoller()
     this.element.classList.add('hidden')
     if (this._previouslyFocused && this._previouslyFocused.isConnected) {
       this._previouslyFocused.focus()
@@ -75,7 +152,7 @@ export default class extends Controller {
 
   async submit(e) {
     e?.preventDefault()
-    if (!this.signedInValue) return
+    if (!this.signedInValue || this._clearing || this._submitting) return
     if (!this.url) return
 
     const content = this.textareaTarget.value.trim()
@@ -87,6 +164,8 @@ export default class extends Controller {
       this.submitTarget.setAttribute('aria-disabled', 'true')
       this._showSpinner()
     }
+    this._submitting = true
+    if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = true
     const token = document.querySelector("meta[name='csrf-token']")?.content
 
     try {
@@ -109,6 +188,7 @@ export default class extends Controller {
 
       // If server returned rendered HTML for immediate feedback, append it
       if (json.html && this.hasHistoryTarget) {
+        this.historyTarget.querySelector('[data-history-empty]')?.remove()
         this.historyTarget.insertAdjacentHTML('beforeend', json.html)
         this._scrollHistoryToBottom()
       }
@@ -139,6 +219,8 @@ export default class extends Controller {
       }
       if (this.hasSubmitTarget) this._enableSubmit()
     } finally {
+      this._submitting = false
+      if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = false
       // Do not blindly re-enable here — we wait for background job to finish.
     }
   }
@@ -201,6 +283,8 @@ export default class extends Controller {
   }
 
   _clearPendingPoller() {
+    this._pollRequest?.abort()
+    this._pollRequest = null
     if (!this._pendingPoller) return
     clearInterval(this._pendingPoller)
     this._pendingPoller = null
@@ -209,27 +293,34 @@ export default class extends Controller {
   async _pollPendingStatus() {
     if (!this.pendingChatId || !this.pendingStatusUrl) return
 
+    if (this.pendingSince && Date.now() - this.pendingSince > 60000) {
+      this._completePending()
+      return
+    }
+    if (this._pollRequest) return
+    const chatId = this.pendingChatId
+    const request = new AbortController()
+    this._pollRequest = request
     try {
       const resp = await fetch(this.pendingStatusUrl, {
         method: 'GET',
-        headers: { Accept: 'application/json' }
+        headers: { Accept: 'application/json' },
+        signal: request.signal
       })
-      if (!resp.ok) return
-
-      const json = await resp.json()
-      if (json?.html) this._replacePendingItemHtml(json.html)
-
-      if (json?.ready) {
-        this._completePending()
+      if (chatId !== this.pendingChatId || request.signal.aborted) return
+      if (!resp.ok) {
+        if ([401, 403, 404].includes(resp.status)) this._completePending()
         return
       }
 
-      if (this.pendingSince && Date.now() - this.pendingSince > 60000) {
-        // Avoid blocking the send action forever if something goes wrong.
-        this._completePending()
-      }
+      const json = await resp.json()
+      if (chatId !== this.pendingChatId || request.signal.aborted) return
+      if (json?.html) this._replacePendingItemHtml(json.html)
+      if (json?.ready) this._completePending()
     } catch (_err) {
-      // Silent fallback: Turbo stream may still deliver the update.
+      // The independent deadline stops polling even when requests fail.
+    } finally {
+      if (this._pollRequest === request) this._pollRequest = null
     }
   }
 

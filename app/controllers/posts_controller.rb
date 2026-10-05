@@ -11,7 +11,7 @@ class PostsController < ApplicationController
 
   def index
     load_public_posts
-    load_blog_feed_panels
+    load_blog_feed_panels unless request.format.json?
     respond_with_posts
   end
 
@@ -184,7 +184,9 @@ class PostsController < ApplicationController
 
     if query.present?
       begin
-        public_scope = PublicPostSearch.new(query: query, scope: public_scope).results
+        search = PublicPostSearch.new(query: query, scope: public_scope, tag: (Tag.find_by(id: params[:tag_id]) if params[:tag_id].present?))
+        public_scope = search.results
+        @search_limited = search.limited
       rescue StandardError => e
         Rails.logger.warn("Searchkick unavailable: #{e.class} - #{e.message}")
         @search_unavailable = true
@@ -206,29 +208,36 @@ class PostsController < ApplicationController
     # and forces COUNT(DISTINCT ...) over that cartesian product. Correlated
     # sub-selects read the same numbers off the FK indexes without building the
     # cross product at all.
-    @most_read_posts = published_verified_scope
-                       .select(
-                         "posts.*",
-                         "(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comments_count_metric",
-                         "(SELECT COUNT(*) FROM reactions WHERE reactions.reactable_type = 'Post' " \
-                         "AND reactions.reactable_id = posts.id) AS reactions_count_metric"
-                       )
-                       .order(Arel.sql("comments_count_metric DESC, reactions_count_metric DESC, posts.created_at DESC"))
-                       .limit(3)
+    panel_ids = Rails.cache.fetch("blog/feed_panels/v1", expires_in: 1.minute) do
+      @most_read_posts = published_verified_scope
+                         .select(
+                           "posts.*",
+                           "(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comments_count_metric",
+                           "(SELECT COUNT(*) FROM reactions WHERE reactions.reactable_type = 'Post' " \
+                           "AND reactions.reactable_id = posts.id) AS reactions_count_metric"
+                         )
+                         .order(Arel.sql("comments_count_metric DESC, reactions_count_metric DESC, posts.created_at DESC"))
+                         .limit(3)
 
-    @trending_tags = Tag.joins(:posts)
+      @trending_tags = Tag.joins(:posts)
+                     .merge(published_verified_scope)
+                     .select("tags.*, COUNT(posts.id) AS usage_count")
+                     .group("tags.id")
+                     .order(Arel.sql("COUNT(posts.id) DESC, tags.name ASC"))
+                     .limit(8)
+
+      @top_authors = User.joins(:posts)
                    .merge(published_verified_scope)
-                   .select("tags.*, COUNT(posts.id) AS usage_count")
-                   .group("tags.id")
-                   .order(Arel.sql("COUNT(posts.id) DESC, tags.name ASC"))
-                   .limit(8)
-
-    @top_authors = User.joins(:posts)
-                 .merge(published_verified_scope)
-                 .select("users.*, COUNT(posts.id) AS published_posts_count")
-                 .group("users.id")
-                 .order(Arel.sql("COUNT(posts.id) DESC, users.created_at ASC"))
-                 .limit(5)
+                   .select("users.*, COUNT(posts.id) AS published_posts_count")
+                   .group("users.id")
+                   .order(Arel.sql("COUNT(posts.id) DESC, users.created_at ASC"))
+                   .limit(5)
+      { posts: @most_read_posts.map(&:id), tags: @trending_tags.map(&:id), authors: @top_authors.map(&:id) }
+    end
+    # Recheck visibility even while ranking IDs are cached.
+    @most_read_posts = published_verified_scope.in_order_of(:id, panel_ids[:posts])
+    @trending_tags = Tag.where(id: panel_ids[:tags]).in_order_of(:id, panel_ids[:tags])
+    @top_authors = User.includes(avatar_attachment: :blob).in_order_of(:id, panel_ids[:authors])
   end
 
   def respond_with_posts
@@ -253,6 +262,7 @@ class PostsController < ApplicationController
 
         render json: {
           count: (@posts.respond_to?(:total_count) ? @posts.total_count : @posts.size),
+          search_limited: !!@search_limited,
           posts: posts_json
         }
       end

@@ -9,7 +9,7 @@
     <div class="flex justify-start">
       <div class="rounded-lg bg-slate-700 px-3 py-2 text-sm text-slate-100 max-w-[70%] break-words whitespace-pre-wrap"> <%= simple_format(h(chat_history.bot_response)) %> </div>
     </div>
-    <% suggested_posts = chat_history.suggested_posts(limit: 3) %>
+    <% suggested_posts = local_assigns.key?(:suggestion_map) ? chat_history.suggested_post_ids.first(3).filter_map { |id| suggestion_map[id] } : chat_history.suggested_posts(limit: 3) %>
     <% if suggested_posts.any? %>
       <div class="ml-0 sm:ml-2 grid grid-cols-1 gap-2 max-w-[95%]">
         <% suggested_posts.each do |post| %>

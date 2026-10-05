@@ -1,25 +1,26 @@
 class PublicPostSearch
-  def initialize(query:, scope:)
+  RESULT_LIMIT = 1_000
+  attr_reader :limited
+
+  def initialize(query:, scope:, tag: nil)
     @query = query
     @scope = scope
+    @tag = tag
   end
 
   def results
-    # Reconcile ranked index hits with current database visibility before
-    # counting or paginating. Filtering only the loaded page leaves stale
-    # totals and empty pages when a post has just been withdrawn.
-    ids = []
+    filters = { status: "published", verified: true }
+    filters[:tags] = @tag.name if @tag
     hits = Post.search(
       @query,
       fields: [ { "title^5" => :word_middle }, { "tags^3" => :word_middle }, "body" ],
-      where: { status: "published", verified: true },
+      where: filters,
       operator: @query.include?(" ") ? "and" : "or",
       misspellings: { below: 5 },
-      load: false, limit: 500, scroll: "1m"
+      load: false, limit: RESULT_LIMIT
     )
-    hits.scroll { |batch| ids.concat(batch.map { |hit| hit.id.to_i }) }
+    @limited = hits.total_count > RESULT_LIMIT
+    ids = hits.map { |hit| hit.id.to_i }
     @scope.in_order_of(:id, ids.uniq)
-  ensure
-    hits&.clear_scroll if hits&.scroll_id
   end
 end

@@ -1,0 +1,10 @@
+vi:
+  posts:
+    index:
+      search_limit: "Hiển thị %{limit} kết quả phù hợp nhất. Hãy tìm kiếm cụ thể hơn."
+  shared:
+    ai_chat:
+      older: "Tải tin nhắn cũ hơn"
+      clear_history: "Xóa lịch sử"
+      clear_confirm: "Xóa tất cả tin nhắn của bạn? Không thể hoàn tác."
+      clear_error: "Không thể xóa lịch sử. Vui lòng thử lại."

@@ -12,6 +12,7 @@ module SearchkickActionTextCallbacks
     return unless record.is_a?(Post)
 
     record.reindex(mode: :async)
+    record.enqueue_embedding_index
   end
 end
 

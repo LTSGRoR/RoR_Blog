@@ -80,7 +80,7 @@ services:
     volumes: !override
       - blog_storage:/rails/storage
 
-  sidekiq:
+  sidekiq: &production_worker
     build:
       args:
         APP_ENV: production
@@ -113,6 +113,10 @@ services:
         required: false
     volumes: !override
       - blog_storage:/rails/storage
+
+  indexing:
+    <<: *production_worker
+    command: bundle exec sidekiq -c 2 -q embeddings -q searchkick
 
   redis:
     ports: !reset []

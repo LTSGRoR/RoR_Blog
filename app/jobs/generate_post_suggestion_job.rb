@@ -57,7 +57,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
       if query_embedding.present?
         vector_literal = vector_literal_for(query_embedding)
-        recent_history_ids = ChatHistory.where(user_id: chat.user_id)
+        recent_history_ids = ChatHistory.visible.where(user_id: chat.user_id)
                                         .where.not(id: chat.id)
                                         .where.not(bot_response: nil)
                                         .order(created_at: :desc)
@@ -68,7 +68,7 @@ class GeneratePostSuggestionJob < ApplicationJob
         history_hits = if history_scope.exists?
           history_scope.order(Arel.sql("embedding <-> '#{vector_literal}'::vector")).limit(MAX_HISTORY_RAG_HITS)
         else
-          ChatHistory.where(user_id: chat.user_id)
+          ChatHistory.visible.where(user_id: chat.user_id)
                      .where.not(id: chat.id)
                      .where.not(embedding: nil)
                      .where.not(bot_response: nil)
@@ -121,15 +121,18 @@ class GeneratePostSuggestionJob < ApplicationJob
     provider_meta = result[:meta].is_a?(Hash) ? result[:meta].dup : {}
     provider_meta[:suggested_post_ids] = suggested_post_ids if suggested_post_ids.any?
 
-    chat.update!(
+    chat.with_lock do
+      return if chat.cleared_at.present?
+      chat.update!(
       bot_response: bot_text,
       provider: result[:provider],
       provider_meta: provider_meta
     )
+    end
 
     index_chat_history_embedding(chat, service)
     broadcast_chat_update(chat)
-  rescue StandardError => e
+  rescue StandardError, SystemStackError => e
     Rails.logger.error("GeneratePostSuggestionJob failed for chat_history_id=#{chat_history_id}: #{e.class} - #{e.message}")
     mark_chat_failed(chat, reason: "LLM_REQUEST_FAILED: #{e.class} - #{e.message}")
   end
@@ -138,6 +141,8 @@ class GeneratePostSuggestionJob < ApplicationJob
 
   # `dom_id` helper isn't available in jobs — build the target id explicitly.
   def broadcast_chat_update(chat)
+    return if chat.reload.cleared_at.present?
+
     Turbo::StreamsChannel.broadcast_replace_to(
       "chat_histories_user_#{chat.user_id}",
       target: "chat_history_#{chat.id}",
@@ -154,6 +159,9 @@ class GeneratePostSuggestionJob < ApplicationJob
   # is present.
   def mark_chat_failed(chat, reason:)
     return unless chat
+
+    chat.reload
+    return if chat.bot_response.present?
 
     updated = chat.update(bot_response: GENERATION_FAILED_MESSAGE, provider_meta: { error: reason })
     unless updated
@@ -192,7 +200,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     embedding = service.embed(text: embedding_text)
     return if embedding.blank?
 
-    chat_history.update_columns(embedding: embedding, updated_at: Time.current)
+    ChatHistory.visible.where(id: chat_history.id).update_all(embedding: embedding, updated_at: Time.current)
   rescue StandardError => e
     Rails.logger.warn("Chat history embedding index failed for chat_history_id=#{chat_history.id}: #{e.class} - #{e.message}")
   end

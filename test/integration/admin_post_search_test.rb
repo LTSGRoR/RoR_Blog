@@ -17,6 +17,25 @@ class AdminPostSearchTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "selected search field restricts posts and revisions" do
+    tag = Tag.create!(name: "quartzneedle")
+    @post.tags << tag
+    @revision.tags << tag
+    { "posts" => post_path(@post, locale: :en), "revisions" => admin_post_revision_path(@revision, locale: :en) }.each do |scope, href|
+      { "title" => "Parent title", "author" => "Needle", "tags" => "quartzneedle" }.each do |field, query|
+        search(query, scope: scope, search_field: field)
+        assert_select "a[href=?]", href, minimum: 1
+        assert_select 'select[name="search_field"] option[selected]', value: field
+        other_field = field == "title" ? "tags" : "title"
+        search(query, scope: scope, search_field: other_field)
+        assert_select "a[href=?]", href, count: 0
+      end
+    end
+    search("Parent title", search_field: "invalid")
+    assert_select 'select[name="search_field"] option[selected]', value: "all"
+    assert_select "a[href=?]", post_path(@post, locale: :en), minimum: 1
+  end
+
   test "revision title and parent title both match" do
     search("Unique revision", scope: "revisions")
     assert_select "a[href=?]", admin_post_revision_path(@revision, locale: :en), minimum: 1

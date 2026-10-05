@@ -1,0 +1,56 @@
+{
+  "en": {
+    "admin": {
+      "posts": {
+        "index": {
+          "search_fields": {
+            "label": "Search in",
+            "all": "All fields",
+            "title": "Title",
+            "author": "Author",
+            "tags": "Tags",
+            "query_label": "Search query",
+            "placeholder": "Enter a title, author, or tag…",
+            "clear": "Clear search"
+          }
+        }
+      }
+    }
+  },
+  "vi": {
+    "admin": {
+      "posts": {
+        "index": {
+          "search_fields": {
+            "label": "Tìm trong",
+            "all": "Tất cả",
+            "title": "Tiêu đề",
+            "author": "Tác giả",
+            "tags": "Thẻ",
+            "query_label": "Từ khóa tìm kiếm",
+            "placeholder": "Nhập tiêu đề, tác giả hoặc thẻ…",
+            "clear": "Xóa tìm kiếm"
+          }
+        }
+      }
+    }
+  },
+  "ja": {
+    "admin": {
+      "posts": {
+        "index": {
+          "search_fields": {
+            "label": "検索対象",
+            "all": "すべて",
+            "title": "タイトル",
+            "author": "著者",
+            "tags": "タグ",
+            "query_label": "検索キーワード",
+            "placeholder": "タイトル、著者、タグを入力…",
+            "clear": "検索をクリア"
+          }
+        }
+      }
+    }
+  }
+}
