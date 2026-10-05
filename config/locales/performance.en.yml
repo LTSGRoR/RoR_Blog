@@ -5,3 +5,6 @@ en:
   shared:
     ai_chat:
       older: "Load older messages"
+      clear_history: "Clear history"
+      clear_confirm: "Clear all your chat messages? This cannot be undone."
+      clear_error: "Could not clear history. Please try again."

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["textarea", "submit", "history", "spinner", "icon"]
+  static targets = ["textarea", "submit", "history", "spinner", "icon", "clearHistory"]
   static values = { signedIn: Boolean, historyUrl: String }
 
   connect() {
@@ -114,6 +114,33 @@ export default class extends Controller {
     }
   }
 
+  async clearHistory(event) {
+    event?.preventDefault()
+    if (!this.signedInValue || this._clearing || this._submitting) return
+    if (!window.confirm(this.element.dataset.clearConfirm)) return
+    this._clearing = true
+    this.clearHistoryTarget.disabled = true
+    try {
+      const response = await fetch(this.historyUrlValue, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json', 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']")?.content || '' }
+      })
+      if (!response.ok) throw new Error(this.element.dataset.clearError)
+      this._historyRequest?.abort()
+      this._historyRequest = null
+      this._completePending()
+      this._historyBefore = null
+      this._historyLoaded = false
+      this.historyTarget.replaceChildren()
+      await this.loadHistory()
+    } catch (_error) {
+      window.alert(this.element.dataset.clearError)
+    } finally {
+      this._clearing = false
+      this.clearHistoryTarget.disabled = false
+    }
+  }
+
   close() {
     this._clearPendingPoller()
     this.element.classList.add('hidden')
@@ -125,7 +152,7 @@ export default class extends Controller {
 
   async submit(e) {
     e?.preventDefault()
-    if (!this.signedInValue) return
+    if (!this.signedInValue || this._clearing || this._submitting) return
     if (!this.url) return
 
     const content = this.textareaTarget.value.trim()
@@ -137,6 +164,8 @@ export default class extends Controller {
       this.submitTarget.setAttribute('aria-disabled', 'true')
       this._showSpinner()
     }
+    this._submitting = true
+    if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = true
     const token = document.querySelector("meta[name='csrf-token']")?.content
 
     try {
@@ -190,6 +219,8 @@ export default class extends Controller {
       }
       if (this.hasSubmitTarget) this._enableSubmit()
     } finally {
+      this._submitting = false
+      if (this.hasClearHistoryTarget) this.clearHistoryTarget.disabled = false
       // Do not blindly re-enable here — we wait for background job to finish.
     }
   }

@@ -20,5 +20,12 @@ class ChatHistoryLoadingTest < ApplicationSystemTestCase
       assert_no_button "Load older messages"
     end
     assert_selector '#ai_chat_modal [id^="chat_history_"]', count: 23
+    accept_confirm do
+      within "#ai_chat_modal" do
+        click_button "Clear history"
+      end
+    end
+    assert_no_selector '#ai_chat_modal [id^="chat_history_"]'
+    assert_selector "#ai_chat_modal [data-history-empty]"
   end
 end

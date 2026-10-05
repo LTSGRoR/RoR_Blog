@@ -22,6 +22,26 @@ class ChatHistoryPerformanceTest < ActionDispatch::IntegrationTest
     assert_not_includes response.parsed_body["html"], "chat_history_#{other.id}\""
   end
 
+  test "clearing redacts only own history and preserves quota usage" do
+    chat = ChatHistory.create!(user: @user, user_message: "Secret question", bot_response: "Secret answer", provider_meta: { private: "Secret" })
+    other = ChatHistory.create!(user: create_user, user_message: "Other user")
+    count = ChatDailyQuota.for_time(Time.current).requests_count
+    delete chat_history_path(locale: :en), as: :json
+    assert_response :no_content
+    assert_empty @user.chat_histories.visible
+    assert_nil other.reload.cleared_at
+    assert_equal "[cleared]", chat.reload.user_message
+    assert_nil chat.provider_meta
+    assert_equal count, ChatDailyQuota.for_time(Time.current).requests_count
+    get chat_status_path(chat, locale: :en), as: :json
+    assert_response :not_found
+    get chat_history_path(locale: :en), as: :json
+    assert_empty response.parsed_body["html"]
+    AiGeneration::Service.stub(:new, -> { flunk "Cleared chats must not call providers" }) do
+      GeneratePostSuggestionJob.perform_now(chat.id)
+    end
+  end
+
   test "pending status does not render message HTML" do
     chat = ChatHistory.create!(user: @user, user_message: "Pending")
     get chat_status_path(chat, locale: :en), as: :json

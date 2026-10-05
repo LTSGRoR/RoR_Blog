@@ -35,6 +35,8 @@ class ChatHistory < ApplicationRecord
     end
   end
 
+  scope :visible, -> { where(cleared_at: nil) }
+
   scope :for_user, ->(user_id) { where(user_id: user_id) }
 
   def embedding_text

@@ -4,7 +4,7 @@ class ChatController < ApplicationController
   before_action :authorize_post!, if: -> { @post.present? }
 
   def index
-    scope = current_user.chat_histories.order(id: :desc)
+    scope = current_user.chat_histories.visible.order(id: :desc)
     scope = scope.where("id < ?", params[:before].to_i) if params[:before].present?
     histories = scope.limit(21).to_a
     more = histories.size > 20
@@ -15,6 +15,13 @@ class ChatController < ApplicationController
         locals: { chat_history: history, suggestion_map: posts }, formats: [ :html ])
     end.join
     render json: { html: html, before: more ? histories.last.id : nil }
+  end
+
+  def clear_history
+    # Retain usage timestamps so clearing cannot reset AI request quotas.
+    current_user.chat_histories.visible.update_all(cleared_at: Time.current,
+      user_message: "[cleared]", bot_response: "[cleared]", provider_meta: nil, embedding: nil)
+    head :no_content
   end
 
   def create
@@ -33,7 +40,7 @@ class ChatController < ApplicationController
   end
 
   def show
-    chat = current_user.chat_histories.find_by(id: params[:id])
+    chat = current_user.chat_histories.visible.find_by(id: params[:id])
     return render json: { error: "Chat not found" }, status: :not_found unless chat
 
     return render json: { id: chat.id, ready: false } unless chat.bot_response.present?

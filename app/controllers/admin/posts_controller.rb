@@ -6,7 +6,7 @@ class Admin::PostsController < ApplicationController
     authorize Post, :moderation_index?
 
     @query = params[:q].to_s.strip
-    tag_query = @query.gsub(/[[:space:]-]+/, " ")
+    @search_field = params[:search_field].presence_in(%w[all title author tags]) || "all"
     @scope = permitted_scope
     @filter = normalized_filter(scope: @scope, filter: permitted_filter)
 
@@ -19,20 +19,7 @@ class Admin::PostsController < ApplicationController
     pending_by_reviewer = PostRevision.pending_review.group(:reviewer_id).count
     @pending_revisions_by_reviewer = pending_revisions_by_reviewer(pending_by_reviewer)
 
-    @pending_posts = if @query.present?
-      published_posts_scope.joins(:user)
-                           .where(
-                             "posts.title ILIKE :q OR users.name ILIKE :q OR users.email ILIKE :q OR " \
-                             "EXISTS (SELECT 1 FROM taggings INNER JOIN tags ON tags.id = taggings.tag_id " \
-                             "WHERE taggings.post_id = posts.id AND (tags.name ILIKE :q OR " \
-                             "regexp_replace(tags.name, :tag_separators, ' ', 'g') ILIKE :tag_q))",
-                             q: "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%",
-                             tag_q: "%#{ActiveRecord::Base.sanitize_sql_like(tag_query)}%",
-                             tag_separators: "[[:space:]-]+"
-                           )
-    else
-      published_posts_scope
-    end
+    @pending_posts = apply_field_search(published_posts_scope, revisions: false)
 
     @pending_posts = case @filter
     when "awaiting_review"
@@ -68,20 +55,7 @@ class Admin::PostsController < ApplicationController
 
     @revisions = base_scope.includes(:post, :author, :reviewer)
 
-    if @query.present?
-      @revisions = @revisions.joins(:post, :author)
-                             .where(
-                               "post_revisions.title ILIKE :q OR posts.title ILIKE :q OR " \
-                               "users.name ILIKE :q OR users.email ILIKE :q OR " \
-                               "EXISTS (SELECT 1 FROM post_revision_taggings " \
-                               "INNER JOIN tags ON tags.id = post_revision_taggings.tag_id " \
-                               "WHERE post_revision_taggings.post_revision_id = post_revisions.id AND (tags.name ILIKE :q OR " \
-                               "regexp_replace(tags.name, :tag_separators, ' ', 'g') ILIKE :tag_q))",
-                               q: "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%",
-                             tag_q: "%#{ActiveRecord::Base.sanitize_sql_like(tag_query)}%",
-                             tag_separators: "[[:space:]-]+"
-                             )
-    end
+    @revisions = apply_field_search(@revisions, revisions: true)
 
     @revisions = @revisions.order(updated_at: :desc).page(params[:revisions_page]).per(10)
   end
@@ -103,6 +77,28 @@ class Admin::PostsController < ApplicationController
   end
 
   private
+
+  def apply_field_search(scope, revisions:)
+    return scope if @query.blank?
+
+    table = revisions ? "post_revisions" : "posts"
+    taggings = revisions ? "post_revision_taggings" : "taggings"
+    foreign_key = revisions ? "post_revision_id" : "post_id"
+    conditions = {
+      "title" => revisions ? "post_revisions.title ILIKE :q OR posts.title ILIKE :q" : "posts.title ILIKE :q",
+      "author" => "users.name ILIKE :q OR users.email ILIKE :q",
+      "tags" => "EXISTS (SELECT 1 FROM #{taggings} INNER JOIN tags ON tags.id = #{taggings}.tag_id " \
+                "WHERE #{taggings}.#{foreign_key} = #{table}.id AND (tags.name ILIKE :q OR " \
+                "regexp_replace(tags.name, :tag_separators, ' ', 'g') ILIKE :tag_q))"
+    }
+    predicate = @search_field == "all" ? conditions.values.map { |sql| "(#{sql})" }.join(" OR ") : conditions.fetch(@search_field)
+    joined = revisions ? scope.joins(:post, :author) : scope.joins(:user)
+    joined.where(predicate,
+      tag_separators: "[[:space:]-]+",
+      q: "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%",
+      tag_q: "%#{ActiveRecord::Base.sanitize_sql_like(@query.gsub(/[[:space:]-]+/, " "))}%")
+  end
+
 
   # The dashboard renders six queue counters. Each bucket used to run its own
   # COUNT; FILTER aggregates keep the exact same predicates but collapse each
