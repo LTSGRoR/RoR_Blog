@@ -16,9 +16,6 @@ class Admin::PostsController < ApplicationController
 
     load_review_queue_stats
 
-    pending_by_reviewer = PostRevision.pending_review.group(:reviewer_id).count
-    @pending_revisions_by_reviewer = pending_revisions_by_reviewer(pending_by_reviewer)
-
     @pending_posts = apply_field_search(published_posts_scope, revisions: false)
 
     @pending_posts = case @filter
@@ -125,21 +122,6 @@ class Admin::PostsController < ApplicationController
       Arel.sql("COUNT(*) FILTER (WHERE moderation_status IN (#{approved_status}, #{rejected_status}) " \
                "AND reviewed_at >= #{day_start})")
     )
-  end
-
-  # Reviewer names for the queue chips used to be one User.find_by per reviewer.
-  def pending_revisions_by_reviewer(pending_by_reviewer)
-    reviewer_ids = pending_by_reviewer.keys.compact
-    reviewer_names = reviewer_ids.empty? ? {} : User.where(id: reviewer_ids).pluck(:id, :name).to_h
-
-    pending_by_reviewer.map do |reviewer_id, count|
-      name = if reviewer_id.present?
-        reviewer_names[reviewer_id].presence || "User ##{reviewer_id}"
-      else
-        I18n.t("admin.posts.index.stats.unassigned")
-      end
-      { reviewer: name, count: count }
-    end
   end
 
   def set_post
