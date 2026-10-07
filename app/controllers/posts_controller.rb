@@ -94,7 +94,7 @@ class PostsController < ApplicationController
       end
 
       enqueue_ai_review_for(@post)
-      redirect_to @post, notice: "Post was successfully updated."
+      redirect_to @post, notice: t("editor_messages.updated")
     else
       flash.now[:alert] = @post.errors.full_messages.to_sentence
       render :edit, status: :unprocessable_entity
@@ -112,7 +112,7 @@ class PostsController < ApplicationController
         @post.thumbnail.purge if @post.thumbnail.attached?
       end
       enqueue_ai_review_for(@post)
-      redirect_to @post, notice: "Post was successfully created."
+      redirect_to @post, notice: t("editor_messages.created")
     else
       flash.now[:alert] = @post.errors.full_messages.to_sentence
       render :new, status: :unprocessable_entity
@@ -121,36 +121,36 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_back fallback_location: mine_posts_path, notice: "Post was successfully destroyed."
+    redirect_back fallback_location: mine_posts_path, notice: t("editor_messages.destroyed")
   end
 
   def verify
     unless @post.published?
-      redirect_back fallback_location: posts_path, alert: "Only published posts can be verified."
+      redirect_back fallback_location: posts_path, alert: t("editor_messages.published_verify")
       return
     end
     @post.verify!(current_user)
-    redirect_back fallback_location: posts_path, notice: "Post has been verified."
+    redirect_back fallback_location: posts_path, notice: t("editor_messages.verified")
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: posts_path, alert: e.message
   end
 
   def unverify
     unless @post.published?
-      redirect_back fallback_location: posts_path, alert: "Only published posts can receive admin feedback."
+      redirect_back fallback_location: posts_path, alert: t("editor_messages.published_feedback")
       return
     end
 
     reason = params.dig(:post, :unverify_reason).to_s.strip
 
     if reason.blank?
-      redirect_back fallback_location: posts_path, alert: "Reason is required to unverify a post."
+      redirect_back fallback_location: posts_path, alert: t("editor_messages.reason_required")
       return
     end
 
     was_verified = @post.verified?
     @post.unverify!(admin: current_user, reason: reason)
-    notice_message = was_verified ? "Post has been unverified." : "Admin feedback has been saved."
+    notice_message = was_verified ? t("editor_messages.unverified") : t("editor_messages.feedback_saved")
     redirect_back fallback_location: posts_path, notice: notice_message
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: posts_path, alert: e.message
@@ -160,12 +160,12 @@ class PostsController < ApplicationController
     reply = params.dig(:post, :author_feedback_reply).to_s.strip
 
     if reply.blank?
-      redirect_back fallback_location: mine_posts_path, alert: "Reply is required."
+      redirect_back fallback_location: mine_posts_path, alert: t("editor_messages.reply_required")
       return
     end
 
     @post.reply_to_feedback!(author: current_user, reply: reply)
-    redirect_back fallback_location: mine_posts_path, notice: "Reply sent to admin feedback."
+    redirect_back fallback_location: mine_posts_path, notice: t("editor_messages.reply_sent")
   rescue ArgumentError, ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: mine_posts_path, alert: e.message
   end
@@ -245,7 +245,7 @@ class PostsController < ApplicationController
       format.html { render :index, status: @search_unavailable ? :service_unavailable : :ok }
       format.json do
         if @search_unavailable
-          render json: { error: "Search is temporarily unavailable. Please try again." }, status: :service_unavailable
+          render json: { error: t("editor_messages.search_unavailable") }, status: :service_unavailable
           next
         end
         posts_json = @posts.map do |post|
@@ -271,7 +271,7 @@ class PostsController < ApplicationController
 
   def set_post
     @post = Post.find_by(id: params[:id])
-    redirect_to posts_path, alert: "Post not found." and return unless @post
+    redirect_to posts_path, alert: t("editor_messages.not_found") and return unless @post
   end
 
   # The author dashboard shows three status counters. Computing them as FILTER
@@ -326,7 +326,7 @@ class PostsController < ApplicationController
 
   def authorize_feedback_reply!
     unless current_user == @post.user
-      redirect_to @post, alert: "Only the post author can reply to feedback."
+      redirect_to @post, alert: t("editor_messages.author_reply")
     end
   end
 

@@ -1,0 +1,21 @@
+en:
+  editor_thumbnail:
+    label: "Thumbnail"
+    empty: "No image selected"
+    choose: "Choose image"
+    remove: "Remove"
+    hint: "Recommended: 1400×800px. JPG or PNG, up to 10MB."
+vi:
+  editor_thumbnail:
+    label: "Ảnh thu nhỏ"
+    empty: "Chưa chọn ảnh"
+    choose: "Chọn ảnh"
+    remove: "Xóa ảnh"
+    hint: "Khuyến nghị: 1400×800px. JPG hoặc PNG, tối đa 10MB."
+ja:
+  editor_thumbnail:
+    label: "サムネイル"
+    empty: "画像が選択されていません"
+    choose: "画像を選択"
+    remove: "画像を削除"
+    hint: "推奨サイズ：1400×800px。JPGまたはPNG、最大10MB。"

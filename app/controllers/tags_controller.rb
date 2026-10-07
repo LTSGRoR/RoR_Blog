@@ -21,7 +21,7 @@ class TagsController < ApplicationController
 
   def create
     name = params[:name].to_s.strip.downcase
-    return render json: { error: "name required" }, status: :unprocessable_entity if name.blank?
+    return render json: { error: t("errors.messages.blank") }, status: :unprocessable_entity if name.blank?
 
     tag = Tag.find_or_create_by(name: name)
     return render json: { error: tag.errors.full_messages.to_sentence }, status: :unprocessable_entity if tag.invalid?
@@ -34,7 +34,7 @@ class TagsController < ApplicationController
     if tag
       render json: { id: tag.id, name: tag.name }, status: :created
     else
-      render json: { error: "Could not create tag" }, status: :unprocessable_entity
+      render json: { error: t("editor_tags.create_error") }, status: :unprocessable_entity
     end
   end
 end

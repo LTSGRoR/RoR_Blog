@@ -52,6 +52,7 @@
     <%= stylesheet_link_tag "https://unpkg.com/trix/dist/trix.css", media: "all" %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css", media: "all" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= tag.meta name: "editor-translations", content: t("editor_trix").to_json %>
     <%= javascript_importmap_tags %>
   </head>
 

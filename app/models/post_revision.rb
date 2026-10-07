@@ -37,9 +37,9 @@ class PostRevision < ApplicationRecord
   end
 
   def submit!
-    raise ArgumentError, "Only draft revisions can be submitted" unless draft?
-    raise ArgumentError, "Title is required" if title.to_s.strip.blank?
-    raise ArgumentError, "Body is required" if body.to_plain_text.to_s.strip.blank?
+    raise ArgumentError, I18n.t("editor_messages.draft_submit") unless draft?
+    raise ArgumentError, I18n.t("editor_messages.revision_title_required") if title.to_s.strip.blank?
+    raise ArgumentError, I18n.t("editor_messages.revision_body_required") if body.to_plain_text.to_s.strip.blank?
 
     update!(moderation_status: :pending_review, submitted_at: Time.current)
   end
@@ -53,9 +53,9 @@ class PostRevision < ApplicationRecord
 
   def approve!(admin:, note: nil)
     with_lock do
-      raise ArgumentError, "Only pending revisions can be approved" unless pending_review?
+      raise ArgumentError, I18n.t("editor_messages.pending_approve") unless pending_review?
       post.with_lock do
-        raise ArgumentError, "Post must be published and verified" unless post.published? && post.verified?
+        raise ArgumentError, I18n.t("editor_messages.published_verified") unless post.published? && post.verified?
         post.apply_approved_revision!(revision: self, admin: admin)
         apply_thumbnail_to_post
         update!(
@@ -83,10 +83,10 @@ class PostRevision < ApplicationRecord
 
   def reject!(admin:, note: nil)
     cleaned_note = note.to_s.strip
-    raise ArgumentError, "Rejection note is required" if cleaned_note.blank?
+    raise ArgumentError, I18n.t("editor_messages.reject_note_required") if cleaned_note.blank?
 
     with_lock do
-      raise ArgumentError, "Only pending revisions can be rejected" unless pending_review?
+      raise ArgumentError, I18n.t("editor_messages.pending_reject") unless pending_review?
       update!(
         moderation_status: :rejected,
         reviewer: admin,
@@ -152,7 +152,7 @@ class PostRevision < ApplicationRecord
   def author_owns_post
     return if author == post&.user
 
-    errors.add(:author, "must be the post owner")
+    errors.add(:author, I18n.t("editor_messages.owner"))
   end
 
   def thumbnail_size_under_limit

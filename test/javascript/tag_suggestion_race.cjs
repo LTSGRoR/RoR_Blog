@@ -10,6 +10,8 @@ const fetch = (url) => new Promise(resolve => requests.push({url, resolve}));
 const Klass = eval(source + '\nTagInputController');
 const c = new Klass();
 c.selectedIds = new Set();
+c.localeValue = "vi";
+c.translationsValue = { searching: "Searching tags", matches: "Matching tags will appear here.", load_error: "Could not load tags", retry: "Try again in a moment." };
 c.inputTarget = {value: 'old'};
 c.consumeDelimitedInput = () => c.inputTarget.value;
 c.renderStatus = () => {};
@@ -19,6 +21,7 @@ c.listTarget = {innerHTML: ""};
 c.clearList = () => { c.cancelSearch(); c.visibleItems = []; };
 (async () => {
   c.search(); fireTimer();
+  assert.match(requests[0].url, /locale=vi/);
   c.inputTarget.value = 'new'; c.search(); fireTimer();
   requests[1].resolve({ok: true, json: async () => [{id: 2, name: 'new'}]});
   await new Promise(r => global.setImmediate(r));

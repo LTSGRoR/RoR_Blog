@@ -17,3 +17,12 @@ Trix.config.blockAttributes.alignment = {
 for (const config of Object.values(Trix.config.blockAttributes)) {
   config.htmlAttributes = [...new Set([...(config.htmlAttributes || []), "class"])]
 }
+
+// Read the current page locale before Trix builds its toolbar/caption editor.
+// Turbo may replace the head without re-evaluating this module.
+function localizeTrix() {
+  const translations = document.querySelector('meta[name="editor-translations"]')
+  if (translations) Object.assign(Trix.config.lang, JSON.parse(translations.content))
+}
+localizeTrix()
+document.addEventListener("trix-before-initialize", localizeTrix)

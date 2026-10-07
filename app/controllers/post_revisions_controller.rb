@@ -110,7 +110,7 @@ class PostRevisionsController < ApplicationController
   def set_post
     @post = Post.find_by(id: params[:post_id])
     unless @post
-      redirect_to posts_path, alert: "Post not found." and return
+      redirect_to posts_path, alert: t("editor_messages.not_found") and return
     end
     authorize @post, :request_revision?
   end

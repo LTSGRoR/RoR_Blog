@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "list", "chips"]
-  static values = { hiddenInputName: { type: String, default: "post[tag_ids][]" } }
+  static values = { translations: Object, locale: String, hiddenInputName: { type: String, default: "post[tag_ids][]" } }
 
   connect() {
     this.timer = null
@@ -35,11 +35,11 @@ export default class extends Controller {
       return
     }
 
-    this.renderStatus("Searching tags", "Matching tags will appear here.")
+    this.renderStatus(this.translationsValue.searching, this.translationsValue.matches)
 
     this.timer = setTimeout(() => {
       this.abortController = new AbortController()
-      fetch(`/tags?q=${encodeURIComponent(q)}`, { headers: { "Accept": "application/json" }, signal: this.abortController.signal })
+      fetch(`/tags?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(this.localeValue)}`, { headers: { "Accept": "application/json" }, signal: this.abortController.signal })
         .then(r => {
           if (!r.ok) throw new Error(`HTTP ${r.status}`)
           return r.json()
@@ -58,7 +58,7 @@ export default class extends Controller {
         })
         .catch(error => {
           if (error.name === "AbortError" || generation !== this.requestGeneration) return
-          this.renderStatus("Could not load tags", "Try again in a moment.")
+          this.renderStatus(this.translationsValue.load_error, this.translationsValue.retry)
         })
     }, 200)
   }
@@ -159,7 +159,7 @@ export default class extends Controller {
     button.dataset.tagId = id
     button.className = "text-sm leading-none text-indigo-400 hover:text-indigo-700"
     button.style.paddingLeft = "0.25rem"
-    button.setAttribute("aria-label", "Remove tag")
+    button.setAttribute("aria-label", this.translationsValue.remove)
     button.innerHTML = "&times;"
 
     span.appendChild(text)
@@ -236,7 +236,7 @@ export default class extends Controller {
   }
 
   createTag(name) {
-    fetch("/tags", {
+    fetch(`/tags?locale=${encodeURIComponent(this.localeValue)}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -247,7 +247,7 @@ export default class extends Controller {
     })
       .then(async response => {
         const tag = await response.json()
-        if (!response.ok) throw new Error(tag.error || "Please try again.")
+        if (!response.ok) throw new Error(tag.error || this.translationsValue.retry)
         return tag
       })
       .then(tag => {
@@ -257,7 +257,7 @@ export default class extends Controller {
       })
       .catch(error => {
         if (!this.inputTarget.value) this.inputTarget.value = name
-        this.renderStatus("Could not create tag", error.message)
+        this.renderStatus(this.translationsValue.create_error, this.translationsValue.retry)
       })
   }
 
@@ -310,7 +310,7 @@ export default class extends Controller {
         <button type="button" data-tag-option
                 data-action="pointerdown->tag-input#keepInputFocus click->tag-input#createFromInput"
                 class="flex w-full items-center border-t border-slate-200 px-4 py-3 text-left text-sm font-medium text-indigo-700 hover:bg-indigo-50">
-          Create tag "${this.escapeHtml(name)}"
+          ${this.escapeHtml(this.translationsValue.create.replace("%{name}", name))}
         </button>
       `)
     }

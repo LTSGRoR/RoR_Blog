@@ -12,7 +12,7 @@ module ImageUploadValidation
     upload = public_send(name)
     return unless upload.attached?
 
-    errors.add(name, "must be a JPEG, PNG, GIF or WebP image") unless IMAGE_TYPES.include?(upload.blob.content_type)
-    errors.add(name, "must be smaller than #{maximum_size / 1.megabyte}MB") if upload.blob.byte_size > maximum_size
+    errors.add(name, :invalid_image_type) unless IMAGE_TYPES.include?(upload.blob.content_type)
+    errors.add(name, :image_too_large, size: maximum_size / 1.megabyte) if upload.blob.byte_size > maximum_size
   end
 end

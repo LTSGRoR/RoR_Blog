@@ -47,7 +47,7 @@ class Post < ApplicationRecord
   end
 
   def apply_approved_revision!(revision:, admin:)
-    raise ArgumentError, "Revision does not belong to this post" unless revision.post_id == id
+    raise ArgumentError, I18n.t("editor_messages.revision_mismatch") unless revision.post_id == id
 
     self.title = revision.title
     self.body = revision.body.to_s
@@ -56,7 +56,7 @@ class Post < ApplicationRecord
   end
 
   def verify!(admin)
-    raise ArgumentError, "Cannot verify draft posts" unless published?
+    raise ArgumentError, I18n.t("editor_messages.draft_verify") unless published?
 
     update!(
       verified: true,
@@ -71,10 +71,10 @@ class Post < ApplicationRecord
   end
 
   def unverify!(admin:, reason:)
-    raise ArgumentError, "Cannot leave feedback for draft posts" unless published?
+    raise ArgumentError, I18n.t("editor_messages.draft_feedback") unless published?
 
     cleaned_reason = reason.to_s.strip
-    raise ArgumentError, "Unverify reason is required" if cleaned_reason.blank?
+    raise ArgumentError, I18n.t("editor_messages.unverify_required") if cleaned_reason.blank?
 
     update!(
       verified: false,
@@ -91,11 +91,11 @@ class Post < ApplicationRecord
   end
 
   def reply_to_feedback!(author:, reply:)
-    raise ArgumentError, "No admin feedback to reply to" if unverify_reason.blank?
-    raise ArgumentError, "Only the post author can reply" unless author == user
+    raise ArgumentError, I18n.t("editor_messages.no_feedback") if unverify_reason.blank?
+    raise ArgumentError, I18n.t("editor_messages.author_only") unless author == user
 
     cleaned_reply = reply.to_s.strip
-    raise ArgumentError, "Reply is required" if cleaned_reply.blank?
+    raise ArgumentError, I18n.t("editor_messages.reply_required_model") if cleaned_reply.blank?
 
     update!(
       author_feedback_reply: cleaned_reply,
@@ -298,23 +298,23 @@ class Post < ApplicationRecord
 
   def moderation_feedback_consistency
     if published? && reviewed_at.present? && !verified? && unverify_reason.blank?
-      errors.add(:unverify_reason, "can't be blank after admin feedback")
+      errors.add(:unverify_reason, I18n.t("editor_messages.feedback_reason_blank"))
     end
 
     if verified? && unverify_reason.present?
-      errors.add(:unverify_reason, "must be blank when the post is verified")
+      errors.add(:unverify_reason, I18n.t("editor_messages.verified_reason_blank"))
     end
 
     if reviewed_at.present? ^ reviewed_by_id.present?
-      errors.add(:base, "review metadata is incomplete")
+      errors.add(:base, I18n.t("editor_messages.metadata_incomplete"))
     end
 
     if unverify_reason.blank? && author_feedback_reply.present?
-      errors.add(:author_feedback_reply, "must be blank when there is no admin feedback")
+      errors.add(:author_feedback_reply, I18n.t("editor_messages.no_feedback_reply"))
     end
 
     if author_replied_at.present? && author_feedback_reply.blank?
-      errors.add(:author_feedback_reply, "can't be blank when reply timestamp is set")
+      errors.add(:author_feedback_reply, I18n.t("editor_messages.reply_timestamp"))
     end
   end
 end
