@@ -176,6 +176,7 @@ class PostsController < ApplicationController
     @page = params[:page] || 1
     @per_page = 4
     @search_path = posts_path
+    @selected_tag = Tag.find_by(id: params[:tag_id]) if params[:tag_id].present?
     public_scope = Post.where(status: Post.statuses[:published], verified: true)
 
     public_scope = public_scope.where(id: Tagging.where(tag_id: params[:tag_id]).select(:post_id)) if params[:tag_id].present?
@@ -184,7 +185,7 @@ class PostsController < ApplicationController
 
     if query.present?
       begin
-        search = PublicPostSearch.new(query: query, scope: public_scope, tag: (Tag.find_by(id: params[:tag_id]) if params[:tag_id].present?))
+        search = PublicPostSearch.new(query: query, scope: public_scope, tag: @selected_tag)
         public_scope = search.results
         @search_limited = search.limited
       rescue StandardError => e

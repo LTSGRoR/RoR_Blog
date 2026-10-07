@@ -1,0 +1,12 @@
+en:
+  posts:
+    index:
+      tag_title: "All %{tag} Posts"
+vi:
+  posts:
+    index:
+      tag_title: "Tất cả bài viết về %{tag}"
+ja:
+  posts:
+    index:
+      tag_title: "%{tag} のすべての投稿"

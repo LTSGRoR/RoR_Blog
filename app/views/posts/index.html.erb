@@ -1,10 +1,13 @@
-<% content_for :title, t("posts.index.title") %>
+<% page_title = @selected_tag ? t("posts.index.tag_title", tag: @selected_tag.name) : t("posts.index.title") %>
+<% content_for :title, page_title %>
 
 <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
   <div class="mb-8 rounded-2xl border border-[#e2e8f0] bg-white px-6 py-7 sm:px-8">
-    <p class="re-page-kicker"><%= t("posts.index.hero.kicker") %></p>
+    <% unless @selected_tag %>
+      <p class="re-page-kicker"><%= t("posts.index.hero.kicker") %></p>
+    <% end %>
     <div class="mt-2">
-      <h1 class="re-heading text-4xl font-bold text-slate-900"><%= t("posts.index.title") %></h1>
+      <h1 class="re-heading text-4xl font-bold text-slate-900"><%= page_title %></h1>
     </div>
     <p class="mt-3 re-muted text-sm"><%= t("posts.index.hero.subtitle") %></p>
   </div>
