@@ -1,0 +1,18 @@
+en:
+  editor_alignment:
+    label: "Text alignment"
+    left: "Align left"
+    center: "Align center"
+    right: "Align right"
+vi:
+  editor_alignment:
+    label: "Căn chỉnh văn bản"
+    left: "Căn trái"
+    center: "Căn giữa"
+    right: "Căn phải"
+ja:
+  editor_alignment:
+    label: "文字の配置"
+    left: "左揃え"
+    center: "中央揃え"
+    right: "右揃え"
