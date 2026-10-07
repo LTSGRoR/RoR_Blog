@@ -9,7 +9,7 @@
   --re-text: #191c1e;
   --re-text-muted: #545f73;
   --re-border: #e2e8f0;
-  --re-code-bg: #1e293b;
+  --re-code-bg: #f1f5f9;
 }
 
 body {
@@ -87,56 +87,222 @@ h6,
   backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.84);
 }
-/* Styling the Trix editor content */
-
-trix-editor {
-  line-height: 1.5;
+/* One content theme for composing and reading Action Text. Keep these rules
+   outside Tailwind layers and load them after the vendor styles. */
+:is(trix-editor, .trix-content) {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 2rem;
+  color: var(--re-text);
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
-/* Fixes for Tailwind's CSS reset and editor content */
-trix-editor h1 {
+/* Draw the editor frame outside the text area so it does not change wrapping. */
+trix-editor {
+  padding: 0;
+  border: 0;
+  box-shadow: 0 0 0 1px #cbd5e1;
+}
+
+trix-editor:focus-visible {
+  outline: 2px solid #94a3b8;
+  outline-offset: 3px;
+}
+
+:is(trix-editor, .trix-content) :where(*) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:is(trix-editor, .trix-content) h1 {
   font-size: 1.875rem;
   font-weight: 800;
+  line-height: 1.2;
   margin-bottom: 1rem;
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 0.5rem;
 }
 
-trix-editor h2 {
+:is(trix-editor, .trix-content) h2 {
   font-size: 1.5rem;
   font-weight: 700;
+  line-height: 1.3;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
 }
 
-trix-editor h3 {
+:is(trix-editor, .trix-content) h3 {
   font-size: 1.25rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
-trix-editor ul,
-trix-editor ol {
-  padding-left: 1.5rem !important;
+:is(trix-editor, .trix-content) :is(ul, ol) {
+  padding-inline-start: 1.5rem;
   margin-bottom: 1rem;
 }
-trix-editor ul { list-style-type: disc !important; }
-trix-editor ol { list-style-type: decimal !important; }
+:is(trix-editor, .trix-content) ul { list-style-type: disc; }
+:is(trix-editor, .trix-content) ol { list-style-type: decimal; }
+:is(trix-editor, .trix-content) li { margin-inline-start: 0; margin-bottom: 0.25rem; }
+:is(trix-editor, .trix-content) strong { font-weight: bold; }
+:is(trix-editor, .trix-content) em { font-style: italic; }
+:is(trix-editor, .trix-content) del { text-decoration: line-through; }
+:is(trix-editor, .trix-content) a { color: var(--re-primary); text-decoration: underline; }
+:is(trix-editor, .trix-content) a:hover { color: var(--re-primary-dark); }
+:is(trix-editor, .trix-content) a:focus-visible { outline: 2px solid var(--re-primary); outline-offset: 3px; }
+:is(trix-editor, .trix-content) p { margin-bottom: 1rem; }
 
-trix-editor strong { font-weight: bold; }
-trix-editor em { font-style: italic; }
-
-trix-editor a {
-  color: #4f46e5; /* Indigo-600 */
-  text-decoration: underline;
+:is(trix-editor, .trix-content) pre {
+  display: block;
+  width: 100%;
+  margin-block: 1rem;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: var(--re-code-bg);
+  color: #0f172a;
+  font-family: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: start;
+  text-shadow: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-x: auto;
+  tab-size: 2;
 }
 
-/* Spacing between paragraphs */
-trix-editor p { margin-bottom: 1rem; }
+:is(trix-editor, .trix-content) pre code {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  text-shadow: none;
+  white-space: inherit;
+}
+
+/* Saved syntax tokens use the same plain text treatment as the editor. */
+:is(trix-editor, .trix-content) pre .token {
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-decoration: none;
+  text-shadow: none;
+  opacity: 1;
+}
+
+:is(trix-editor, .trix-content) blockquote {
+  margin-block: 1rem;
+  margin-inline: 0;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-inline-start: 4px solid #64748b;
+  border-radius: 0.25rem;
+  background: #f8fafc;
+  color: #475569;
+}
+
+:is(trix-editor, .trix-content) figure.attachment {
+  display: inline-block;
+  position: relative;
+  width: auto;
+  max-width: 100%;
+  margin: 1rem 0;
+  padding: 0;
+  vertical-align: top;
+  text-align: center;
+}
+
+:is(trix-editor, .trix-content) figure.attachment img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+:is(trix-editor, .trix-content) figure.attachment a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:is(trix-editor, .trix-content) figure.attachment .attachment__caption {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  color: var(--re-text-muted);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+:is(trix-editor, .trix-content) figure.attachment--preview .attachment__caption {
+  /* Captions follow the image width, including Trix's caption textarea. */
+  contain: inline-size;
+}
+
+trix-editor figure.attachment :is(.attachment__caption-editor, figcaption textarea) {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+
+/* Keep multi-image layouts identical and allow each image to retain its size. */
+:is(trix-editor, .trix-content) .attachment-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+:is(trix-editor, .trix-content) .attachment-gallery .attachment {
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 0;
+}
 
 /* Toolbar and wrapper: consolidated to avoid duplicate rules */
 .prose-trix {
   overflow: visible;
   position: relative;
+}
+
+.image-resize-overlay {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.image-resize-handle {
+  position: absolute;
+  right: -12px;
+  bottom: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  background: var(--re-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgb(15 23 42 / 25%);
+  cursor: nwse-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.image-resize-handle:hover { background: var(--re-primary-dark); }
+.image-resize-handle:focus-visible { outline: 3px solid #0f172a; outline-offset: 3px; }
+.image-resizing { user-select: none; cursor: nwse-resize; }
+
+.prose-trix trix-editor [data-trix-mutable].attachment img {
+  box-shadow: none;
 }
 
 .prose-trix > trix-toolbar,
@@ -179,106 +345,99 @@ trix-toolbar .trix-button-group {
   border-bottom: none !important; /* Prevents double borders when wrapped */
 }
 
-/* ActionText figure and figcaption styling */
-.prose figure {
-  display: block;
-  margin: 1.5rem 0;
-  padding: 0;
+/* Match the app's controls without clipping link dialogs or narrow toolbars. */
+.prose-trix trix-toolbar {
+  overflow: visible;
+  font-family: "Hanken Grotesk", "Segoe UI", sans-serif;
 }
 
-.prose figure img,
-.prose figure figcaption {
-  display: block;
-}
-
-.prose figcaption {
-  display: block;
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-style: italic;
-  margin-top: 0.5rem;
-  line-height: 1.5;
-}
-
-/* Keep ActionText attachment caption tied to its image width in view mode */
-.prose figure.attachment {
-  display: inline-block;
-  width: auto;
+.prose-trix trix-toolbar .trix-button-group {
+  flex-wrap: wrap;
   max-width: 100%;
+  border-color: var(--re-border);
+  border-radius: 0.375rem;
+  background: var(--re-card);
 }
 
-.prose figure.attachment img {
-  max-width: 100%;
-  height: auto;
+.prose-trix trix-toolbar .trix-button {
+  min-width: 30px;
+  min-height: 30px;
+  border-color: var(--re-border);
+  color: var(--re-text-muted);
+  touch-action: manipulation;
 }
 
-.prose figure.attachment .attachment__caption {
-  text-align: left;
-  margin-top: 0.5rem;
+.prose-trix trix-toolbar .trix-button:hover:not(:disabled) { background: var(--re-surface-alt); }
+.prose-trix trix-toolbar .trix-button.trix-active {
+  background: var(--re-surface-alt);
+  color: var(--re-text);
 }
 
-/* Trix editor attachment caption layout */
-trix-editor figure.attachment {
-  display: inline-block;
-  width: auto;
-  max-width: 100%;
-  margin: 1rem 0;
-  vertical-align: top;
+.prose-trix trix-toolbar .trix-button--icon { width: 30px; height: 30px; padding: 0; }
+.prose-trix trix-toolbar .trix-button--icon::before { background-size: 18px 18px; }
+.editor-alignment-button svg { width: 16px; height: 16px; }
+
+.prose-trix trix-toolbar :is(.trix-button, .trix-input):focus-visible {
+  outline: 2px solid #64748b;
+  outline-offset: 2px;
 }
 
-trix-editor figure.attachment img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+.prose-trix trix-toolbar .trix-dialogs {
+  flex-basis: 100%;
+  min-width: 0;
 }
 
-trix-editor figure.attachment .attachment__caption {
-  display: block;
-  width: 100%;
-  margin-top: 0.5rem;
-  text-align: left;
+.prose-trix trix-toolbar .trix-dialog {
+  border-top-color: var(--re-primary);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 12%);
 }
 
-trix-editor figure.attachment .attachment__caption-editor {
-  display: block;
-  width: 100%;
-  margin-top: 0.5rem;
+.prose-trix trix-toolbar .trix-dialog__link-fields { flex-wrap: wrap; gap: 0.5rem; }
+.prose-trix trix-toolbar .trix-input--dialog { min-width: 0; margin: 0; }
+
+@media (pointer: coarse) {
+  .prose-trix trix-toolbar .trix-button { min-width: 36px; min-height: 36px; }
+  .image-resize-handle { width: 32px; height: 32px; right: -16px; bottom: -16px; }
 }
 
-.trix-content ul,
-.trix-content ol {
-  padding-left: 1.5rem !important;
-  margin-bottom: 1rem;
+.editor-link-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border: 1px solid var(--re-border);
+  border-radius: 0.75rem;
+  background: var(--re-card);
+  color: var(--re-text);
+  font-family: "Hanken Grotesk", "Segoe UI", sans-serif;
+  box-shadow: 0 16px 48px rgb(15 23 42 / 20%);
 }
-.trix-content ul { list-style-type: disc !important; }
-.trix-content ol { list-style-type: decimal !important; }
-.trix-content li { margin-bottom: 0.25rem; }
+.editor-link-dialog::backdrop { background: rgb(15 23 42 / 35%); }
+.editor-link-dialog h2 { margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700; }
+.editor-link-dialog label { display: block; margin-block: 1rem; font-size: 0.875rem; font-weight: 600; }
+.editor-link-dialog input { display: block; width: 100%; margin-top: 0.375rem; padding: 0.625rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; font-weight: 400; }
+.editor-link-dialog :is(input, button):focus-visible { outline: 2px solid var(--re-primary); outline-offset: 2px; }
+.editor-link-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+.editor-link-actions button { min-height: 44px; padding: 0.5rem 0.875rem; border: 1px solid var(--re-border); border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600; touch-action: manipulation; }
+.editor-link-actions button:hover { background: var(--re-surface-alt); }
+.editor-link-actions .editor-link-save { background: var(--re-primary); border-color: var(--re-primary); color: white; }
+.editor-link-actions .editor-link-save:hover { background: var(--re-primary-dark); }
+.editor-link-actions .editor-link-remove { margin-inline-end: auto; color: var(--re-primary); }
+.editor-link-error { color: var(--re-primary); font-size: 0.875rem; }
+.editor-link-notice { color: var(--re-text-muted); font-size: 0.875rem; }
+.editor-link-dialog input[readonly] { background: var(--re-surface-alt); }
 
-.trix-content strong { font-weight: bold; }
-.trix-content em { font-style: italic; }
-.trix-content p { margin-bottom: 1rem; }
-
-.trix-content h1 {
-  font-size: 1.875rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 0.5rem;
-}
-.trix-content h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-.trix-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-.trix-content a {
-  color: #4f46e5;
-  text-decoration: underline;
-}
+/* The same block classes survive Action Text and style both editor and reader. */
+:is(trix-editor, .trix-content) .rt-align-left { text-align: left; }
+:is(trix-editor, .trix-content) .rt-align-center { text-align: center; }
+:is(trix-editor, .trix-content) .rt-align-right { text-align: right; }
+.editor-alignment-button { display: inline-grid; place-items: center; }
+:is(trix-editor, .trix-content) .attachment-gallery.rt-align-left { justify-content: flex-start; }
+:is(trix-editor, .trix-content) .attachment-gallery.rt-align-center { justify-content: center; }
+:is(trix-editor, .trix-content) .attachment-gallery.rt-align-right { justify-content: flex-end; }
 
 /* Honor user motion preferences globally (Vercel Web Interface Guidelines):
    kill animations/transitions and smooth scrolling for users who ask for

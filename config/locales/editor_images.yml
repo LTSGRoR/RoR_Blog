@@ -1,0 +1,12 @@
+en:
+  editor_images:
+    resize: "Resize image"
+    drag_hint: "Drag to resize. Use arrow keys for small adjustments."
+vi:
+  editor_images:
+    resize: "Thay đổi kích thước ảnh"
+    drag_hint: "Kéo để thay đổi kích thước. Dùng phím mũi tên để điều chỉnh từng chút."
+ja:
+  editor_images:
+    resize: "画像のサイズを変更"
+    drag_hint: "ドラッグしてサイズを変更します。矢印キーで微調整できます。"

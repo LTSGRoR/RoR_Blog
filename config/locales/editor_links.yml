@@ -1,0 +1,36 @@
+en:
+  editor_links:
+    title: "Edit Link"
+    selection: "Selected content"
+    selection_notice: "Selected images or multiple paragraphs keep their content; only the link changes."
+    text: "Link text"
+    url: "URL"
+    insert: "Insert link"
+    update: "Update link"
+    remove: "Remove link"
+    cancel: "Cancel"
+    invalid: "Enter a valid web address, email link, or phone link."
+vi:
+  editor_links:
+    title: "Chỉnh sửa liên kết"
+    selection: "Nội dung đã chọn"
+    selection_notice: "Ảnh hoặc nhiều đoạn đã chọn giữ nguyên nội dung; chỉ liên kết thay đổi."
+    text: "Văn bản liên kết"
+    url: "Địa chỉ liên kết"
+    insert: "Chèn liên kết"
+    update: "Cập nhật liên kết"
+    remove: "Xóa liên kết"
+    cancel: "Hủy"
+    invalid: "Nhập địa chỉ web, liên kết email hoặc số điện thoại hợp lệ."
+ja:
+  editor_links:
+    title: "リンクを編集"
+    selection: "選択したコンテンツ"
+    selection_notice: "選択した画像や複数の段落はそのまま保持され、リンクのみ変更されます。"
+    text: "リンクのテキスト"
+    url: "URL"
+    insert: "リンクを挿入"
+    update: "リンクを更新"
+    remove: "リンクを削除"
+    cancel: "キャンセル"
+    invalid: "有効なウェブアドレス、メールリンク、または電話リンクを入力してください。"

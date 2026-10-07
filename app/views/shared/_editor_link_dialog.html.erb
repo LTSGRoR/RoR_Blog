@@ -1,0 +1,18 @@
+<dialog data-editor-link-target="dialog" data-action="cancel->editor-link#cancel keydown.enter->editor-link#save" class="editor-link-dialog" aria-labelledby="<%= dialog_id %>">
+  <h2 id="<%= dialog_id %>"><%= t("editor_links.title") %></h2>
+  <label>
+    <span><%= t("editor_links.text") %></span>
+    <input type="text" data-editor-link-target="text" autocomplete="off" aria-describedby="<%= dialog_id %>-selection">
+  </label>
+  <p id="<%= dialog_id %>-selection" data-editor-link-target="notice" class="editor-link-notice" hidden><%= t("editor_links.selection_notice") %></p>
+  <label>
+    <span><%= t("editor_links.url") %></span>
+    <input type="text" inputmode="url" data-editor-link-target="url" autocomplete="off" spellcheck="false" placeholder="https://example.com">
+  </label>
+  <p data-editor-link-target="error" class="editor-link-error" role="alert" hidden></p>
+  <div class="editor-link-actions">
+    <button type="button" data-editor-link-target="remove" data-action="editor-link#remove" class="editor-link-remove" hidden><%= t("editor_links.remove") %></button>
+    <button type="button" data-action="editor-link#close"><%= t("editor_links.cancel") %></button>
+    <button type="button" data-editor-link-target="save" data-action="editor-link#save" class="editor-link-save"><%= t("editor_links.insert") %></button>
+  </div>
+</dialog>

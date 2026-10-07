@@ -1,0 +1,11 @@
+<div data-image-size-target="controls" data-action="keydown.escape@window->image-size#cancelDrag" hidden class="image-resize-overlay">
+  <button type="button" data-image-size-target="handle"
+          data-action="pointerdown->image-size#startDrag pointermove->image-size#moveDrag pointerup->image-size#endDrag pointercancel->image-size#cancelDrag lostpointercapture->image-size#cancelDrag keydown->image-size#keyResize"
+          class="image-resize-handle"
+          aria-label="<%= t('editor_images.resize') %>"
+          title="<%= t('editor_images.drag_hint') %>">
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M4 12 12 4M8 12h4V8M4 8V4h4" />
+    </svg>
+  </button>
+</div>

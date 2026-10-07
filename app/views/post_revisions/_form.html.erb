@@ -94,8 +94,19 @@
         <%= @revision.body %>
       </div>
     <% else %>
-      <div class="mt-1 prose-trix">
-        <%= f.rich_text_area :body, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-h-[300px] border px-2" %>
+      <div class="mt-1 prose-trix" data-controller="image-size editor-link editor-alignment"
+         data-editor-alignment-left-value="<%= t('editor_alignment.left') %>"
+         data-editor-alignment-center-value="<%= t('editor_alignment.center') %>"
+         data-editor-alignment-right-value="<%= t('editor_alignment.right') %>"
+         data-editor-alignment-label-value="<%= t('editor_alignment.label') %>"
+         data-editor-link-insert-value="<%= t('editor_links.insert') %>"
+         data-editor-link-update-value="<%= t('editor_links.update') %>"
+         data-editor-link-invalid-value="<%= t('editor_links.invalid') %>"
+         data-editor-link-selection-value="<%= t('editor_links.selection') %>"
+         data-editor-link-label-value="<%= t('editor_links.title') %>">
+        <%= f.rich_text_area :body, data: { image_size_target: "editor", editor_link_target: "editor", editor_alignment_target: "editor", action: "click->image-size#select trix-selection-change->image-size#selectionChanged trix-change->image-size#refresh" }, class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-h-[300px] border px-2" %>
+        <%= render "shared/image_size_controls" %>
+        <%= render "shared/editor_link_dialog", dialog_id: "revision-link-dialog-title" %>
       </div>
     <% end %>
   </div>
