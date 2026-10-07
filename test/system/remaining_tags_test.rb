@@ -13,6 +13,7 @@ class RemainingTagsTest < ApplicationSystemTestCase
 
     [ blog_path(locale: :en), admin_posts_path(locale: :en) ].each do |path|
       visit path
+      featured_tag_class = path == blog_path(locale: :en) ? find_link("#alpha")[:class] : nil
       within '[data-controller="remaining-tags"]' do
         assert_no_link "#gamma"
         assert_no_link "#delta"
@@ -20,6 +21,13 @@ class RemainingTagsTest < ApplicationSystemTestCase
         assert_link "#gamma"
         assert_link "#delta"
         assert_no_button "+2"
+        if featured_tag_class
+          %w[gamma delta].each do |name|
+            tag = post.tags.find_by!(name: name)
+            assert_link "##{name}", href: blog_path(locale: :en, tag_id: tag.id)
+            assert_equal featured_tag_class, find_link("##{name}")[:class]
+          end
+        end
       end
     end
   end
