@@ -1,5 +1,7 @@
 class PostPolicy < ApplicationPolicy
   def show?
+    return true if user&.admin?
+    return false if record.user.banned?
     return true if record.published? && record.verified?
     return false unless user
     user.admin? || record.user == user
@@ -40,10 +42,10 @@ class PostPolicy < ApplicationPolicy
       if user&.admin?
         scope.all
       elsif user
-        scope.where(status: Post.statuses[:published], verified: true)
+        scope.publicly_visible
              .or(scope.where(user_id: user.id))
       else
-        scope.where(status: Post.statuses[:published], verified: true)
+        scope.publicly_visible
       end
     end
   end

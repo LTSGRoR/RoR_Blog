@@ -13,9 +13,14 @@ class Comment < ApplicationRecord
 
   scope :root, -> { where(parent_id: nil) }
 
+  def hidden_by_account_restriction?
+    user.banned? || user.suspended?
+  end
+
   validates :body, presence: true, length: { maximum: 5_000 }
   validate :parent_belongs_to_same_post, if: :parent_id?
   validate :within_max_reply_depth, if: :parent_id?
+  validate :parent_account_allows_replies, on: :create, if: :parent_id?
 
   def depth
     level = 0
@@ -31,6 +36,10 @@ class Comment < ApplicationRecord
   end
 
   private
+
+  def parent_account_allows_replies
+    errors.add(:base, I18n.t("comments.restricted_reply")) if parent&.hidden_by_account_restriction?
+  end
 
   def parent_belongs_to_same_post
     errors.add(:parent, "must belong to the same post") if parent && parent.post_id != post_id

@@ -457,7 +457,7 @@ vi:
       modal:
         title: "Tạm khóa tài khoản"
         ban_title: "Cấm tài khoản"
-        ban_message: "Hành động này sẽ chặn người dùng đăng nhập ngay lập tức cho đến khi được bỏ cấm."
+        ban_message: "Cấm tài khoản sẽ chặn đăng nhập và ẩn tất cả bài viết, bình luận. Bỏ cấm sẽ khôi phục nội dung theo trạng thái xuất bản hiện có."
         confirm_ban: "Xác nhận cấm"
         until: "Tạm khóa đến"
         cancel: "Hủy"

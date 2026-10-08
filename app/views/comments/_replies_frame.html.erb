@@ -1,6 +1,6 @@
 <% replies_page = local_assigns.fetch(:replies_page, 1) %>
 <% ordered_replies = comment.replies.order(created_at: :asc, id: :asc)
-     .includes(:post, :parent, :reactions, user: { avatar_attachment: :blob })
+     .includes(:post, :parent, reactions: :user, user: { avatar_attachment: :blob })
      .offset((replies_page - 1) * Comment::REPLY_PAGE_SIZE).limit(Comment::REPLY_PAGE_SIZE + 1).to_a %>
 <% has_more_replies = ordered_replies.size > Comment::REPLY_PAGE_SIZE %>
 <% ordered_replies = ordered_replies.first(Comment::REPLY_PAGE_SIZE) %>
