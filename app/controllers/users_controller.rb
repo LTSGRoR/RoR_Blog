@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   before_action :set_managed_user, only: [ :ban, :unban, :suspend, :unsuspend ]
 
   def show
-    verified_posts = @user.posts.published.where(verified: true)
+    verified_posts = @user.posts.publicly_visible
 
     @posts = verified_posts.includes(:rich_text_body).order(created_at: :desc).limit(3)
     # The "published" and "verified" stats have always rendered the same

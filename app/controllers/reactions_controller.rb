@@ -68,7 +68,8 @@ class ReactionsController < ApplicationController
   end
 
   def ensure_interactions_enabled!
-    return if reactable_post&.interactions_enabled?
+    hidden_comment = @reactable.is_a?(Comment) && @reactable.hidden_by_account_restriction?
+    return if reactable_post&.interactions_enabled? && !hidden_comment
 
     respond_to do |format|
       format.turbo_stream { head :forbidden }

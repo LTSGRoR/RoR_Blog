@@ -30,6 +30,9 @@ class Post < ApplicationRecord
 
   scope :verified, -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
+  scope :publicly_visible, -> {
+    published.verified.where(user_id: User.where(banned_at: nil).select(:id))
+  }
 
   def tag_ids=(value)
     mark_removed_tags_for_search_index(value)
@@ -108,7 +111,7 @@ class Post < ApplicationRecord
   end
 
   def interactions_enabled?
-    published? && verified?
+    published? && verified? && !user.banned?
   end
 
   def editable_by?(user)

@@ -50,6 +50,7 @@
         </button>
       </div>
 
+      <p class="mb-4 text-sm text-slate-600"><%= t("users.admin.modal.suspend_message") %></p>
       <%= form_with url: "#", method: :post, html: { data: { suspend_form_target: "suspendForm" }, class: "space-y-4" } do |form| %>
         <%= hidden_field_tag :suspend_time_zone, nil, data: { suspend_form_target: "suspendTimeZone" } %>
         <div class="mt-2 text-xs text-slate-500">

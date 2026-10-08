@@ -1,0 +1,24 @@
+en:
+  users:
+    admin:
+      modal:
+        suspend_message: "Suspension blocks sign-in and hides comments until it ends. Existing posts remain visible."
+  comments:
+    account_hidden: "This comment is hidden because the account is restricted."
+    restricted_reply: "Replies are disabled for this hidden comment."
+vi:
+  users:
+    admin:
+      modal:
+        suspend_message: "Đình chỉ sẽ chặn đăng nhập và ẩn bình luận cho đến khi kết thúc. Bài viết hiện có vẫn hiển thị."
+  comments:
+    account_hidden: "Bình luận này bị ẩn vì tài khoản đang bị hạn chế."
+    restricted_reply: "Không thể trả lời bình luận đang bị ẩn này."
+ja:
+  users:
+    admin:
+      modal:
+        suspend_message: "停止中はサインインができなくなり、コメントが非表示になります。既存の投稿は引き続き表示されます。"
+  comments:
+    account_hidden: "アカウントが制限されているため、このコメントは非表示です。"
+    restricted_reply: "この非表示のコメントには返信できません。"

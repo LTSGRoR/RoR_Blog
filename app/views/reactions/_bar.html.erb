@@ -15,12 +15,17 @@
   <%# When the caller eager-loaded reactions (comment trees, post show) we can
       aggregate in memory instead of issuing a GROUP BY per reactable. %>
   <% reactions_loaded = reactable.association(:reactions).loaded? %>
+  <% visible_reactions = if reactions_loaded
+       reactable.reactions.reject(&:hidden_by_account_restriction?)
+     else
+       reactable.reactions.publicly_visible
+     end %>
   <% grouped_counts = if reactions_loaded
-       reactable.reactions.each_with_object(Hash.new(0)) do |reaction, memo|
+       visible_reactions.each_with_object(Hash.new(0)) do |reaction, memo|
          memo[reaction.emoji_type.to_s] += 1
        end
      else
-       reactable.reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
+       visible_reactions.group(:emoji_type).count.each_with_object(Hash.new(0)) do |(emoji_type, count), memo|
          normalized_key = if emoji_type.is_a?(String) && Reaction.emoji_types.key?(emoji_type)
            emoji_type
          else
@@ -37,9 +42,9 @@
   <% viewer_reaction = if viewer_id.blank?
        nil
      elsif reactions_loaded
-       reactable.reactions.find { |reaction| reaction.user_id == viewer_id }
+       visible_reactions.find { |reaction| reaction.user_id == viewer_id }
      else
-       reactable.reactions.find_by(user_id: viewer_id)
+       visible_reactions.find_by(user_id: viewer_id)
      end %>
   <% viewer_reaction_key = viewer_reaction&.emoji_type&.to_s %>
   <% primary_key = viewer_reaction_key || "thumbs_up" %>

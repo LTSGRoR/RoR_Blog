@@ -62,7 +62,7 @@ class ChatHistory < ApplicationRecord
 
   def self.suggestion_map(histories)
     ids = histories.flat_map { |history| history.suggested_post_ids.first(3) }.uniq
-    Post.where(id: ids, status: Post.statuses[:published], verified: true)
+    Post.publicly_visible.where(id: ids)
         .includes(:user, :tags, :rich_text_body, thumbnail_attachment: :blob).index_by(&:id)
   end
 
@@ -70,7 +70,7 @@ class ChatHistory < ApplicationRecord
     ids = suggested_post_ids.first(limit)
     return [] if ids.empty?
 
-    posts_by_id = Post.where(id: ids, status: Post.statuses[:published], verified: true)
+    posts_by_id = Post.publicly_visible.where(id: ids)
                       .includes(:user, :tags, :rich_text_body, thumbnail_attachment: :blob)
                       .index_by(&:id)
 

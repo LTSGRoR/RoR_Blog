@@ -10,6 +10,9 @@ class PublicPostSearch
 
   def results
     filters = { status: "published", verified: true }
+    # Enforce account visibility immediately, even before async index updates.
+    banned_ids = User.where.not(banned_at: nil).pluck(:id)
+    filters[:user_id] = { not: banned_ids } if banned_ids.any?
     filters[:tags] = @tag.name if @tag
     hits = Post.search(
       @query,
@@ -21,6 +24,6 @@ class PublicPostSearch
     )
     @limited = hits.total_count > RESULT_LIMIT
     ids = hits.map { |hit| hit.id.to_i }
-    @scope.in_order_of(:id, ids.uniq)
+    @scope.publicly_visible.in_order_of(:id, ids.uniq)
   end
 end

@@ -40,7 +40,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     candidate_chat_history_ids = []
     begin
       # Always anchor on the current post first when available.
-      if chat.post.present? && !small_talk
+      if chat.post.present? && !chat.post.user.banned? && !small_talk
         anchor_body = extract_post_body_text(chat.post)
         candidate_post_ids << chat.post.id
         prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
@@ -52,8 +52,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
       if query_embedding.present?
         vector_literal = vector_literal_for(query_embedding)
-        hits = Post.where.not(embedding: nil)
-                   .where(status: Post.statuses[:published], verified: true)
+        hits = Post.publicly_visible.where.not(embedding: nil)
                    .order(Arel.sql("embedding <-> '#{vector_literal}'::vector"))
                    .limit(MAX_RAG_HITS)
         hits.each do |p|
@@ -289,7 +288,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     ids = ids.uniq & candidate_ids
     return [] if ids.empty?
 
-    visible_posts_by_id = Post.where(id: ids.uniq, status: Post.statuses[:published], verified: true).index_by(&:id)
+    visible_posts_by_id = Post.publicly_visible.where(id: ids.uniq).index_by(&:id)
     ids.uniq.filter_map { |id| visible_posts_by_id[id]&.id }
   end
 

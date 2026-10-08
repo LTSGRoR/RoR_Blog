@@ -1,8 +1,10 @@
 <%# locals: (post:, parent_comment:, comment:, open: false) %>
 <%= turbo_frame_tag dom_id(parent_comment, :reply_form) do %>
-  <% can_reply = parent_comment.depth < Comment::MAX_REPLY_DEPTH %>
+  <% can_reply = !parent_comment.hidden_by_account_restriction? && parent_comment.depth < Comment::MAX_REPLY_DEPTH %>
 
-  <% if open && can_reply %>
+  <% if parent_comment.hidden_by_account_restriction? %>
+    <p role="status" class="mt-2 text-sm text-slate-500"><%= t("comments.restricted_reply") %></p>
+  <% elsif open && can_reply %>
     <%= form_with model: [post, comment], class: "mt-2 space-y-2", data: { controller: "submit-guard" } do |f| %>
       <%= f.hidden_field :parent_id, value: parent_comment.id %>
 

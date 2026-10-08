@@ -11,6 +11,12 @@ class Reaction < ApplicationRecord
   belongs_to :user
   belongs_to :reactable, polymorphic: true
 
+  scope :publicly_visible, -> { where(user_id: User.by_status("active").select(:id)) }
+
+  def hidden_by_account_restriction?
+    user.banned? || user.suspended?
+  end
+
   enum :emoji_type, { thumbs_up: 0, heart: 1, laugh: 2, wow: 3, sad: 4, angry: 5 }
 
   validates :emoji_type, presence: true

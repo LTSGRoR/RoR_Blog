@@ -486,7 +486,7 @@ en:
       modal:
         title: "Suspend account"
         ban_title: "Ban account"
-        ban_message: "This will immediately block this user from signing in until you unban them."
+        ban_message: "Banning blocks sign-in and hides all posts and comments. Unbanning restores content according to its existing publication status."
         confirm_ban: "Confirm ban"
         until: "Suspend until"
         cancel: "Cancel"

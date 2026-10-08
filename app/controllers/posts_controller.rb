@@ -55,7 +55,7 @@ class PostsController < ApplicationController
       user: { avatar_attachment: :blob },
       post: [],
       parent: [],
-      reactions: []
+      reactions: :user
     }
     root_comments_scope = @post.comments.root
                                 .includes(comment_includes)
@@ -65,7 +65,7 @@ class PostsController < ApplicationController
     @comments = root_comments_scope.offset(comments_offset).limit(@comments_visible)
 
     @comment = Comment.new
-    @related_posts = Post.where(status: Post.statuses[:published], verified: true)
+    @related_posts = Post.publicly_visible
                          .where.not(id: @post.id)
                          .includes(:tags, :rich_text_body, :thumbnail_attachment)
                          .order(created_at: :desc)
@@ -177,7 +177,7 @@ class PostsController < ApplicationController
     @per_page = 4
     @search_path = posts_path
     @selected_tag = Tag.find_by(id: params[:tag_id]) if params[:tag_id].present?
-    public_scope = Post.where(status: Post.statuses[:published], verified: true)
+    public_scope = Post.publicly_visible
 
     public_scope = public_scope.where(id: Tagging.where(tag_id: params[:tag_id]).select(:post_id)) if params[:tag_id].present?
     query = params[:q].to_s.strip
@@ -203,7 +203,7 @@ class PostsController < ApplicationController
   end
 
   def load_blog_feed_panels
-    published_verified_scope = Post.where(status: Post.statuses[:published], verified: true)
+    published_verified_scope = Post.publicly_visible
 
     # Counting with two LEFT JOINs (comments x reactions) multiplies the rows
     # and forces COUNT(DISTINCT ...) over that cartesian product. Correlated
@@ -215,7 +215,8 @@ class PostsController < ApplicationController
                            "posts.*",
                            "(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comments_count_metric",
                            "(SELECT COUNT(*) FROM reactions WHERE reactions.reactable_type = 'Post' " \
-                           "AND reactions.reactable_id = posts.id) AS reactions_count_metric"
+                           "AND reactions.reactable_id = posts.id " \
+                           "AND reactions.user_id IN (#{User.by_status('active').select(:id).to_sql})) AS reactions_count_metric"
                          )
                          .order(Arel.sql("comments_count_metric DESC, reactions_count_metric DESC, posts.created_at DESC"))
                          .limit(3)
@@ -238,7 +239,7 @@ class PostsController < ApplicationController
     # Recheck visibility even while ranking IDs are cached.
     @most_read_posts = published_verified_scope.in_order_of(:id, panel_ids[:posts])
     @trending_tags = Tag.where(id: panel_ids[:tags]).in_order_of(:id, panel_ids[:tags])
-    @top_authors = User.includes(avatar_attachment: :blob).in_order_of(:id, panel_ids[:authors])
+    @top_authors = User.where(banned_at: nil).includes(avatar_attachment: :blob).in_order_of(:id, panel_ids[:authors])
   end
 
   def respond_with_posts
