@@ -116,7 +116,7 @@ services:
 
   indexing:
     <<: *production_worker
-    command: bundle exec sidekiq -c 2 -q embeddings -q searchkick
+    command: bundle exec sidekiq -c 2 -q searchkick,2 -q embeddings,1
 
   redis:
     ports: !reset []

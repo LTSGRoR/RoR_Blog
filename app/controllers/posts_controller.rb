@@ -18,7 +18,7 @@ class PostsController < ApplicationController
   def mine
     @query = params[:q].to_s.strip
     @filter = params[:filter].presence_in(%w[all draft awaiting published]) || "all"
-    base_posts = current_user.posts.includes(:tags, :post_revisions).order(updated_at: :desc)
+    base_posts = current_user.posts.includes(:tags).order(updated_at: :desc)
 
     if @query.present?
       lowered_query = "%#{ActiveRecord::Base.sanitize_sql_like(@query.downcase)}%"
@@ -42,6 +42,11 @@ class PostsController < ApplicationController
     end
 
     @posts = @posts.page(params[:page]).per(10)
+    # Fetch only the latest active revision for each post on this page.
+    @active_revisions_by_post_id = PostRevision.current_state
+      .where(post_id: @posts.map(&:id))
+      .select("DISTINCT ON (post_id) post_revisions.*")
+      .order(:post_id, updated_at: :desc, id: :desc).index_by(&:post_id)
   end
 
   def show

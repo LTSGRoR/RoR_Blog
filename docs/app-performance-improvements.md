@@ -1,0 +1,9 @@
+# App performance improvements — 2026-10-08
+
+- The author dashboard now loads only the latest draft/pending revision per post on its ten-post page. PostgreSQL `DISTINCT ON` selects one row per post, with ID as a deterministic timestamp tie-breaker. Historical revision collections are no longer preloaded into dashboard memory. Other callers of `Post#active_revision` retain their existing behavior.
+- Embedding bootstrap reads IDs in batches of 500 rather than collecting every missing ID in memory. This bounds each batch but still enqueues all missing work during startup; total startup time remains proportional to backlog.
+- Embedding generation uses a PostgreSQL session advisory lock with guaranteed release instead of a transaction advisory lock spanning the provider request. Per-post serialization and digest checks before writing preserve protection against duplicate calls and stale embeddings. The checked-out connection remains reserved during generation. Session advisory locks require a session-preserving database connection; a transaction-pooling proxy requires another locking design.
+
+No concurrency, memory limits, cable polling, or host capacity were guessed. Measure Rails RSS, request p95 latency, database transaction age, queue latency, and boot duration before further tuning.
+
+Validation: three no-database regression tests (five assertions) passed for bounded bootstrap batches and lock release on early return/provider failure. Rails eager loading and whitespace checks passed. Database tests were added for bounded dashboard revision instantiation and concurrent-edit rejection without an added provider transaction; these could not run because the local Docker daemon is unavailable. Production was not changed and no benchmark improvement is claimed without live measurements.

@@ -20,7 +20,8 @@ class PublicPostSearch
       where: filters,
       operator: @query.include?(" ") ? "and" : "or",
       misspellings: { below: 5 },
-      load: false, limit: RESULT_LIMIT
+      # The database supplies the cards; avoid transferring indexed bodies.
+      select: [], load: false, limit: RESULT_LIMIT
     )
     @limited = hits.total_count > RESULT_LIMIT
     ids = hits.map { |hit| hit.id.to_i }
