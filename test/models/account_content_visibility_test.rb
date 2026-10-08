@@ -16,7 +16,7 @@ class AccountContentVisibilityTest < ActiveSupport::TestCase
     assert comment.reload.hidden_by_account_restriction?
 
     owner.update!(banned_at: nil)
-    assert_equal [post.id], Post.publicly_visible.where(id: post.id).pluck(:id)
+    assert_equal [ post.id ], Post.publicly_visible.where(id: post.id).pluck(:id)
     assert PostPolicy.new(nil, post.reload).show?
     assert post.verified?
     assert_empty Post.publicly_visible.where(id: unverified_post.id)
@@ -29,7 +29,7 @@ class AccountContentVisibilityTest < ActiveSupport::TestCase
     comment = post.comments.create!(user: owner, body: "Existing comment")
     owner.update!(suspended_until: 1.day.from_now)
 
-    assert_equal [post.id], Post.publicly_visible.where(id: post.id).pluck(:id)
+    assert_equal [ post.id ], Post.publicly_visible.where(id: post.id).pluck(:id)
     assert PostPolicy.new(nil, post.reload).show?
     assert post.interactions_enabled?
     assert comment.reload.hidden_by_account_restriction?
@@ -46,7 +46,7 @@ class AccountContentVisibilityTest < ActiveSupport::TestCase
     reply = post.comments.create!(user: other, parent: parent, body: "Legitimate reply")
     owner.update!(banned_at: Time.current)
 
-    assert_equal [reply.id], parent.replies.pluck(:id)
+    assert_equal [ reply.id ], parent.replies.pluck(:id)
     assert_not reply.reload.hidden_by_account_restriction?
     assert_not post.comments.build(user: other, parent: parent.reload, body: "New reply").valid?
   end
@@ -54,7 +54,7 @@ class AccountContentVisibilityTest < ActiveSupport::TestCase
   test "search excludes banned owners even when Elasticsearch returns stale hits" do
     owner = create_user
     post = create_post(user: owner, verified: true)
-    hits = [post]
+    hits = [ post ]
     hits.define_singleton_method(:total_count) { 1 }
     owner.update!(banned_at: Time.current)
 
@@ -69,12 +69,12 @@ class AccountContentVisibilityTest < ActiveSupport::TestCase
   test "previously saved recommendations hide banned posts and restore them after unban" do
     owner = create_user
     post = create_post(user: owner, verified: true)
-    chat = ChatHistory.create!(user: create_user, user_message: "Recommendations", provider_meta: { suggested_post_ids: [post.id] })
-    assert_equal [post.id], chat.suggested_posts.map(&:id)
+    chat = ChatHistory.create!(user: create_user, user_message: "Recommendations", provider_meta: { suggested_post_ids: [ post.id ] })
+    assert_equal [ post.id ], chat.suggested_posts.map(&:id)
     owner.update!(banned_at: Time.current)
     assert_empty chat.suggested_posts
-    assert_empty ChatHistory.suggestion_map([chat])
+    assert_empty ChatHistory.suggestion_map([ chat ])
     owner.update!(banned_at: nil)
-    assert_equal [post.id], chat.suggested_posts.map(&:id)
+    assert_equal [ post.id ], chat.suggested_posts.map(&:id)
   end
 end

@@ -28,7 +28,9 @@
       </div>
     <% end %>
   <% else %>
-    <% if user_signed_in? && can_reply %>
+    <%# Shared broadcasts have no viewer session. Render a generic reply link;
+        the reply endpoint authenticates whoever clicks it. %>
+    <% if can_reply && (!request&.env&.key?("warden") || user_signed_in?) %>
       <%= link_to "Reply",
             reply_post_comment_path(post, parent_comment),
             data: { turbo_frame: dom_id(parent_comment, :reply_form) },

@@ -31,7 +31,7 @@ class AccountRestrictionsTest < ActionDispatch::IntegrationTest
     assert_not JSON.parse(response.body).fetch("posts").any? { |item| item["id"] == @owned_post.id }
     get post_path(@owned_post, locale: :en), as: :json
     assert_response :forbidden
-    [root_path(locale: :en), team_path(locale: :en), blog_path(locale: :en)].each do |path|
+    [ root_path(locale: :en), team_path(locale: :en), blog_path(locale: :en) ].each do |path|
       get path
       assert_response :success
       assert_select "a[href=?]", post_path(@owned_post, locale: :en), count: 0
@@ -143,7 +143,7 @@ class AccountRestrictionsTest < ActionDispatch::IntegrationTest
     assert_counts = lambda do |visible|
       get post_path(@host_post, locale: :en)
       assert_response :success
-      ["post_#{@host_post.id}", "comment_#{@reply.id}"].each do |id|
+      [ "post_#{@host_post.id}", "comment_#{@reply.id}" ].each do |id|
         if visible
           assert_select "#reactions_#{id} span.min-w-8", text: "1", count: 1
         else

@@ -1,6 +1,7 @@
 class Post < ApplicationRecord
   include ImageUploadValidation
   searchkick word_middle: [ :title, :tags ], callbacks: false
+  scope :search_import, -> { includes(:tags, :rich_text_body) }
   after_commit :enqueue_search_index, on: [ :create, :update, :destroy ], if: :search_index_sync_needed?
   after_update_commit :broadcast_ai_review_updates, if: :ai_review_realtime_update?
   # Enqueue embedding indexing when posts are created or updated (only for published posts)

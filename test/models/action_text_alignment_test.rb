@@ -10,7 +10,7 @@ class ActionTextAlignmentTest < ActiveSupport::TestCase
       klass = "rt-align-#{direction}"
       html = %(<div class="#{klass}"><strong>Paragraph</strong></div><h1 class="#{klass}">Heading</h1><pre class="#{klass}">puts 'hello'</pre>)
       stored = ActionText::Content.new(html)
-      [stored.to_html, stored.to_trix_html, stored.to_rendered_html_with_layout].each do |serialized|
+      [ stored.to_html, stored.to_trix_html, stored.to_rendered_html_with_layout ].each do |serialized|
         doc = Nokogiri::HTML.fragment(serialized)
         assert_equal 3, doc.css(".#{klass}").size
         assert_equal "Paragraph", doc.at_css("strong").text

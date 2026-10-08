@@ -67,7 +67,7 @@
         </thead>
         <tbody class="divide-y divide-slate-100 bg-white">
           <% @posts.each_with_index do |post, i| %>
-            <% revision = post.active_revision %>
+            <% revision = @active_revisions_by_post_id[post.id] %>
             <% has_feedback_modal = post.unverify_reason.present? || post.author_feedback_reply.present? %>
             <% can_delete_post = policy(post).destroy? %>
             <% action_layout = "grid grid-cols-2 gap-2" %>

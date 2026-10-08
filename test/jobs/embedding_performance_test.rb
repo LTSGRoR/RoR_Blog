@@ -1,6 +1,21 @@
 require "test_helper"
 
 class EmbeddingPerformanceTest < ActiveSupport::TestCase
+  test "provider calls avoid added transactions and concurrent edits reject stale vectors" do
+    post = create_post(user: create_user, verified: true)
+    baseline_transactions = Post.connection.open_transactions
+    test_case = self
+    service = Object.new
+    service.define_singleton_method(:embed) do |**|
+      test_case.assert_equal baseline_transactions, Post.connection.open_transactions
+      post.update!(title: "Changed during embedding generation")
+      Array.new(1536, 0.1)
+    end
+    AiGeneration::Service.stub(:new, service) { IndexPostEmbeddingsJob.perform_now(post.id) }
+    assert_nil post.reload.embedding
+    assert_nil post.embedding_source_digest
+  end
+
   test "embedding writes do not schedule followups and unchanged jobs do not call the provider" do
     post = create_post(user: create_user, verified: true)
     calls = 0

@@ -24,9 +24,14 @@ class GeneratePostSuggestionJob < ApplicationJob
   def generate_response(chat_history_id)
     chat = ChatHistory.find_by(id: chat_history_id)
     return unless chat
-    return if chat.bot_response.present?
+    return if chat.bot_response.present? || chat.cleared_at.present?
     if chat.created_at < ChatHistory::REQUEST_TTL.ago
       mark_chat_failed(chat, reason: "Request expired before processing")
+      return
+    end
+
+    unless chat_request_authorized?(chat)
+      persist_policy_response(chat, reason: "access_revoked")
       return
     end
 
@@ -139,6 +144,11 @@ class GeneratePostSuggestionJob < ApplicationJob
     provider_meta = result[:meta].is_a?(Hash) ? result[:meta].except(:suggested_post_ids, "suggested_post_ids") : {}
     provider_meta[:suggested_post_ids] = suggested_post_ids if suggested_post_ids.any?
 
+    unless chat_request_authorized?(chat) && candidate_post_ids.all? { |id| post_accessible_to?(chat.user, id) }
+      persist_policy_response(chat, reason: "access_revoked")
+      return
+    end
+
     chat.with_lock do
       return if chat.cleared_at.present? || chat.bot_response.present?
       chat.update!(
@@ -165,6 +175,18 @@ class GeneratePostSuggestionJob < ApplicationJob
     broadcast_chat_update(chat)
   end
 
+  def chat_request_authorized?(chat)
+    user = chat.user.reload
+    return false if user.banned? || user.suspended?
+    return false if chat.chat_session.reload.deleted_at.present?
+    chat.post_id.nil? || post_accessible_to?(user, chat.post_id)
+  end
+
+  def post_accessible_to?(user, post_id)
+    post = Post.find_by(id: post_id)
+    post.present? && PostPolicy.new(user, post).show?
+  end
+
   def policy_rejected_history?(history)
     history.provider_meta.is_a?(Hash) && history.provider_meta["assistant_guard"].present?
   end
@@ -180,6 +202,7 @@ class GeneratePostSuggestionJob < ApplicationJob
       locals: { chat_history: chat }
     )
   rescue StandardError => e
+    Rails.error.report(e, severity: :error, context: { job: self.class.name, chat_history_id: chat.id }, source: "broadcast")
     Rails.logger.warn("GeneratePostSuggestionJob: broadcast failed for chat_history_id=#{chat.id}: #{e.class} - #{e.message}")
   end
 
@@ -190,10 +213,10 @@ class GeneratePostSuggestionJob < ApplicationJob
   def mark_chat_failed(chat, reason:)
     return unless chat
 
-    chat.reload
-    return if chat.bot_response.present?
-
-    updated = chat.update(bot_response: I18n.t("shared.ai_chat.generation_failed"), provider_meta: { error: reason })
+    updated = chat.with_lock do
+      return if chat.bot_response.present? || chat.cleared_at.present?
+      chat.update(bot_response: I18n.t("shared.ai_chat.generation_failed"), provider_meta: { error: reason })
+    end
     unless updated
       Rails.logger.error(
         "GeneratePostSuggestionJob: could not persist failure for chat_history_id=#{chat.id}: #{chat.errors.full_messages.to_sentence}"

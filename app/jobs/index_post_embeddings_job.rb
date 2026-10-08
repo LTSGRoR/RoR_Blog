@@ -5,29 +5,33 @@ class IndexPostEmbeddingsJob < ApplicationJob
     post = Post.find_by(id: post_id)
     return unless post
 
-    # Serialize generation per post without holding a row lock during the
-    # provider request. Post edits remain available while generation runs.
-    Post.transaction do
-      acquired = Post.connection.select_value("SELECT pg_try_advisory_xact_lock(741902003, #{Integer(post.id)})")
+    # Session locks serialize generation without a long-running transaction.
+    # Keep the connection checked out so acquisition/release use the same session.
+    Post.connection_pool.with_connection do |connection|
+      acquired = connection.select_value("SELECT pg_try_advisory_lock(741902003, #{Integer(post.id)})")
       unless acquired
         retry_job(wait: 2.seconds)
         return
       end
-      post.reload
-      service = AiGeneration::Service.new
-      text = embedding_source_text(post)
-      source_digest = embedding_source_digest(text)
-      return if post.embedding.present? && post.embedding_source_digest == source_digest
+      begin
+        post.reload
+        service = AiGeneration::Service.new
+        text = embedding_source_text(post)
+        source_digest = embedding_source_digest(text)
+        return if post.embedding.present? && post.embedding_source_digest == source_digest
 
-      embedding = service.embed(text: text)
-      if embedding.present?
-        post.with_lock do
-          # An edit during generation has its own queued job. Never persist
-          # the old source's vector over newer content.
-          if embedding_source_digest(embedding_source_text(post)) == source_digest
-            post.update_columns(embedding: embedding, embedding_source_digest: source_digest)
+        embedding = service.embed(text: text)
+        if embedding.present?
+          post.with_lock do
+            # An edit during generation has its own queued job. Never persist
+            # the old source's vector over newer content.
+            if embedding_source_digest(embedding_source_text(post)) == source_digest
+              post.update_columns(embedding: embedding, embedding_source_digest: source_digest)
+            end
           end
         end
+      ensure
+        connection.select_value("SELECT pg_advisory_unlock(741902003, #{Integer(post.id)})")
       end
     end
   rescue StandardError => e

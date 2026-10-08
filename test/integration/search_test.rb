@@ -33,13 +33,13 @@ class SearchTest < ActionDispatch::IntegrationTest
 
   test "ban hides indexed posts immediately and unban restores them without reindexing" do
     record = indexed_post(title: "Restrictionsearchneedle")
-    assert_equal [record.id], results("Restrictionsearchneedle").map { |item| item["id"] }
+    assert_equal [ record.id ], results("Restrictionsearchneedle").map { |item| item["id"] }
     @user.update!(banned_at: Time.current)
     assert_empty results("Restrictionsearchneedle")
     @user.update!(banned_at: nil)
-    assert_equal [record.id], results("Restrictionsearchneedle").map { |item| item["id"] }
+    assert_equal [ record.id ], results("Restrictionsearchneedle").map { |item| item["id"] }
     @user.update!(suspended_until: 1.day.from_now)
-    assert_equal [record.id], results("Restrictionsearchneedle").map { |item| item["id"] }
+    assert_equal [ record.id ], results("Restrictionsearchneedle").map { |item| item["id"] }
   end
 
   test "tag filters exclude untagged title matches" do

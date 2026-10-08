@@ -68,7 +68,7 @@ module AiGeneration
       decision = @service.policy_decision(
         instructions: REQUEST_INSTRUCTIONS,
         payload: { request: message, post_id: post_id, conversation: conversation },
-        schema: { type: "object", properties: { category: { type: "string", enum: %w[blog_content small_talk injection out_of_scope] } }, required: ["category"], additionalProperties: false }
+        schema: { type: "object", properties: { category: { type: "string", enum: %w[blog_content small_talk injection out_of_scope] } }, required: [ "category" ], additionalProperties: false }
       )
       category = decision.is_a?(Hash) ? decision["category"] : nil
       %w[blog_content small_talk injection out_of_scope].include?(category) ? category : "out_of_scope"
@@ -78,7 +78,7 @@ module AiGeneration
       decision = @service.policy_decision(
         instructions: RESPONSE_INSTRUCTIONS,
         payload: { request: message, answer: answer, posts: posts },
-        schema: { type: "object", properties: { allowed: { type: "boolean" } }, required: ["allowed"], additionalProperties: false }
+        schema: { type: "object", properties: { allowed: { type: "boolean" } }, required: [ "allowed" ], additionalProperties: false }
       )
       decision.is_a?(Hash) && decision["allowed"] == true
     end
