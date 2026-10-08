@@ -528,7 +528,7 @@ vi:
         title: "Cài đặt kiểm duyệt AI"
         subtitle: "Cấu hình RubyLLM, prompt kiểm duyệt và ngưỡng an toàn."
         provider_runtime: "Nhà cung cấp & thời gian chạy"
-        assistant_prompt_help: "Prompt này được dùng làm system prompt cho trợ lý AI khi tạo gợi ý."
+        assistant_prompt_help: "System prompt này điều chỉnh giọng văn và hướng dẫn theo nội dung blog cho yêu cầu mới. Phạm vi đọc và bảo vệ chống prompt injection luôn có hiệu lực: giải thích, tóm tắt và gợi ý bài viết; chỉ giải thích mã có sẵn trong bài."
         automation: "Tự động hóa"
         apply_changes: "Áp dụng thay đổi"
         apply_changes_help: "Lưu thay đổi sẽ cập nhật ngay hành vi kiểm duyệt cho các bài gửi mới và các lần duyệt."

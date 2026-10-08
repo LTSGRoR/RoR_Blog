@@ -33,9 +33,22 @@ class GeneratePostSuggestionJob < ApplicationJob
     service = AiGeneration::Service.new
 
     # Retrieval-Augmented Generation using pgvector embeddings (if available)
-    prompt_context = chat.chat_session.chat_histories.visible.where("id < ?", chat.id)
-                         .where.not(bot_response: nil).order(id: :desc).limit(6).to_a.reverse.map { |history| build_history_context(history) }
+    recent_history = chat.chat_session.chat_histories.visible.where("id < ?", chat.id)
+                         .where.not(bot_response: nil).order(id: :desc).limit(6).to_a.reverse
+    recent_history.reject! { |history| policy_rejected_history?(history) }
+    prompt_context = recent_history.map { |history| build_history_context(history) }
     small_talk = small_talk?(chat.user_message)
+    policy = AiGeneration::AssistantPolicy.new(service)
+    category = small_talk ? "small_talk" : policy.request_category(
+      message: chat.user_message, post_id: chat.post_id,
+      conversation: recent_history.map { |history| history.user_message.to_s.truncate(HISTORY_CONTEXT_TRUNCATE_CHARS) }
+    )
+    unless %w[blog_content small_talk].include?(category)
+      persist_policy_response(chat, reason: category)
+      return
+    end
+    small_talk ||= category == "small_talk"
+    post_context = []
     candidate_post_ids = []
     candidate_chat_history_ids = []
     begin
@@ -43,7 +56,7 @@ class GeneratePostSuggestionJob < ApplicationJob
       if chat.post.present? && !chat.post.user.banned? && !small_talk
         anchor_body = extract_post_body_text(chat.post)
         candidate_post_ids << chat.post.id
-        prompt_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
+        post_context << "POST id=#{chat.post.id} title=#{chat.post.title}\n#{anchor_body.to_s.squish.truncate(ANCHOR_CONTEXT_TRUNCATE_CHARS)}"
       end
 
       # Embed the user message once and reuse the vector for both the post and
@@ -61,7 +74,7 @@ class GeneratePostSuggestionJob < ApplicationJob
 
           candidate_post_ids << p.id
           body_text = extract_post_body_text(p)
-          prompt_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
+          post_context << "POST id=#{p.id} title=#{p.title}\n#{body_text.to_s.squish.truncate(RELATED_CONTEXT_TRUNCATE_CHARS)}"
         end
       end
 
@@ -87,6 +100,7 @@ class GeneratePostSuggestionJob < ApplicationJob
         end
 
         history_hits.each do |history|
+          next if policy_rejected_history?(history)
           next if candidate_chat_history_ids.include?(history.id)
 
           candidate_chat_history_ids << history.id
@@ -99,32 +113,24 @@ class GeneratePostSuggestionJob < ApplicationJob
 
     setting = ModerationSetting.current
     system_prompt = setting.assistant_prompt.to_s.presence || ModerationSetting::DEFAULT_ASSISTANT_PROMPT
-    grounding_rules = <<~RULES
-      Grounding Rules:
-      - For greetings, thanks, and small talk, respond naturally without suggesting blog posts.
-      - For factual questions about posts, use ONLY facts present in Context.
-      - If Context does not contain enough information, say so explicitly.
-      - Do not invent post titles, IDs, metrics, or claims.
-      - Keep the response concise, helpful, and user-friendly.
-      - Start with a direct answer sentence, then short bullets only if needed.
-      - Return plain text (markdown allowed), not JSON.
-      - Cite a Context post inline like "Based on post #22" only when you actually use it in your answer.
-      - Never add unrelated blog recommendations.
-    RULES
-
-    assembled_prompt = [
-      system_prompt,
-      grounding_rules,
-      "Context:\n#{prompt_context.join("\n\n")}",
-      "User:\n#{chat.user_message}"
-    ].join("\n\n")
+    assembled_prompt = JSON.generate(
+      request: chat.user_message,
+      locale: I18n.locale,
+      posts: post_context,
+      conversation: prompt_context
+    )
 
     result = service.generate(
       prompt: assembled_prompt,
-      user: chat.user
+      user: chat.user,
+      context: { instructions: system_prompt }
     )
 
     bot_text = ensure_user_friendly_response(normalize_bot_response(result[:result]))
+    unless policy.response_allowed?(message: chat.user_message, answer: bot_text, posts: post_context)
+      persist_policy_response(chat, reason: "response_rejected")
+      return
+    end
     suggested_post_ids = extract_suggested_post_ids(
       raw_text: result[:result],
       normalized_text: bot_text,
@@ -134,7 +140,7 @@ class GeneratePostSuggestionJob < ApplicationJob
     provider_meta[:suggested_post_ids] = suggested_post_ids if suggested_post_ids.any?
 
     chat.with_lock do
-      return if chat.cleared_at.present?
+      return if chat.cleared_at.present? || chat.bot_response.present?
       chat.update!(
       bot_response: bot_text,
       provider: result[:provider],
@@ -150,6 +156,18 @@ class GeneratePostSuggestionJob < ApplicationJob
   end
 
   private
+
+  def persist_policy_response(chat, reason:)
+    chat.with_lock do
+      return if chat.cleared_at.present? || chat.bot_response.present?
+      chat.update!(bot_response: I18n.t("shared.ai_chat.scope_refusal"), provider_meta: { assistant_guard: reason })
+    end
+    broadcast_chat_update(chat)
+  end
+
+  def policy_rejected_history?(history)
+    history.provider_meta.is_a?(Hash) && history.provider_meta["assistant_guard"].present?
+  end
 
   # `dom_id` helper isn't available in jobs — build the target id explicitly.
   def broadcast_chat_update(chat)

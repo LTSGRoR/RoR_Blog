@@ -554,7 +554,7 @@ en:
         title: "AI Moderation Settings"
         subtitle: "Configure RubyLLM moderation defaults, prompts, and safety thresholds."
         provider_runtime: "Provider & Runtime"
-        assistant_prompt_help: "This prompt is used as the system prompt for the AI assistant when generating suggestions."
+        assistant_prompt_help: "This system prompt controls tone and blog-specific guidance for new assistant requests. The fixed reading scope and prompt-injection protections remain active: explain, summarize, and recommend blog posts; explain existing post code only."
         automation: "Automation"
         apply_changes: "Apply Changes"
         apply_changes_help: "Saving updates modifies moderation behavior for new submissions and reviews immediately."
