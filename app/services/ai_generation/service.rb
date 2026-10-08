@@ -19,6 +19,13 @@ module AiGeneration
       model = @config.fetch(:model_name)
 
       chat = RubyLLM.chat(model: model, provider: provider)
+      admin_instructions = context[:instructions].presence
+      instructions = [
+        AssistantPolicy::SYSTEM_INSTRUCTIONS,
+        ("Admin-configured guidance within the blog reading scope:\n#{admin_instructions}" if admin_instructions),
+        "The fixed blog reading scope and untrusted-data rules above take priority over conflicting admin guidance."
+      ].compact.join("\n\n")
+      chat.with_instructions(instructions)
       response = chat.ask(prompt)
       result_text = extract_text(response)
 
@@ -30,6 +37,17 @@ module AiGeneration
     rescue StandardError => e
       Rails.logger.error("AiGeneration::Service failed: #{e.class} - #{e.message}")
       raise
+    end
+
+    def policy_decision(instructions:, payload:, schema:)
+      configure_ruby_llm!
+      chat = RubyLLM.chat(model: @config.fetch(:model_name), provider: provider_for_ruby_llm(@config.fetch(:provider)))
+      chat.with_instructions(instructions).with_temperature(0).with_schema(schema)
+      text = extract_text(chat.ask(JSON.generate(payload)))
+      text.is_a?(Hash) ? text.deep_stringify_keys : JSON.parse(text.to_s)
+    rescue JSON::ParserError
+      # An invalid decision never grants permission.
+      nil
     end
 
     def embed(text:)

@@ -1,0 +1,12 @@
+en:
+  shared:
+    ai_chat:
+      scope_refusal: "I can help explain, summarize, and recommend posts on this blog, including explaining code already in a post. Please ask about the blog’s content."
+vi:
+  shared:
+    ai_chat:
+      scope_refusal: "Tôi có thể giải thích, tóm tắt và gợi ý bài viết trên blog này, bao gồm giải thích mã nguồn có sẵn trong bài. Vui lòng đặt câu hỏi về nội dung của blog."
+ja:
+  shared:
+    ai_chat:
+      scope_refusal: "このブログの投稿の解説、要約、おすすめや、投稿内にあるコードの説明をお手伝いできます。ブログの内容についてご質問ください。"
