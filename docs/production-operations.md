@@ -28,3 +28,13 @@ For restore, keep the target app and workers stopped, restore the custom dump wi
 ## Regression checks
 
 Set `RAILS_ENV=test`, `DATABASE_URL=postgresql://.../ror_blog_test` and `ELASTICSEARCH_URL` in the test process environment. Run `bin/rails db:test:prepare`, then `bin/rails test` and `bin/rails test:system` against isolated services. Browser tests use headless Chrome. CI provisions pgvector PostgreSQL and Elasticsearch and checks Ruby advisories, Brakeman and lint. Test jobs use the test adapter and do not send AI or mail requests.
+
+## Background job failures
+
+Check the admin-only `/sidekiq` page for Retries and Dead jobs as well as the queue sizes. An empty queue does not prove that all jobs succeeded. Rendering jobs run without a browser session: broadcast partials must not assume Devise's Warden proxy or a current user exists. Shared streams must also avoid viewer-specific markup.
+
+Moderation table updates are enqueued as separate Turbo broadcast jobs so rendering failures can retry independently of account updates and suspension cleanup. AI chat broadcasts retain their polling fallback; their handled failures are reported through `Rails.error` as well as logged. Sidekiq failures are forwarded to `Rails.error` with job class, ID, and queue, without copying job arguments into the error context.
+
+Automatic alerts require a configured Rails error subscriber or external monitoring of Sidekiq Retries/Dead jobs. The reporting hooks alone do not send alerts. After deploying these changes through the normal process, verify monitoring with an intentional failure in staging, rather than introducing a failed job into production.
+
+The rendering regression tests cover comment replies, moderation states, user status rows, chat responses, and lazy thumbnail URLs without a Warden session. Run `bundle exec ruby test/models/background_broadcast_rendering_test.rb` and `bundle exec ruby test/models/comment_reply_broadcast_rendering_test.rb`; the database-backed broadcast integration coverage is in `test/jobs/comment_broadcast_test.rb`.

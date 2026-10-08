@@ -13,6 +13,28 @@ class ChatGenerationTest < ActiveSupport::TestCase
     @chat = ChatHistory.create!(user: create_user, user_message: "Help me")
   end
 
+  test "a suspension applied after enqueue prevents any provider request" do
+    @chat.user.update!(suspended_until: 1.day.from_now)
+    AiGeneration::Service.stub(:new, ->(*) { flunk "Restricted requests must not contact the provider" }) do
+      GeneratePostSuggestionJob.perform_now(@chat.id)
+    end
+    assert_equal "access_revoked", @chat.reload.provider_meta["assistant_guard"]
+  end
+
+  test "a post hidden during generation cannot be returned as an answer" do
+    post = create_post(user: create_user, verified: true)
+    @chat.update!(post: post)
+    service = permitted_service
+    service.define_singleton_method(:embed) { |**_| nil }
+    service.define_singleton_method(:generate) do |**_|
+      post.update!(verified: false)
+      { result: "Previously public content", provider: "test", meta: {} }
+    end
+    AiGeneration::Service.stub(:new, service) { GeneratePostSuggestionJob.perform_now(@chat.id) }
+    assert_equal "access_revoked", @chat.reload.provider_meta["assistant_guard"]
+    assert_equal I18n.t("shared.ai_chat.scope_refusal"), @chat.bot_response
+  end
+
   test "generation failures use the queued request locale and restore worker locale" do
     service = permitted_service
     service.define_singleton_method(:embed) { |**_| nil }

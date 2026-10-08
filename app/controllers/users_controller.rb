@@ -155,12 +155,12 @@ class UsersController < ApplicationController
 
       I18n.available_locales.each do |locale|
         I18n.with_locale(locale) do
-          Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+          Turbo::StreamsChannel.broadcast_replace_later_to "users_#{locale}",
             target: "user_#{user.id}",
             partial: "users/user_row",
             locals: { user: user, i: row_index }
 
-          Turbo::StreamsChannel.broadcast_replace_to "users_#{locale}",
+          Turbo::StreamsChannel.broadcast_replace_later_to "users_#{locale}",
             target: "users_summary",
             partial: "users/users_summary",
             locals: {
@@ -172,6 +172,7 @@ class UsersController < ApplicationController
         end
       end
     rescue => e
+      Rails.error.report(e, severity: :error, context: { controller: self.class.name, user_id: user.id }, source: "broadcast")
       Rails.logger.error "UsersController#broadcast_user_and_summary: broadcast failed for user=#{user.id} — #{e.message}"
     end
   end

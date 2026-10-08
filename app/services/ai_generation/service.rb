@@ -13,12 +13,12 @@ module AiGeneration
     end
 
     def generate(prompt:, user:, context: {})
-      configure_ruby_llm!
+      llm_context = configure_ruby_llm!
 
       provider = provider_for_ruby_llm(@config.fetch(:provider))
       model = @config.fetch(:model_name)
 
-      chat = RubyLLM.chat(model: model, provider: provider)
+      chat = RubyLLM.chat(model: model, provider: provider, context: llm_context)
       admin_instructions = context[:instructions].presence
       instructions = [
         AssistantPolicy::SYSTEM_INSTRUCTIONS,
@@ -40,8 +40,8 @@ module AiGeneration
     end
 
     def policy_decision(instructions:, payload:, schema:)
-      configure_ruby_llm!
-      chat = RubyLLM.chat(model: @config.fetch(:model_name), provider: provider_for_ruby_llm(@config.fetch(:provider)))
+      llm_context = configure_ruby_llm!
+      chat = RubyLLM.chat(model: @config.fetch(:model_name), provider: provider_for_ruby_llm(@config.fetch(:provider)), context: llm_context)
       chat.with_instructions(instructions).with_temperature(0).with_schema(schema)
       text = extract_text(chat.ask(JSON.generate(payload)))
       text.is_a?(Hash) ? text.deep_stringify_keys : JSON.parse(text.to_s)
@@ -51,7 +51,7 @@ module AiGeneration
     end
 
     def embed(text:)
-      configure_ruby_llm!
+      llm_context = configure_ruby_llm!
 
       provider = @config.fetch(:provider)
       if provider == ModerationSetting::PROVIDERS[:claude]
@@ -66,7 +66,8 @@ module AiGeneration
       response = RubyLLM.embed(
         text,
         model: embedding_model,
-        provider: provider_for_ruby_llm(provider)
+        provider: provider_for_ruby_llm(provider),
+        context: llm_context
       )
 
       vector = extract_embedding_vector(response)
@@ -79,9 +80,10 @@ module AiGeneration
     private
 
     def configure_ruby_llm!
-      return unless defined?(RubyLLM) && RubyLLM.respond_to?(:configure)
+      return unless defined?(RubyLLM) && RubyLLM.respond_to?(:context)
 
-      RubyLLM.configure do |llm_config|
+      # A worker-local context prevents concurrent jobs from sharing rotated keys.
+      RubyLLM.context do |llm_config|
         if llm_config.respond_to?(:request_timeout=)
           llm_config.request_timeout = @config.fetch(:request_timeout_seconds).to_i
         end

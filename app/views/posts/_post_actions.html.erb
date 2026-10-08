@@ -3,7 +3,7 @@
 
 <div class="flex flex-wrap items-center gap-3">
   <% if show_back %>
-    <% back_fallback = user_signed_in? && current_user == post.user ? mine_posts_path : posts_path %>
+    <% back_fallback = request&.env&.key?("warden") && user_signed_in? && current_user == post.user ? mine_posts_path : posts_path %>
     <% back_path = safe_back_path(
       back_fallback,
       blocked_patterns: [

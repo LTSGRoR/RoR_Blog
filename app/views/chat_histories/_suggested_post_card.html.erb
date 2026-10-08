@@ -2,7 +2,7 @@
   <%= link_to post_path(post), class: "group flex items-start gap-2.5" do %>
     <div class="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-slate-700">
       <% if post.thumbnail.attached? %>
-        <% thumb_path = rails_representation_path(post.thumbnail.variant(resize_to_fill: [96, 96]).processed, only_path: true) %>
+        <% thumb_path = rails_representation_path(post.thumbnail.variant(resize_to_fill: [96, 96]), only_path: true) %>
         <%= image_tag thumb_path, class: "h-full w-full object-cover", alt: post.title, loading: "lazy" %>
       <% else %>
         <%= image_tag "default_avatar.svg", class: "h-full w-full object-cover", alt: post.title, loading: "lazy" %>
