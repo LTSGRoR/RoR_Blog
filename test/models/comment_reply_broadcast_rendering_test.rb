@@ -26,7 +26,7 @@ class CommentReplyBroadcastRenderingTest < ActiveSupport::TestCase
     parent = Comment.allocate
     parent.define_singleton_method(:user) { user }
     parent.define_singleton_method(:depth) { 0 }
-    parent.define_singleton_method(:to_key) { [7] }
+    parent.define_singleton_method(:to_key) { [ 7 ] }
     parent.define_singleton_method(:to_param) { "7" }
     post = Post.allocate
     post.define_singleton_method(:to_param) { "9" }

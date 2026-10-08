@@ -14,7 +14,7 @@ class BackgroundBroadcastRenderingTest < ActiveSupport::TestCase
     I18n.available_locales.each do |locale|
       I18n.with_locale(locale) do
         %w[pending in_progress failed needs_admin_review auto_approved].each do |state|
-          post = record(Post, to_key: [9], to_param: "9", updated_at: Time.current,
+          post = record(Post, to_key: [ 9 ], to_param: "9", updated_at: Time.current,
             ai_review_status: state, ai_review_in_progress?: state == "in_progress",
             ai_review_pending?: state == "pending", ai_review_failed?: state == "failed",
             published?: true, draft?: false, verified?: state == "auto_approved",
@@ -53,8 +53,8 @@ class BackgroundBroadcastRenderingTest < ActiveSupport::TestCase
   end
 
   test "chat rendering handles pending and completed responses without a session" do
-    [nil, "An answer"].each do |response|
-      chat = record(ChatHistory, to_key: [4], user_message: "A question", bot_response: response)
+    [ nil, "An answer" ].each do |response|
+      chat = record(ChatHistory, to_key: [ 4 ], user_message: "A question", bot_response: response)
       chat.define_singleton_method(:suggested_posts) { |**| [] }
       assert_includes ApplicationController.render(partial: "chat_histories/chat_history_item", locals: { chat_history: chat }), "chat_history_4"
     end
@@ -62,7 +62,7 @@ class BackgroundBroadcastRenderingTest < ActiveSupport::TestCase
 
   test "suggestion thumbnail renders a lazy URL without processing its variant" do
     blob = record(ActiveStorage::Blob, signed_id: "test-blob", filename: ActiveStorage::Filename.new("thumbnail.png"))
-    variant = ActiveStorage::Variant.new(blob, resize_to_fill: [96, 96])
+    variant = ActiveStorage::Variant.new(blob, resize_to_fill: [ 96, 96 ])
     variant.define_singleton_method(:processed) { raise "Must not process images in a broadcast" }
     thumbnail = Object.new
     thumbnail.define_singleton_method(:attached?) { true }
@@ -85,13 +85,13 @@ class BackgroundBroadcastRenderingTest < ActiveSupport::TestCase
     end
     error = RuntimeError.new("Broadcast failed")
     reports = []
-    Rails.error.stub(:report, ->(*args, **options) { reports << [args, options] }) do
+    Rails.error.stub(:report, ->(*args, **options) { reports << [ args, options ] }) do
       config.error_handlers.last.call(error, { job: {
         "wrapped" => "Turbo::Streams::ActionBroadcastJob", "jid" => "job-1",
-        "queue" => "default", "args" => ["private message"]
+        "queue" => "default", "args" => [ "private message" ]
       } }, config)
     end
-    assert_equal [error], reports.first.first
+    assert_equal [ error ], reports.first.first
     assert_equal false, reports.first.last[:handled]
     assert_equal "sidekiq", reports.first.last[:source]
     assert_equal({ job_class: "Turbo::Streams::ActionBroadcastJob", job_id: "job-1", queue: "default" }, reports.first.last[:context])

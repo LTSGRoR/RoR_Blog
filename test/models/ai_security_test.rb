@@ -12,11 +12,11 @@ class AiSecurityTest < ActiveSupport::TestCase
 
   test "only a complete typed decision with bounded scores can approve" do
     assert_equal :auto_approve, parse(valid_decision).status
-    invalid = [nil, [], true, {}, valid_decision.except("risk_score"),
+    invalid = [ nil, [], true, {}, valid_decision.except("risk_score"),
       valid_decision.merge("confidence" => "0.99"), valid_decision.merge("confidence" => 99),
       valid_decision.merge("confidence" => Float::INFINITY), valid_decision.merge("risk_score" => -1),
       valid_decision.merge("risk_score" => Float::NAN), valid_decision.merge("reason" => " "),
-      valid_decision.merge("verdict" => "approve"), valid_decision.merge("override" => true)]
+      valid_decision.merge("verdict" => "approve"), valid_decision.merge("override" => true) ]
     invalid.each { |payload| assert_equal :failed, parse(payload).status }
     assert_equal :failed, parse(valid_decision, threshold: -1).status
     assert_equal :failed, parse(valid_decision, threshold: Float::NAN).status
@@ -69,8 +69,8 @@ class AiSecurityTest < ActiveSupport::TestCase
     user.define_singleton_method(:reload) { self }
     session.define_singleton_method(:reload) { self }
     job = GeneratePostSuggestionJob.new
-    [[false, false, nil, true], [true, false, nil, false],
-      [false, true, nil, false], [false, false, Time.current, false]].each do |banned, suspended, deleted, expected|
+    [ [ false, false, nil, true ], [ true, false, nil, false ],
+      [ false, true, nil, false ], [ false, false, Time.current, false ] ].each do |banned, suspended, deleted, expected|
       user.define_singleton_method(:banned?) { banned }
       user.define_singleton_method(:suspended?) { suspended }
       session.define_singleton_method(:deleted_at) { deleted }

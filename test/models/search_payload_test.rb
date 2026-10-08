@@ -16,7 +16,7 @@ class SearchPayloadTest < ActiveSupport::TestCase
     bans.define_singleton_method(:pluck) { |_| [] }
     scope = Object.new
     scope.define_singleton_method(:publicly_visible) { self }
-    scope.define_singleton_method(:in_order_of) { |field, ids| [field, ids] }
+    scope.define_singleton_method(:in_order_of) { |field, ids| [ field, ids ] }
     search = PublicPostSearch.new(query: "ruby", scope: scope)
     capture = ->(query, **options) do
       assert_equal "ruby", query
@@ -26,7 +26,7 @@ class SearchPayloadTest < ActiveSupport::TestCase
       hits
     end
     User.stub(:where, bans) do
-      Post.stub(:search, capture) { assert_equal [:id, [9, 4]], search.results }
+      Post.stub(:search, capture) { assert_equal [ :id, [ 9, 4 ] ], search.results }
     end
     assert search.limited
   end

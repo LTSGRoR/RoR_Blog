@@ -10,7 +10,7 @@ class AppPerformanceTest < ActiveSupport::TestCase
     scope = Object.new
     scope.define_singleton_method(:in_batches) do |of:, &block|
       raise "Incorrect batch bound" unless of == 500
-      [[1, 2], [3]].each do |ids|
+      [ [ 1, 2 ], [ 3 ] ].each do |ids|
         batch = Object.new
         batch.define_singleton_method(:pluck) { |_| ids }
         block.call(batch)
@@ -22,7 +22,7 @@ class AppPerformanceTest < ActiveSupport::TestCase
         assert_equal 3, Embeddings::Bootstrap.enqueue_missing_verified_posts!(logger: Logger.new(File::NULL))
       end
     end
-    assert_equal [1, 2, 3], queued
+    assert_equal [ 1, 2, 3 ], queued
   end
 
   test "unchanged embedding releases its session lock without opening a transaction" do
@@ -39,7 +39,7 @@ class AppPerformanceTest < ActiveSupport::TestCase
     post = Object.new
     post.define_singleton_method(:id) { 7 }
     post.define_singleton_method(:reload) { self }
-    post.define_singleton_method(:embedding) { unchanged ? [0.1] : nil }
+    post.define_singleton_method(:embedding) { unchanged ? [ 0.1 ] : nil }
     post.define_singleton_method(:embedding_source_digest) { Digest::SHA256.hexdigest("source") }
     statements = []
     connection = Object.new
@@ -63,6 +63,6 @@ class AppPerformanceTest < ActiveSupport::TestCase
         end
       end
     end
-    assert_equal ["SELECT pg_try_advisory_lock(741902003, 7)", "SELECT pg_advisory_unlock(741902003, 7)"], statements
+    assert_equal [ "SELECT pg_try_advisory_lock(741902003, 7)", "SELECT pg_advisory_unlock(741902003, 7)" ], statements
   end
 end

@@ -23,7 +23,7 @@ class ChatHistory < ApplicationRecord
   def self.accept_request!(user:, post:, message:, chat_session: nil)
     transaction do
       # Only this user's acceptance checks need serialization.
-      connection.execute("SELECT pg_advisory_xact_lock(741902002, #{Integer(user.id)})")
+      connection.execute(sanitize_sql_array([ "SELECT pg_advisory_xact_lock(741902002, ?)", Integer(user.id) ]))
       chat_session ||= ChatSession.default_for(user)
       chat_session.lock!
       raise ActiveRecord::RecordNotFound if chat_session.user_id != user.id || chat_session.deleted_at.present?

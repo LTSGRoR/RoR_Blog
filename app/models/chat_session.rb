@@ -9,7 +9,7 @@ class ChatSession < ApplicationRecord
 
   def self.create_for!(user)
     transaction do
-      connection.execute("SELECT pg_advisory_xact_lock(741902002, #{Integer(user.id)})")
+      connection.execute(sanitize_sql_array([ "SELECT pg_advisory_xact_lock(741902002, ?)", Integer(user.id) ]))
       raise CreationLimitExceeded if user.chat_sessions.where(created_at: 1.hour.ago..).count >= CREATION_HOURLY_LIMIT
 
       # Only remove old deleted conversations that never contained messages.
@@ -22,7 +22,7 @@ class ChatSession < ApplicationRecord
 
   def self.default_for(user)
     transaction do
-      connection.execute("SELECT pg_advisory_xact_lock(741902002, #{Integer(user.id)})")
+      connection.execute(sanitize_sql_array([ "SELECT pg_advisory_xact_lock(741902002, ?)", Integer(user.id) ]))
       user.chat_sessions.active.order(:id).first || create_for!(user)
     end
   end

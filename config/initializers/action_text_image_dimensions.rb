@@ -3,7 +3,7 @@
 module ActionTextImageDimensions
   def full_attributes
     attributes = super
-    dimensions = %w[width height].to_h { |name| [name, Integer(node[name], exception: false)] }
+    dimensions = %w[width height].to_h { |name| [ name, Integer(node[name], exception: false) ] }
     if dimensions.values.all? { |value| value&.positive? }
       attributes.merge(dimensions.transform_values(&:to_s))
     else

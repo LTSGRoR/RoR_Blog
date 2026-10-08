@@ -20,7 +20,7 @@ class AccountContentRenderingTest < ActiveSupport::TestCase
   def comment_for(user)
     comment = Comment.allocate
     comment.define_singleton_method(:user) { user }
-    comment.define_singleton_method(:to_key) { [7] }
+    comment.define_singleton_method(:to_key) { [ 7 ] }
     comment.define_singleton_method(:body) { "PRIVATE COMMENT TEXT" }
     comment.define_singleton_method(:created_at) { Time.current }
     comment.define_singleton_method(:post) { nil }
@@ -33,7 +33,7 @@ class AccountContentRenderingTest < ActiveSupport::TestCase
     view.define_singleton_method(:render) do |*args, **kwargs|
       if args.first == "comments/replies_frame"
         '<div id="preserved-replies">Other users replies remain</div>'.html_safe
-      elsif ["reactions/bar", "comments/reply_form"].include?(args.first)
+      elsif [ "reactions/bar", "comments/reply_form" ].include?(args.first)
         "INTERACTION CONTROLS".html_safe
       else
         original_render.call(*args, **kwargs)
@@ -45,7 +45,7 @@ class AccountContentRenderingTest < ActiveSupport::TestCase
   end
 
   test "banned and suspended comments render a translated placeholder without exposing content" do
-    [owner(banned_at: Time.current), owner(suspended_until: 1.day.from_now)].each do |user|
+    [ owner(banned_at: Time.current), owner(suspended_until: 1.day.from_now) ].each do |user|
       comment = comment_for(user)
       assert comment.hidden_by_account_restriction?
       %i[en vi ja].each do |locale|
@@ -61,7 +61,7 @@ class AccountContentRenderingTest < ActiveSupport::TestCase
   end
 
   test "expired suspensions and unrestricted accounts render original content" do
-    [owner, owner(suspended_until: 1.minute.ago)].each do |user|
+    [ owner, owner(suspended_until: 1.minute.ago) ].each do |user|
       comment = comment_for(user)
       refute comment.hidden_by_account_restriction?
       assert_includes render_comment(comment), "PRIVATE COMMENT TEXT"
