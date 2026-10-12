@@ -99,9 +99,9 @@ h6,
   word-break: normal;
 }
 
-/* Draw the editor frame outside the text area so it does not change wrapping. */
+/* Keep composing text comfortably inset from the editor frame. */
 trix-editor {
-  padding: 0;
+  padding: 1rem;
   border: 0;
   box-shadow: 0 0 0 1px #cbd5e1;
 }
