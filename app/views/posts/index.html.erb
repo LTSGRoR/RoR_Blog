@@ -49,7 +49,11 @@
               <div class="mt-6 border-t border-slate-200 pt-5">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-                    <span class="whitespace-nowrap font-semibold text-slate-700"><%= featured_post.user&.name.presence || t("common.unknown") %></span>
+                    <% if featured_post.user.present? %>
+                      <%= link_to featured_post.user.name.presence || t("common.unknown"), user_path(featured_post.user), class: "whitespace-nowrap font-semibold text-slate-700 transition hover:text-[#9e0000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9e0000]" %>
+                    <% else %>
+                      <span class="whitespace-nowrap font-semibold text-slate-700"><%= t("common.unknown") %></span>
+                    <% end %>
                     <span class="hidden text-slate-300 sm:inline">•</span>
                     <span class="whitespace-nowrap"><%= localized_time_tag(featured_post.created_at) %></span>
                     <span class="hidden text-slate-300 sm:inline">•</span>
